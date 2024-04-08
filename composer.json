@@ -1,0 +1,9 @@
+{
+  "require":{
+    "slim/slim":"2.4.2",
+    "slim/views": "0.1.2",
+    "phpmailer/phpmailer":"5.2.22",
+    "guzzlehttp/guzzle": "^6.3",
+    "mpdf/mpdf":"v8.2.3"
+  }
+}
