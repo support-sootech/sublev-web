@@ -370,50 +370,52 @@ function somar_datas($numero, $tipo){
 }
 
 function menuSistema() {
-	$menu['/dashboard'] = array('name'=>'Dashboard', 
-								'icon'=>'fas fa-tachometer-alt', 
-								'permission'=>array('ROOT', 'ADMINISTRADOR', 'VENDEDOR')
-							);
-	
-	$menu['/controle-tipo-pessoas'] = array('name'=>'Tipo de Pessoas', 
-											'icon'=>'fas fa-tachometer-alt', 
-											'permission'=>array('ROOT')
-										);
+	$menu = array();
 
-	$menu['/controle-marcas'] = array('name'=>'Marcas', 
-									  'icon'=>'fa-solid fa-address-card', 
-									  'permission'=>array('ROOT', 'ADMINISTRADOR', 'VENDEDOR')
-									);
+	$menu['configuracoes'] = array('descricao'=>'Configurações', 'subtitulo'=>'Cadastros', 'icone'=>'fas fa-fw fa-cog');
+	$menu['acesso'] = array('descricao'=>'Acesso', 'subtitulo'=>'Usuários', 'icone'=>'fas fa-fw fa-sign-in-alt');
+	$menu['controle'] = array('descricao'=>'Controle', 'subtitulo'=>'Cadastros', 'icone'=>'fas fa-fw fa-th-list');
+	$menu['relatorios'] = array('descricao'=>'Relatórios', 'subtitulo'=>'', 'icone'=>'fas fa-fw fa-newspaper');
 
-	$menu['/controle-vendas'] = array('name'=>'Vendas', 
-									  'icon'=>'fa-solid fa-shop', 
-									  'permission'=>array('ADMINISTRADOR', 'VENDEDOR')
-									);
+	$menu['configuracoes']['submenus'][] = array('descricao'=>'Materiais Marcas', 'link'=>'/materiais-marcas');
+	$menu['configuracoes']['submenus'][] = array('descricao'=>'Materiais Tipos', 'link'=>'/materiais-tipos');
+	$menu['configuracoes']['submenus'][] = array('descricao'=>'Materiais', 'link'=>'/materiais');
+	$menu['configuracoes']['submenus'][] = array('descricao'=>'Embalagens Tipos', 'link'=>'/embalagens-tipos');
+	$menu['configuracoes']['submenus'][] = array('descricao'=>'Embalagens', 'link'=>'/embalagens');
+	$menu['configuracoes']['submenus'][] = array('descricao'=>'Fornecedores', 'link'=>'/fornecedores');
+	$menu['configuracoes']['submenus'][] = array('descricao'=>'Fabricantes', 'link'=>'/fabricantes');
 
-	$menu['/teste-page'] = array('name'=>'Teste Page', 
-									  	 'icon'=>'fa-solid fa-shop', 
-									     'permission'=>array('ADMINISTRADOR')
-								   );
+	$menu['acesso']['submenus'][] = array('descricao'=>'Tipos de Usuários', 'link'=>'/tipos-usuarios');
+	$menu['acesso']['submenus'][] = array('descricao'=>'Usuários', 'link'=>'/usuarios');
+
+	$menu['controle']['submenus'][] = array('descricao'=>'Materiais Francionados', 'link'=>'/materiais-fracionados');
+
+	$menu['relatorios']['submenus'][] = array('descricao'=>'Relatório 1', 'link'=>'/relatorio1');
+	$menu['relatorios']['submenus'][] = array('descricao'=>'Relatório 2', 'link'=>'/relatorio2');
+	$menu['relatorios']['submenus'][] = array('descricao'=>'Relatório 3', 'link'=>'/relatorio3');
+	$menu['relatorios']['submenus'][] = array('descricao'=>'Relatório 4', 'link'=>'/relatorio4');
 	
 	return $menu;
 }
 
 function valida_logado(){
 
-	$page = returnPage();
-	$menu = menuSistema();
-
-	if (isset($menu[$page]) && isset($_SESSION['usuario'])) {
-		return (in_array($_SESSION['usuario']['ds_tipos_pessoas'], $menu[$page]['permission']));
+	if (isset($_SESSION['usuario']['hash_login']) && !empty($_SESSION['usuario']['hash_login'])) {
+		return true;
 	} else {
 		return false;
-	}	
-	/*
-	if(!isset($_SESSION['usuario']['id'])){
-		header('Location: '.site_url().'/logout');
-		exit;
 	}
-	*/
+
+	/*
+	$page = returnPage();
+	$menu = menuSistema();
+	if (isset($menu[$page]) && isset($_SESSION['usuario'])) {
+		return (in_array($page, $_SESSION['usuario']['menus']));
+	} else {
+		return false;
+	}
+	*/	
+	
 }
 
 function limpa_numero($str) {

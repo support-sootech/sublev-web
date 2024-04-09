@@ -2,10 +2,10 @@
 class Connection extends PDO {
 	
     private $conn;
-	private $host = 'localhost';
-	private $dbname = 'u888236195_disk';
-	private $user = 'u888236195_disk';
-	private $pass = '@BE&A*+j|Y9q';
+	private $host = 'ootech.mysql.dbaas.com.br';
+	private $dbname = 'ootech';
+	private $user = 'ootech';
+	private $pass = 'OakOlive@2024@';
 
 	public function __construct()
 	{

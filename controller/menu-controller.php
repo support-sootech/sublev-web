@@ -1,5 +1,5 @@
 <?php
-$app->post('/login', function() use ($app){
+$app->post('/menu-salvar', function() use ($app){
 	$status = 400;
 	$data = array();
     $retorno = array();
@@ -7,21 +7,31 @@ $app->post('/login', function() use ($app){
     
     if ($app->request->isPost()) {
         
-        $email = $app->request->post('email');
-        $senha = $app->request->post('senha');
+        $nome = $app->request->post('nome');
+        $descricao = $app->request->post('descricao');
+        $link = $app->request->post('link');
+        $icone = $app->request->post('icone');
+        $tipo = $app->request->post('tipo');
+        $status = $app->request->post('status');
+        $id_menu_principal = $app->request->post('id_menu_principal');
+        
 
-        if (empty($email)) {
-            $erro = 'É necessário informar o e-mail.';
+        if (empty($nome)) {
+            $erro = 'É necessário informar o nome.';
         }
 
-        if (empty($senha)) {
-            $erro = 'É necessário informar a senha.';
+        if (empty($status)) {
+            $erro = 'É necessário informar o status.';
+        }
+
+        if (empty($tipo)) {
+            $erro = 'É necessário informar o tipo.';
         }
 
         if (empty($erro)) {
 
-            $class_usuarios = new UsuariosModel();
-            $data = $class_usuarios->login($email, md5($senha));
+            $class_menu = new MenuModel();
+            $data = $class_menu->login($email, md5($senha));
             if ($data) {
                 $status = 200;
                 $_SESSION['usuario'] = $data;

@@ -28,103 +28,35 @@
         <!-- Divider -->
         <hr class="sidebar-divider">
 
-        <!-- Heading -->
-        <div class="sidebar-heading">Configurações do sistema</div>
-        <!-- Nav Item - Pages Collapse Menu -->
-        <li class="nav-item">
-            <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseTwo"
-                aria-expanded="true" aria-controls="collapseTwo">
-                <i class="fas fa-fw fa-cog"></i>
-                <span>Configurações</span>
-            </a>
-            <div id="collapseTwo" class="collapse" aria-labelledby="headingTwo" data-parent="#accordionSidebar">
-                <div class="bg-white py-2 collapse-inner rounded">
-                    
-                    <h6 class="collapse-header">Cadastros:</h6>
-                    <a class="collapse-item" href="/materiais-marcas">Materiais Marcas</a>
-                    <a class="collapse-item" href="#">Materiais Tipos</a>
-                    <a class="collapse-item" href="#">Materiais</a>
-                    <a class="collapse-item" href="#">Embalagens Tipo</a>
-                    <a class="collapse-item" href="#">Embalagens</a>
-                    <a class="collapse-item" href="#">Fornecedores</a>
-                    <a class="collapse-item" href="#">Fabricantes</a>
-
-                </div>
-
+        <?php if (menuSistema() && count(menuSistema())>0): ?>
+            <?php foreach (menuSistema() as $key => $value): ?>                
                 
-            </div>
-        </li>
+                <li class="nav-item">
+                    <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#menu<?=$key?>"
+                        aria-expanded="true" aria-controls="menu<?=$key?>">
+                        <i class="<?=$value['icone']?>"></i>
+                        <span><?=$value['descricao']?></span>
+                    </a>
+                    <div id="menu<?=$key?>" class="collapse" aria-labelledby="headingTwo" data-parent="#accordionSidebar">
+                        <div class="bg-white py-2 collapse-inner rounded">
+                            
+                            <?php if(isset($value['subtitulo']) && !empty($value['subtitulo'])): ?>
+                                <h6 class="collapse-header"><?=$value['subtitulo']?></h6>
+                            <?php endif; ?>
 
-        <li class="nav-item">
-            <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#menuUsers"
-                aria-expanded="true" aria-controls="menuUsers">
-                <i class="fas fa-fw fa-cog"></i>
-                <span>Acesso</span>
-            </a>
-            <div id="menuUsers" class="collapse" aria-labelledby="headingTwo" data-parent="#accordionSidebar">
-                <div class="bg-white py-2 collapse-inner rounded">
-                    
-                    <h6 class="collapse-header">Usuários:</h6>
-                    <a class="collapse-item" href="#">Tipos de Usuários</a>
-                    <a class="collapse-item" href="#">Usuários</a>
+                            <?php if(isset($value['submenus']) && count($value['submenus'])>0): ?>
+                                <?php foreach ($value['submenus'] as $k => $v): ?>
+                                    <a class="collapse-item" href="<?=$v['link']?>"><?=$v['descricao']?></a>
+                                <?php endforeach; ?>
+                            <?php endif; ?>
 
-                </div>
+                        </div>
+                    </div>
+                </li>
+                <!-- <hr class="sidebar-divider d-none d-md-block"> -->
 
-                
-            </div>
-        </li>
-
-        <!-- Divider -->
-        <hr class="sidebar-divider d-none d-md-block">
-        <div class="sidebar-heading">Sistema</div>
-        <!-- Nav Item - Pages Collapse Menu -->
-        <li class="nav-item">
-            <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#menuSistema"
-                aria-expanded="true" aria-controls="menuSistema">
-                <i class="fas fa-fw fa-cog"></i>
-                <span>Controle</span>
-            </a>
-            <div id="menuSistema" class="collapse" aria-labelledby="headingTwo" data-parent="#accordionSidebar">
-                <div class="bg-white py-2 collapse-inner rounded">
-                    
-                    <h6 class="collapse-header">Cadastros:</h6>
-                    <a class="collapse-item" href="#">Materiais Fracionados</a>
-
-                </div>
-
-                
-            </div>
-        </li>
-
-        <hr class="sidebar-divider d-none d-md-block">
-        <div class="sidebar-heading">Administrativo</div>
-        <!-- Nav Item - Pages Collapse Menu -->
-        <li class="nav-item">
-            <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#menuRelatorios"
-                aria-expanded="true" aria-controls="menuRelatorios">
-                <i class="fas fa-fw fa-cog"></i>
-                <span>Relatórios</span>
-            </a>
-            <div id="menuRelatorios" class="collapse" aria-labelledby="headingTwo" data-parent="#accordionSidebar">
-                <div class="bg-white py-2 collapse-inner rounded">
-                    
-                    <!--<h6 class="collapse-header">Cadastros:</h6> -->
-                    <a class="collapse-item" href="#">Relatório 1</a>
-                    <a class="collapse-item" href="#">Relatório 2</a>
-                    <a class="collapse-item" href="#">Relatório 3</a>
-
-                </div>
-
-                
-            </div>
-        </li>
-        
-
-        <!-- Divider -->
-        <hr class="sidebar-divider d-none d-md-block">
-
-        
-
+            <?php endforeach; ?>
+        <?php endif;?>
         
 
     </ul>

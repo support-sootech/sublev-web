@@ -17,17 +17,17 @@ require_once('header.php');
                                 <div class="text-center">
                                     <h1 class="h4 text-gray-900 mb-4">Acesso ao Sistema</h1>
                                 </div>
-                                <form class="">
+                                <form name="form-login" class="">
                                     <div class="form-group">
                                         <input type="email" class="form-control form-control-user"
-                                            id="exampleInputEmail" aria-describedby="emailHelp"
-                                            placeholder="Enter Email Address...">
+                                            id="email" name="email" aria-describedby="emailHelp"
+                                            placeholder="Digite seu e-mail">
                                     </div>
                                     <div class="form-group">
                                         <input type="password" class="form-control form-control-user"
-                                            id="exampleInputPassword" placeholder="Password">
+                                            id="senha" name="senha" placeholder="Senha">
                                     </div>
-                                    <a href="index.html" class="btn btn-primary btn-user btn-block">
+                                    <a href="#" rel="btn-login" class="btn btn-primary btn-user btn-block">
                                         Acessar
                                     </a>
                                 </form>
@@ -49,3 +49,41 @@ require_once('header.php');
 <?php
 require_once('footer.php');
 ?>
+<script>
+$(document).ready(function(){
+    $('a[rel=btn-login]').on('click', function(e){
+		e.preventDefault();
+        
+        if($('input[name=email]').val() == '' || $('input[name=senha]').val() == ''){
+            gerarAlerta('É necessário informar e-mail e senha.', 'Aviso', 'danger');
+            return false;
+        }
+
+        preloaderStart();
+
+		$('form[name=form-login]').ajaxForm({
+			data:{},
+    		success : function(data) {
+				gerarAlerta(data.msg, (data.success?'Sucesso':'Erro'), data.type);
+				if (data.success) {
+                    window.location.href = data.page
+				}
+			},
+			error : function(e) {
+                preloaderStop();
+				gerarAlerta(e.responseJSON.msg, 'Erro', 'danger');
+			},
+            complete:function(){
+                preloaderStop();
+            },
+            beforeSend:function(){
+                preloaderStart();
+            },
+			type:'post',
+			dataType:'json',
+			url: '/login',
+			resetForm:false
+		}).submit();
+	});
+});
+</script>

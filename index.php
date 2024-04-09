@@ -18,7 +18,11 @@ $app->get('/', function() use ($app){
 });
 
 $app->get('/dashboard', function() use ($app){
-	$app->render('/dashboard.php', array());
+	if (valida_logado()) {
+		$app->render('/dashboard.php', array());
+	} else {
+		$app->notFound();
+	}
 });
 
 $app->get('/forgot-password', function() use ($app){	
@@ -40,6 +44,9 @@ $app->get('/info', function() use ($app){
 $app->notFound(function () use ($app) {
     $app->render('/404.php');
 });
+
+include_once('controller/login-controller.php');
+include_once('controller/menu-controller.php');
 
 $app->run();
 
