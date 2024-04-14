@@ -369,39 +369,21 @@ function somar_datas($numero, $tipo){
     return "+".$numero.$tipo;
 }
 
-function menuSistema() {
-	$menu = array();
-
-	$menu['configuracoes'] = array('descricao'=>'Configurações', 'subtitulo'=>'Cadastros', 'icone'=>'fas fa-fw fa-cog');
-	$menu['acesso'] = array('descricao'=>'Acesso', 'subtitulo'=>'Usuários', 'icone'=>'fas fa-fw fa-sign-in-alt');
-	$menu['controle'] = array('descricao'=>'Controle', 'subtitulo'=>'Cadastros', 'icone'=>'fas fa-fw fa-th-list');
-	$menu['relatorios'] = array('descricao'=>'Relatórios', 'subtitulo'=>'', 'icone'=>'fas fa-fw fa-newspaper');
-
-	$menu['configuracoes']['submenus'][] = array('descricao'=>'Materiais Marcas', 'link'=>'/materiais-marcas');
-	$menu['configuracoes']['submenus'][] = array('descricao'=>'Materiais Tipos', 'link'=>'/materiais-tipos');
-	$menu['configuracoes']['submenus'][] = array('descricao'=>'Materiais', 'link'=>'/materiais');
-	$menu['configuracoes']['submenus'][] = array('descricao'=>'Embalagens Tipos', 'link'=>'/embalagens-tipos');
-	$menu['configuracoes']['submenus'][] = array('descricao'=>'Embalagens', 'link'=>'/embalagens');
-	$menu['configuracoes']['submenus'][] = array('descricao'=>'Fornecedores', 'link'=>'/fornecedores');
-	$menu['configuracoes']['submenus'][] = array('descricao'=>'Fabricantes', 'link'=>'/fabricantes');
-
-	$menu['acesso']['submenus'][] = array('descricao'=>'Tipos de Usuários', 'link'=>'/tipos-usuarios');
-	$menu['acesso']['submenus'][] = array('descricao'=>'Usuários', 'link'=>'/usuarios');
-
-	$menu['controle']['submenus'][] = array('descricao'=>'Materiais Francionados', 'link'=>'/materiais-fracionados');
-
-	$menu['relatorios']['submenus'][] = array('descricao'=>'Relatório 1', 'link'=>'/relatorio1');
-	$menu['relatorios']['submenus'][] = array('descricao'=>'Relatório 2', 'link'=>'/relatorio2');
-	$menu['relatorios']['submenus'][] = array('descricao'=>'Relatório 3', 'link'=>'/relatorio3');
-	$menu['relatorios']['submenus'][] = array('descricao'=>'Relatório 4', 'link'=>'/relatorio4');
-	
-	return $menu;
-}
-
-function valida_logado(){
+function valida_logado($fg_valida_page=false){
 
 	if (isset($_SESSION['usuario']['hash_login']) && !empty($_SESSION['usuario']['hash_login'])) {
-		return true;
+
+		if ($fg_valida_page) {
+			if (isset($_SESSION['usuario']['endpoints'])) {
+				if (in_array(returnPage(), $_SESSION['usuario']['endpoints'])) {
+					return true;
+				} else {
+					return false;
+				}
+			}
+		} else {
+			return true;
+		}
 	} else {
 		return false;
 	}
