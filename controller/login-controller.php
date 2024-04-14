@@ -7,11 +7,11 @@ $app->post('/login', function() use ($app){
     
     if ($app->request->isPost()) {
         
-        $email = $app->request->post('email');
+        $cpf = $app->request->post('cpf');
         $senha = $app->request->post('senha');
 
-        if (empty($email)) {
-            $erro = 'É necessário informar o e-mail.';
+        if (empty($cpf)) {
+            $erro = 'É necessário informar o CPF.';
         }
 
         if (empty($senha)) {
@@ -21,7 +21,8 @@ $app->post('/login', function() use ($app){
         if (empty($erro)) {
 
             $class_usuarios = new UsuariosModel();
-            $data = $class_usuarios->login($email, md5($senha));
+            $data = $class_usuarios->login($cpf, md5($senha));
+            
             if ($data) {
                 $status = 200;
                 $_SESSION['usuario'] = $data;

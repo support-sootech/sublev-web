@@ -1,4 +1,20 @@
 <?php
+$app->get('/controle-menu', function() use ($app){
+    if (valida_logado(true)) {
+        $app->render('/menu-page.php');
+    } else {
+        $app->notFound();
+    }
+});
+
+$app->get('/controle-menu1', function() use ($app){
+    if (valida_logado(true)) {
+        die('Teste');
+    } else {
+        $app->notFound();
+    }
+});
+
 $app->post('/menu-salvar', function() use ($app){
 	$status = 400;
 	$data = array();
@@ -31,7 +47,8 @@ $app->post('/menu-salvar', function() use ($app){
         if (empty($erro)) {
 
             $class_menu = new MenuModel();
-            $data = $class_menu->login($email, md5($senha));
+            //$data = $class_menu->login($email, md5($senha));
+            $data = false;
             if ($data) {
                 $status = 200;
                 $_SESSION['usuario'] = $data;

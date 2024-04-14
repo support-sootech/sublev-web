@@ -73,58 +73,85 @@ class MenuModel extends Connection {
         return $arr;
     }
 
-    public function menuSistema($ds_perfil) {
+    public function menuSistema($id_perfil) {
         try {
-            $and = ' and pf.descricao = :DS_PERFIL';
-            $arr[':DS_PERFIL'] = $ds_perfil;
 
-            if($ds_perfil!='ROOT') {
+            $menu = array();
+
+            $and = ' and pf.id_perfil = :ID_PERFIL';
+            $arr[':ID_PERFIL'] = $id_perfil;
+
+            if($id_perfil != 1) {
                 $and.= " and m.status not in('I','D')";
             }
 
             //MENUS PRINCIPAL
             $sql = "select m.id_menu, 
-                            m.nome, 
-                            m.descricao, 
-                            m.link, 
-                            m.icone, 
-                            m.status, 
-                            mpp.id_permissoes, 
-                            p.descricao as ds_permissoes,
-                            mpp.id_perfil, 
-                            pf.descricao as ds_perfil
-                    from ".self::TABLE." m
-                    inner join tb_menu_permissao_perfil mpp on mpp.id_menu = m.id_menu
-                    inner join tb_permissoes p on p.id_permissoes = mpp.id_permissoes
-                    inner join tb_perfil pf on pf.id_perfil = mpp.id_perfil  
-                    where m.tipo = 'P'
-                      ".$and."
-                    order by m.ordem";
+                           m.nome, 
+                           m.descricao, 
+                           m.link, 
+                           m.icone, 
+                           m.status, 
+                           mpp.id_permissoes, 
+                           p.descricao as ds_permissoes,
+                           mpp.id_perfil, 
+                           pf.descricao as ds_perfil
+                      from ".self::TABLE." m
+                     inner join tb_menu_permissao_perfil mpp on mpp.id_menu = m.id_menu
+                     inner join tb_permissoes p on p.id_permissoes = mpp.id_permissoes
+                     inner join tb_perfil pf on pf.id_perfil = mpp.id_perfil  
+                     where m.tipo = 'P'
+                       and m.status = 'A'
+                       and mpp.id_permissoes = 1
+                       ".$and."
+                     order by m.ordem";            
             
-
-            //MENU SUB
-            $sql = "select m.id_menu, 
-                            m.nome,
-                            m.link,
-                            m.status, 
-                            mpp.id_permissoes, 
-                            p.descricao as ds_permissoes,
-                            mpp.id_perfil, 
-                            pf.descricao as ds_perfil
-                    from tb_menu m
-                    inner join tb_menu_permissao_perfil mpp on mpp.id_menu = m.id_menu
-                    inner join tb_permissoes p on p.id_permissoes = mpp.id_permissoes
-                    inner join tb_perfil pf on pf.id_perfil = mpp.id_perfil  
-                    where m.tipo = 'S'
-                      ".$and."
-                    order by m.ordem";
             $res = $this->conn->select($sql, $arr);
-            
             if (isset($res[0])) {
-                return $res[0];
-            } else {
-                return false;
+                foreach ($res as $key => $value) {
+
+                    $arr_menu_sub = array(
+                        ':ID_PERFIL'=>$id_perfil, 
+                        ':ID_MENU_PRINCIPAL'=>$value['id_menu']
+                    );
+
+                    //MENU SUB
+                    $sql = "select m.id_menu, 
+                                   m.nome,
+                                   m.link,
+                                   m.status, 
+                                   m.icone,
+                                   mpp.id_permissoes,
+                                   p.descricao as ds_permissoes
+                              from ".self::TABLE." m
+                             inner join tb_menu_permissao_perfil mpp on mpp.id_menu = m.id_menu
+                             inner join tb_permissoes p on p.id_permissoes = mpp.id_permissoes
+                             inner join tb_perfil pf on pf.id_perfil = mpp.id_perfil  
+                             where m.tipo = 'S'
+                               and m.status = 'A'
+                               and mpp.id_perfil = :ID_PERFIL
+                               and m.id_menu_principal = :ID_MENU_PRINCIPAL
+                             order by m.ordem";
+
+                    $res_menu_sub = $this->conn->select($sql, $arr_menu_sub);
+                    $menu_sub = array();
+                    if (isset($res_menu_sub[0])) {
+                        foreach ($res_menu_sub as $k => $v) {
+                            $menu_sub[$v['id_menu']]['nome'] = $v['nome'];
+                            $menu_sub[$v['id_menu']]['link'] = $v['link'];
+                            $menu_sub[$v['id_menu']]['icone'] = $v['icone'];
+                            $menu_sub[$v['id_menu']]['permissoes'][$k][] = $v['ds_permissoes'];
+                        }
+                    }
+
+                    $value['menu_sub'] = $menu_sub;
+
+                    $menu[] = $value;
+                }
             }
+
+            return $menu;
+
         } catch (Exception $e) {
             return $e->getMessage();
         }
@@ -188,6 +215,27 @@ class MenuModel extends Connection {
                       inner join tb_empresas e on e.id_empresas = ps.id_empresas
                      where 1 = 1 
                        ".$and."";
+            $res = $this->conn->select($sql, $arr);
+            
+            if (isset($res[0])) {
+                return $res;
+            } else {
+                return false;
+            }
+        } catch (Exception $e) {
+            return $e->getMessage();
+        }
+    }
+
+    public function loadEndPointAcesso($id_perfil='') {
+        try {
+            $arr = array(':ID_PERFIL'=>(empty($id_perfil)?0:$id_perfil));
+            
+            $sql = "select distinct m.nome, m.link
+                      from tb_menu_permissao_perfil mpp
+                     inner join tb_menu m on m.id_menu = mpp.id_menu
+                     where mpp.id_perfil = :ID_PERFIL
+                       and m.tipo = 'S'";
             $res = $this->conn->select($sql, $arr);
             
             if (isset($res[0])) {

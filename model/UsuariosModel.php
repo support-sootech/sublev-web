@@ -69,33 +69,66 @@ class UsuariosModel extends Connection {
         return $arr;
     }
 
-    public function login($email, $senha) {
+    public function login($cpf_cnpj, $senha) {
         try {
-            $arr[':EMAIL'] = $email;
+            $arr[':CPF_CNPJ'] = limpa_numero($cpf_cnpj);
             $arr[':SENHA'] = $senha;
             
             $sql = "select u.*, 
-                           p.descricao as ds_perfil, 
                            ps.nome as nm_pessoa, 
                            ps.email, 
                            ps.dt_nascimento, 
-                           ps.fg_pessoa, 
-                           (case when ps.fg_pessoa = 'J' then lpad(ps.cpf_cnpj, 14, 0)
+                           ps.tp_juridico, 
+                           (case when ps.tp_juridico = 'J' then lpad(ps.cpf_cnpj, 14, 0)
                                 else lpad(ps.cpf_cnpj, 11, 0)
                            end) as cpf_cnpj,
                            #ps.cpf_cnpj,
                            ps.genero, e.nome as nm_empresa,
-                           concat(u.id_usuarios, now()) as hash_login
+                           md5(concat(u.id_usuarios, now())) as hash_login
                       from ".self::TABLE." u
-                      inner join tb_perfil p on p.id_perfil = u.id_perfil
                       inner join tb_pessoas ps on ps.id_pessoas = u.id_pessoas
                       inner join tb_empresas e on e.id_empresas = ps.id_empresas
                      where u.senha = :SENHA
-                       and ps.email = :EMAIL";
+                       and ps.cpf_cnpj = :CPF_CNPJ";
             $res = $this->conn->select($sql, $arr);
             
             if (isset($res[0])) {
-                return $res[0];
+
+                $usuario = $res[0];
+                $class_usuarios_perfil = new UsuariosPerfilModel();
+                $usuarios_perfil = $class_usuarios_perfil->loadGeralUsuarios($usuario['id_usuarios']);
+                if ($usuarios_perfil) {
+                    foreach ($usuarios_perfil as $key => $value) {
+                        $usuario['perfil'][] = array('id_perfil'=>$value['id_perfil'], 'ds_perfil'=>$value['ds_perfil']);
+                    }
+                }
+
+                $class_menu = new MenuModel();
+                $menu = array();
+                $endpoints = array();
+                if (isset($usuario['perfil']) && count($usuario['perfil'])>0) {
+                    foreach ($usuario['perfil'] as $key => $value) {                        
+                        //MENU
+                        $m = $class_menu->menuSistema($value['id_perfil']);
+                        if ($m) {
+                            $menu[] = $m;
+                        }
+
+                        //ENDPOINTS
+                        $arr_endpoints = $class_menu->loadEndPointAcesso($value['id_perfil']);
+                        if ($arr_endpoints) {
+                            foreach ($arr_endpoints as $k => $v) {
+                                $endpoints[] = $v['link'];
+                            }
+                        }
+                    }
+                }
+                
+                $usuario['menu'] = $menu;
+                $usuario['endpoints'] = $endpoints;
+
+
+                return $usuario;
             } else {
                 return false;
             }
@@ -109,18 +142,16 @@ class UsuariosModel extends Connection {
             $arr[':ID'] = $id;
             
             $sql = "select u.*, 
-                           p.descricao as ds_perfil, 
                            ps.nome as nm_pessoa, 
                            ps.email, 
                            ps.dt_nascimento, 
-                           ps.fg_pessoa, 
-                           (case when ps.fg_pessoa = 'J' then lpad(ps.cpf_cnpj, 14, 0)
+                           ps.tp_juridico, 
+                           (case when ps.tp_juridico = 'J' then lpad(ps.cpf_cnpj, 14, 0)
                                 else lpad(ps.cpf_cnpj, 11, 0)
                            end) as cpf_cnpj,
                            #ps.cpf_cnpj,
                            ps.genero, e.nome as nm_empresa
                       from ".self::TABLE." u
-                      inner join tb_perfil p on p.id_perfil = u.id_perfil
                       inner join tb_pessoas ps on ps.id_pessoas = u.id_pessoas
                       inner join tb_empresas e on e.id_empresas = ps.id_empresas
                      where u.id_usuarios = :ID";
@@ -146,18 +177,16 @@ class UsuariosModel extends Connection {
             }
             
             $sql = "select u.*,
-                           p.descricao as ds_perfil, 
                            ps.nome as nm_pessoa, 
                            ps.email, 
                            ps.dt_nascimento, 
-                           ps.fg_pessoa, 
-                           (case when ps.fg_pessoa = 'J' then lpad(ps.cpf_cnpj, 14, 0)
+                           ps.tp_juridico, 
+                           (case when ps.tp_juridico = 'J' then lpad(ps.cpf_cnpj, 14, 0)
                                 else lpad(ps.cpf_cnpj, 11, 0)
                            end) as cpf_cnpj,
                            #ps.cpf_cnpj,
                            ps.genero, e.nome as nm_empresa
                       from ".self::TABLE." u
-                      inner join tb_perfil p on p.id_perfil = u.id_perfil
                       inner join tb_pessoas ps on ps.id_pessoas = u.id_pessoas
                       inner join tb_empresas e on e.id_empresas = ps.id_empresas
                      where 1 = 1 

@@ -19,13 +19,10 @@ require_once('header.php');
                                 </div>
                                 <form name="form-login" class="">
                                     <div class="form-group">
-                                        <input type="email" class="form-control form-control-user"
-                                            id="email" name="email" aria-describedby="emailHelp"
-                                            placeholder="Digite seu e-mail">
+                                        <input type="cpf" class="form-control form-control-user" id="cpf" name="cpf" aria-describedby="cpf" placeholder="Digite seu CPF">
                                     </div>
                                     <div class="form-group">
-                                        <input type="password" class="form-control form-control-user"
-                                            id="senha" name="senha" placeholder="Senha">
+                                        <input type="password" class="form-control form-control-user" id="senha" name="senha" placeholder="Senha">
                                     </div>
                                     <a href="#" rel="btn-login" class="btn btn-primary btn-user btn-block">
                                         Acessar
@@ -54,8 +51,8 @@ $(document).ready(function(){
     $('a[rel=btn-login]').on('click', function(e){
 		e.preventDefault();
         
-        if($('input[name=email]').val() == '' || $('input[name=senha]').val() == ''){
-            gerarAlerta('É necessário informar e-mail e senha.', 'Aviso', 'danger');
+        if($('input[name=cpf]').val() == '' || $('input[name=senha]').val() == ''){
+            gerarAlerta('É necessário informar CPF e senha.', 'Aviso', 'danger');
             return false;
         }
 
