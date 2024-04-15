@@ -47,6 +47,7 @@ $app->notFound(function () use ($app) {
 
 include_once('controller/login-controller.php');
 include_once('controller/menu-controller.php');
+include_once('controller/perfil-controller.php');
 
 $app->run();
 
