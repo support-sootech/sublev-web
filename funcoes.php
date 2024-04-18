@@ -544,5 +544,16 @@ function redirect($url){
     echo '<script type="text/javascript">window.location=\''.$url.'\';</script‌​>';
 }
 
+function messagesDefault($idx) {
+	$message['register'] = 'Cadastro efetuado com sucesso!';
+	$message['update'] = 'Alteração efetuada com sucesso!';
+	$message['delete'] = 'Registro deletado com sucesso!';
+	$message['fields_requered'] = 'Existem campos obrigatórios para serem preenchidos!';
+	$message['invalid_credentials'] = 'Credenciais inválidas!';
+	$message['register_not_found'] = 'Registro não localizado!';
+	$message['incorrect_method'] = 'Método incorreto!';
+
+	return isset($message[$idx]) ? $message[$idx] : '';
+}
 
 ?>

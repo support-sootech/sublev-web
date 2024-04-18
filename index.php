@@ -17,6 +17,14 @@ $app->get('/', function() use ($app){
 	$app->render('/login-page.php', array());
 });
 
+$app->get('/home', function() use ($app){
+	if (valida_logado()) {
+		$app->render('/home-page.php', array());
+	} else {
+		$app->notFound();
+	}
+});
+
 $app->get('/dashboard', function() use ($app){
 	if (valida_logado()) {
 		$app->render('/dashboard.php', array());
@@ -48,6 +56,7 @@ $app->notFound(function () use ($app) {
 include_once('controller/login-controller.php');
 include_once('controller/menu-controller.php');
 include_once('controller/perfil-controller.php');
+include_once('controller/permissoes-controller.php');
 
 $app->run();
 

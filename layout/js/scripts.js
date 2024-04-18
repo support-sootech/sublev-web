@@ -40,3 +40,31 @@ async function gerarAlertaConfirmacao(msg, textConfirmButton='Sim', textCancelBu
 	});
 
 }
+
+function isFormValidate(elementoForm = null) {
+    let isValidate = true;
+
+    if (elementoForm.hasClass('formValidate')) {
+        let error = 0;
+        elementoForm.find('.requered').each(function(){
+            if($(this).val()=='') {
+                error++;
+            }
+        });
+
+        isValidate = error > 0 ? false : true;
+    }
+
+    return isValidate;
+}
+
+function formFieldsRequered() {
+    $('form.formValidate').find('.requered').each(function(){
+        let txt = $('label[for='+$(this).attr('id')+']').text();
+        $('label[for='+$(this).attr('id')+']').text(txt+'*');
+    });
+}
+
+$(document).on(function(){
+
+});

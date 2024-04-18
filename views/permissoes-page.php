@@ -1,7 +1,7 @@
 <?php
 require_once('header.php');
-$titulo = 'Perfil';
-$prefix = 'perfil';
+$titulo = 'Permissões';
+$prefix = 'permissoes';
 ?>
 
 <!-- Page Wrapper -->
@@ -97,8 +97,8 @@ $prefix = 'perfil';
                     </button>
                 </div>
                 <div class="modal-body">
-                    <form name="form-perfil" class="formValidate">
-                        <input type="hidden" class="" id="<?=$prefix?>_id_perfil" name="<?=$prefix?>_id_perfil" value="">
+                    <form name="form-<?=$prefix?>" class="formValidate">
+                        <input type="hidden" class="" id="<?=$prefix?>_id_permissoes" name="<?=$prefix?>_id_permissoes" value="">
                         <div class="form-group">
                             <label for="<?=$prefix?>_descricao">Descrição</label>
                             <input type="text" class="form-control requered" id="<?=$prefix?>_descricao" name="<?=$prefix?>_descricao" placeholder="Descrição">
@@ -144,7 +144,7 @@ function carrega_lista(){
         "columns":
                 [
                     { "data": function ( data, type, row ) {
-                                    return data.id_perfil;
+                                    return data.id_permissoes;
                                 }
                     },
                     { "data": function ( data, type, row ) {
@@ -172,11 +172,11 @@ function carrega_lista(){
                     { "data": function ( data, type, row ) {
                                     var campo = '';
 
-                                    campo+= '<a href="#" title="Editar" id="'+data.id_perfil+'" rel="btn-<?=$prefix?>-editar" role="button" class="btn btn-primary btn-sm" style="margin: 1px 2px">'+
+                                    campo+= '<a href="#" title="Editar" id="'+data.id_permissoes+'" rel="btn-<?=$prefix?>-editar" role="button" class="btn btn-primary btn-sm" style="margin: 1px 2px">'+
                                                 '<i class="fas fa-edit"></i>'+
                                             '</a>';
 
-                                    campo+= '<a href="#" title="Deletar" rel="btn-<?=$prefix?>-deletar" id="'+data.id_perfil+'" role="button" class="btn btn-danger btn-sm" style="margin: 1px 2px">'+
+                                    campo+= '<a href="#" title="Deletar" rel="btn-<?=$prefix?>-deletar" id="'+data.id_permissoes+'" role="button" class="btn btn-danger btn-sm" style="margin: 1px 2px">'+
                                                 '<i class="fas fa-trash"></i>'+
                                             '</a>';
 
@@ -195,8 +195,8 @@ function deletaRegistro(id){
         dataType:'json',
         data:{},
         success:function(data){
+            gerarAlerta(data.msg, (data.success?'Sucesso':'Erro'), data.type);
             if (data) {
-                gerarAlerta(data.msg, (data.success?'Sucesso':'Erro'), data.type);
                 carrega_lista();
             }
         },
@@ -248,6 +248,9 @@ $(document).ready(function(){
                             console.log(i, v);
                             $('form[name=form-<?=$prefix?>] #<?=$prefix?>_'+i+'').val(v);
                         });
+                        $('div#modal-<?=$prefix?>').modal('show');
+                    } else {
+                        gerarAlerta(data.msg, 'Aviso', data.type);
                     }
                 },
                 beforeSend:function(){
@@ -264,7 +267,7 @@ $(document).ready(function(){
                     preloaderStop();
                 }
             });
-            $('div#modal-<?=$prefix?>').modal('show');
+            
         }
     });    
 
@@ -305,7 +308,7 @@ $(document).ready(function(){
                 console.log('data', data);
                 gerarAlerta(data.msg, (data.success?'Sucesso':'Erro'), data.type);
                 if (data.success) {
-                    $('div#modal-perfil').modal('hide');
+                    $('div#modal-<?=$prefix?>').modal('hide');
                     carrega_lista();
 				}
 			},

@@ -1,5 +1,7 @@
 <?php
 require_once('header.php');
+$titulo = 'Menu';
+$prefix = 'menu';
 ?>
 
 <!-- Page Wrapper -->
@@ -27,7 +29,7 @@ require_once('header.php');
             <div class="container-fluid">
 
                     <!-- Page Heading -->
-                    <h1 class="h3 mb-2 text-gray-800">Controle de Menus </h1>
+                    <h1 class="h3 mb-2 text-gray-800">Controle de <?=$titulo?> </h1>
                     
 
                     <!-- DataTales Example -->
@@ -38,7 +40,7 @@ require_once('header.php');
                                     <h6 class="m-0 font-weight-bold text-primary">Menus</h6>
                                 </div>
                                 <div class="col text-right">
-                                    <a href="#" rel="btn-marcas-novo" class="btn btn-primary btn-sm">
+                                    <a href="#" rel="btn-<?=$prefix?>-novo" class="btn btn-primary btn-sm">
                                         <i class="fa fa-plus"></i> Novo
                                     </a>
                                 </div>
@@ -46,33 +48,18 @@ require_once('header.php');
                         </div>
                         <div class="card-body">
                             <div class="table-responsive">
-                                <table class="table table-bordered" id="table-perfil" width="100%" cellspacing="0">
+                                <table class="table table-bordered" id="table-<?=$prefix?>" width="100%" cellspacing="0">
                                     <thead>
                                         <tr>
-                                            <th style="width: 5%;">ID</th>
-                                            <th style="width: 65%;">Descrição</th>
-                                            <th style="width: 10%;">Status</th>
-                                            <th style="width: 20%;">Ações</th>
+                                            <th>ID</th>
+                                            <th>Icone</th>
+                                            <th>Nome</th>
+                                            <th>Tipo</th>
+                                            <th>Status</th>
+                                            <th>Ações</th>
                                         </tr>
                                     </thead>
-                                    <tbody>
-                                        <tr>
-                                            <td>1</td>
-                                            <td>Teste</td>
-                                            <td>
-                                                <span class="label label-success">Ativo</span>
-                                            </td>
-                                            <td>
-                                                <a href="#" class="btn btn-primary btn-sm" title="Editar">
-                                                    <i class="fa fa-pen"></i>
-                                                </a>
-
-                                                <a href="#" class="btn btn-danger btn-sm" title="Remover">
-                                                    <i class="fa fa-trash"></i> 
-                                                </a>
-                                            </td>
-                                        </tr>                                        
-                                    </tbody>
+                                    <tbody></tbody>
                                 </table>
                             </div>
                         </div>
@@ -102,45 +89,89 @@ require_once('header.php');
     </a>
 
     <!-- Logout Modal-->
-    <div class="modal fade" id="formModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
-        <div class="modal-dialog" role="document">
+    <div class="modal fade" id="modal-<?=$prefix?>" tabindex="-1" role="dialog" aria-labelledby="<?=$prefix?>ModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="exampleModalLabel">Marcas</h5>
+                    <h5 class="modal-title" id="<?=$prefix?>ModalLabel">Controle de <?=$titulo?></h5>
                     <button class="close" type="button" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">×</span>
                     </button>
                 </div>
                 <div class="modal-body">
-                    <form>
-                        <div class="form-group">
-                            <label for="exampleFormControlInput1">Email address</label>
-                            <input type="email" class="form-control" id="exampleFormControlInput1" placeholder="name@example.com">
+                    <form name="form-<?=$prefix?>" class="formValidate">
+
+                        <div class="row">
+                            <div class="col-sm-12 col-md-12 col-lg-6 col-xl-6 col-xxl-4">
+                                <div class="form-group">
+                                    <label for="<?=$prefix?>_nome">Nome</label>
+                                    <input type="text" class="form-control requered" id="<?=$prefix?>_nome" name="<?=$prefix?>_nome" placeholder="Nome do menu">
+                                </div>
+                            </div>
+                            <div class="col-sm-12 col-md-12 col-lg-6 col-xl-6 col-xxl-4">
+                                <div class="form-group">
+                                    <label for="<?=$prefix?>_link">Link</label>
+                                    <input type="text" class="form-control requered" id="<?=$prefix?>_link" name="<?=$prefix?>_link" placeholder="Rota da página">
+                                </div>
+                            </div>
                         </div>
-                        <div class="form-group">
-                            <label for="exampleFormControlSelect1">Example select</label>
-                            <select class="form-control" id="exampleFormControlSelect1">
-                            <option>1</option>
-                            <option>2</option>
-                            <option>3</option>
-                            <option>4</option>
-                            <option>5</option>
-                            </select>
+
+                        <div class="row">
+                            <div class="col-sm-12 col-md-12 col-lg-6 col-xl-6 col-xxl-4">
+                                <div class="form-group">
+                                    <label for="<?=$prefix?>_icone">Ícone</label>
+                                    <input type="text" class="form-control requered" id="<?=$prefix?>_icone" name="<?=$prefix?>_icone" placeholder="fas fa-fw fa-cog">
+                                    <div class="form-text" id="basic-addon4">Exemplo <a href="https://fontawesome.com/v5/search?o=r&m=free" target="_blank"><i class="fas fa-external-link-alt"></i></a>.</div>
+                                </div>
+                            </div>
+                            <div class="col-sm-12 col-md-12 col-lg-6 col-xl-6 col-xxl-4">
+                                <div class="form-group">
+                                    <label for="<?=$prefix?>_tipo">Tipo</label>
+                                    <select class="form-select" id="<?=$prefix?>_tipo" name="<?=$prefix?>_tipo">
+                                        <option value="">--Selecione--</option>
+                                        <option value="P">Principal</option>
+                                        <option value="S">Sub-Menu</option>
+                                    </select>
+                                </div>
+                            </div>
                         </div>
-                        <div class="form-group">
-                            <label for="exampleFormControlSelect2">Example multiple select</label>
-                            <select multiple class="form-control" id="exampleFormControlSelect2">
-                            <option>1</option>
-                            <option>2</option>
-                            <option>3</option>
-                            <option>4</option>
-                            <option>5</option>
-                            </select>
+
+                        <div class="row">
+                            <div class="col-sm-12 col-md-12 col-lg-6 col-xl-6 col-xxl-4">
+                                <div class="form-group">
+                                    <label for="<?=$prefix?>_ordem">Ordem</label>
+                                    <input type="text" class="form-control requered" id="<?=$prefix?>_ordem" name="<?=$prefix?>_ordem" placeholder="11">
+                                    <div class="form-text" id="basic-addon4">Ordenação para apresentação.</div>
+                                </div>
+                            </div>
+                            <div class="col-sm-12 col-md-12 col-lg-6 col-xl-6 col-xxl-4">
+                                <div class="form-group">
+                                    <label for="<?=$prefix?>_status">Status</label>
+                                    <select class="form-select" id="<?=$prefix?>_status" name="<?=$prefix?>_status">
+                                        <option value="">--Selecione--</option>
+                                        <option value="A">Ativo</option>
+                                        <option value="I">Inativo</option>
+                                    </select>
+                                </div>
+                            </div>
                         </div>
-                        <div class="form-group">
-                            <label for="exampleFormControlTextarea1">Example textarea</label>
-                            <textarea class="form-control" id="exampleFormControlTextarea1" rows="3"></textarea>
+
+                        <div class="row">
+                            <div class="col-sm-12 col-md-12 col-lg-6 col-xl-6 col-xxl-4 hide" id="div-id-menu-principal" style="display-none">
+                                <div class="form-group">
+                                    <label for="<?=$prefix?>_id_menu_principal">Menus principais</label>
+                                    <select class="form-select" id="<?=$prefix?>_id_menu_principal" name="<?=$prefix?>_id_menu_principal"></select>
+                                </div>
+                            </div>
+                            <div class="col-sm-12 col-md-12 col-lg-6 col-xl-6 col-xxl-4 hide" id="div-id-menu-descricao" style="display-none">
+                                <div class="form-group">
+                                    <label for="<?=$prefix?>_descricao">Sub-título</label>
+                                    <input type="text" class="form-control requered" id="<?=$prefix?>_descricao" name="<?=$prefix?>_descricao" placeholder="Cadastros...">
+                                    <div class="form-text" id="basic-addon4">Breve informação do menu.</div>
+                                </div>
+                            </div>
                         </div>
+
                     </form>
                 </div>
                 <div class="modal-footer">
@@ -159,12 +190,12 @@ require_once('header.php');
 require_once('footer.php');
 ?>
 <script>
-function carrega_lista(){
+function carrega_lista_menu(){
     
-    $('#table-perfil').DataTable({
+    $('#table-<?=$prefix?>').DataTable({
         "ajax": {
-            "url": '/perfil-json',
-            "type": "post",
+            "url": '/<?=$prefix?>-json',
+            "type": "get",
             "data":{}
         },
         "language": { "url": "https://cdn.datatables.net/plug-ins/1.10.13/i18n/Portuguese-Brasil.json" },
@@ -175,11 +206,39 @@ function carrega_lista(){
         "columns":
                 [
                     { "data": function ( data, type, row ) {
-                                    return data.id_perfil;
+                                    return data.id_menu;
                                 }
                     },
                     { "data": function ( data, type, row ) {
-                                    return data.descricao;
+                                    let campo = '<i class="'+data.icone+'"></i>';
+                                    return campo;
+                                }
+                    },
+                    { "data": function ( data, type, row ) {
+
+                                    let campo = data.nome;
+                                    if(data.tipo=='S' && data.nm_menu_principal!=''){
+                                        campo+= '<br><small>Menu principal: '+data.nm_menu_principal+'<small>';
+                                    }
+                                    return campo;
+                                }
+                    },
+                    { "data": function ( data, type, row ) {
+
+                                    var desc = '';
+                                    var label = '';
+
+                                    if(data.tipo=='P'){
+                                        desc = 'Principal';
+                                        label = 'primary';
+                                    }else{
+                                        desc = 'Sub-Menu';
+                                        label = 'warning';
+                                    }
+
+                                    var campo = '<span class="badge text-bg-'+label+'" title="'+desc+'">'+desc+'</span>';
+
+                                    return campo;
                                 }
                     },
                     { "data": function ( data, type, row ) {
@@ -203,12 +262,12 @@ function carrega_lista(){
                     { "data": function ( data, type, row ) {
                                     var campo = '';
 
-                                    campo+= '<a href="#" title="Editar" id="'+data.id_perfil+'" rel="btn-perfil-editar" role="button" class="btn btn-primary btn-sm" style="margin: 1px 2px">'+
-                                                '<i class="fa-solid fa-pencil"></i>'+
+                                    campo+= '<a href="#" title="Editar" id="'+data.id_menu+'" rel="btn-<?=$prefix?>-editar" role="button" class="btn btn-primary btn-sm" style="margin: 1px 2px">'+
+                                                '<i class="fas fa-edit"></i>'+
                                             '</a>';
 
-                                    campo+= '<a href="#" title="Deletar" rel="btn-perfil-deletar" id="'+data.id_perfil+'" role="button" class="btn btn-danger btn-sm" style="margin: 1px 2px">'+
-                                                '<i class="fa-solid fa-trash"></i>'+
+                                    campo+= '<a href="#" title="Deletar" rel="btn-<?=$prefix?>-deletar" id="'+data.id_menu+'" role="button" class="btn btn-danger btn-sm" style="margin: 1px 2px">'+
+                                                '<i class="fas fa-trash"></i>'+
                                             '</a>';
 
                                     return campo;
@@ -249,11 +308,35 @@ function deletaRegistro(id){
 
 $(document).ready(function(){
 
-    carrega_lista();
+    carrega_lista_menu();
     
-    $(document).on('click', 'a[rel=btn-marcas-novo]', function(e){
+    $(document).on('click', 'a[rel=btn-<?=$prefix?>-novo]', function(e){
         e.preventDefault();
-        $('div#formModal').modal('show');
-    })
+        $('div#modal-<?=$prefix?>').modal('show');
+    });
+
+    $('div#modal-<?=$prefix?>').on('hidden.bs.modal', function (e) {
+        $('form[name=form-<?=$prefix?>]').find('input, select').each(function(){
+            $(this).val('');
+        });
+    });
+
+    $(document).on('change', 'select[name=<?=$prefix?>_tipo]', function(e){
+        e.preventDefault();
+        const tipo = $(this).val();
+        if (tipo != '') {
+            $('select[name=<?=$prefix?>_id_menu_principal]').val('');
+            $('input[name=<?=$prefix?>_descricao]').val('');
+            if (tipo=='P') {
+                $('div[id=div-id-menu-principal]').hide();
+                $('div[id=div-id-menu-descricao]').show();
+            } else {
+                $('div[id=div-id-menu-principal]').show();
+                $('div[id=div-id-menu-descricao]').show();
+            }
+        }
+    });
+
+
 });
 </script>

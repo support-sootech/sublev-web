@@ -1,20 +1,20 @@
 <?php
-$app->get('/controle-perfil', function() use ($app){
+$app->get('/controle-permissoes', function() use ($app){
     if (valida_logado(true)) {
-        $app->render('/perfil-page.php');
+        $app->render('/permissoes-page.php');
     } else {
         $app->notFound();
     }
 });
 
-$app->get('/perfil-edit/:id_perfil', function($id_perfil='') use ($app){
+$app->get('/permissoes-edit/:id', function($id='') use ($app){
     $status = 200;
 	$data = array();
     if (valida_logado()) {
-        $class_perfil = new PerfilModel();
+        $class_permissoes = new PermissoesModel();
 
-        if (!empty($id_perfil)) {
-            $arr = $class_perfil->loadId($id_perfil);
+        if (!empty($id)) {
+            $arr = $class_permissoes->loadId($id);
             if ($arr) {
                 $status = 200;
                 $data = array('success'=>true, 'type'=>'success', 'msg'=>'OK', 'data'=>$arr);
@@ -34,14 +34,14 @@ $app->get('/perfil-edit/:id_perfil', function($id_perfil='') use ($app){
 	$response->body(json_encode($data));
 });
 
-$app->get('/perfil-del/:id_perfil', function($id_perfil='') use ($app){
+$app->get('/permissoes-del/:id', function($id='') use ($app){
     $status = 400;
 	$data = array();
     if (valida_logado()) {
-        $class_perfil = new PerfilModel();
+        $class_permissoes = new PermissoesModel();
 
-        if (!empty($id_perfil)) {
-            $del = $class_perfil->del($id_perfil);
+        if (!empty($id)) {
+            $del = $class_permissoes->del($id);
             if ($del) {
                 $status = 200;
                 $data = array('success'=>true, 'type'=>'success', 'msg'=>messagesDefault('delete'));
@@ -61,14 +61,14 @@ $app->get('/perfil-del/:id_perfil', function($id_perfil='') use ($app){
 	$response->body(json_encode($data));
 });
 
-$app->post('/perfil-json', function() use ($app){
+$app->post('/permissoes-json', function() use ($app){
     $status = 200;
 	$data['data'] = array();
     if (valida_logado()) {
-        $class_perfil = new PerfilModel();
-        $arr_perfil = $class_perfil->loadAll();
-        if ($arr_perfil) {
-            foreach ($arr_perfil as $key => $value) {
+        $class_permissoes = new PermissoesModel();
+        $arr = $class_permissoes->loadAll();
+        if ($arr) {
+            foreach ($arr as $key => $value) {
                 $data['data'][] = $value;
             }
         }
@@ -82,55 +82,52 @@ $app->post('/perfil-json', function() use ($app){
 	$response->body(json_encode($data));
 });
 
-$app->post('/perfil-save', function() use ($app){
+$app->post('/permissoes-save', function() use ($app){
 	$status = 400;
 	$data = array();
     $retorno = array();
     $erro = '';
     
     if ($app->request->isPost()) {
+        
+        $id = '';
+        $post = array();
 
-        if (valida_logado()) {            
-            $id_perfil = '';
-            $post = array();
-    
-            foreach ($app->request->post() as $key => $value) {
-                $post[(str_replace('perfil_', '', $key))] = $value;
+        foreach ($app->request->post() as $key => $value) {
+            $post[(str_replace('permissoes_', '', $key))] = $value;
+        }
+
+        if (isset($post['id_permissoes'])) {
+            $id = $post['id_permissoes'];
+            unset($post['id_permissoes']);
+        }        
+        
+        try {
+            $class_permissoes = new PermissoesModel();
+
+            if (!empty($id)) {
+                $data = $class_permissoes->edit($post, array('id_permissoes'=>$id));
+            } else {
+                $data = $class_permissoes->add($post);
             }
-    
-            if (isset($post['id_perfil'])) {
-                $id_perfil = $post['id_perfil'];
-                unset($post['id_perfil']);
-            }        
             
-            try {
-                $class_perfil = new PerfilModel();
-    
-                if (!empty($id_perfil)) {
-                    $data = $class_perfil->edit($post, array('id_perfil'=>$id_perfil));
-                } else {
-                    $data = $class_perfil->add($post);
-                }
-                
-                if ($data) {
-                    $status = 200;
-                    $retorno = array(
-                        'success'=>true, 
-                        'type'=>'success', 
-                        'msg'=>messagesDefault(!empty($id_perfil) ? 'update' : 'register'),
-                        'data'=>$data
-                    );
-                } else {
-                    $retorno = array('success'=>false, 'type'=>'danger', 'msg'=>$data);    
-                }   
-            } catch (Exception $e) {
-                $retorno = array('success'=>false, 'type'=>'danger', 'msg'=>$e->getMessage());
-            }
+            if ($data) {
+                $status = 200;
+                $retorno = array(
+                    'success'=>true, 
+                    'type'=>'success', 
+                    'msg'=>messagesDefault(!empty($id_perfil) ? 'update' : 'register'),
+                    'data'=>$data
+                );
+            } else {
+                $retorno = array('success'=>false, 'type'=>'danger', 'msg'=>$data);    
+            }   
+        } catch (Exception $e) {
+            $retorno = array('success'=>false, 'type'=>'danger', 'msg'=>$e->getMessage());
         }
         
-        
     } else {
-        $retorno = array('success'=>false, 'type'=>'danger', 'msg'=>'Método incorreto!');
+        $retorno = array('success'=>false, 'type'=>'danger', 'msg'=>messagesDefault('incorrect_method'));
     }
 
 	$response = $app->response();

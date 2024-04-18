@@ -26,9 +26,9 @@ $app->post('/login', function() use ($app){
             if ($data) {
                 $status = 200;
                 $_SESSION['usuario'] = $data;
-                $retorno = array('success'=>true, 'type'=>'success', 'msg'=>'OK.', 'page'=>'/dashboard', );
+                $retorno = array('success'=>true, 'type'=>'success', 'msg'=>'OK.', 'page'=>'/home', );
             } else {
-                $retorno = array('success'=>false, 'type'=>'danger', 'msg'=>'E-mail ou senha incorreto.');    
+                $retorno = array('success'=>false, 'type'=>'danger', 'msg'=>messagesDefault('invalid_credentials'));    
             }
             
         } else {

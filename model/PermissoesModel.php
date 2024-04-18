@@ -1,6 +1,6 @@
 <?php
-class PerfilModel extends Connection {
-    const TABLE = 'tb_perfil';
+class PermissoesModel extends Connection {
+    const TABLE = 'tb_permissoes';
     private $conn = false;
     private $newModel = array();
 
@@ -10,7 +10,7 @@ class PerfilModel extends Connection {
 
     //MODELAGEM DO BANCO
     private $fields = array(
-        'id_perfil'=>array('type'=>'integer', 'requered'=>true, 'max'=>10, 'key'=>true, 'description'=>'ID'),
+        'id_permissoes'=>array('type'=>'integer', 'requered'=>true, 'max'=>10, 'key'=>true, 'description'=>'ID'),
         'descricao'=>array('type'=>'string', 'requered'=>false, 'max'=>'100', 'default'=>'', 'key'=>false, 'description'=>'Descrição'),
         'status'=>array('type'=>'string', 'requered'=>false, 'max'=>'1', 'default'=>'A', 'key'=>false, 'description'=>'status'),
     );
@@ -64,7 +64,7 @@ class PerfilModel extends Connection {
             
             $sql = "select p.*
                       from ".self::TABLE." p
-                     where p.id_perfil = :ID";
+                     where p.id_permissoes = :ID";
             $res = $this->conn->select($sql, $arr);
             
             if (isset($res[0])) {
@@ -102,8 +102,8 @@ class PerfilModel extends Connection {
         try {
             $this->setFields($arr);
             $values = $this->getFields();
-            if (isset($values[':ID_PERFIL'])) {
-                unset($values[':ID_PERFIL']);
+            if (isset($values[':ID_PERMISSOES'])) {
+                unset($values[':ID_PERMISSOES']);
             }
             $save = $this->conn->insert(self::TABLE, $values);
             return $save;
@@ -123,8 +123,8 @@ class PerfilModel extends Connection {
                 $w[':'.mb_strtoupper($key).''] = $value;
             }
 
-            if(isset($values[':ID_PERFIL'])) {
-                unset($values[':ID_PERFIL']);
+            if(isset($values[':ID_PERMISSOES'])) {
+                unset($values[':ID_PERMISSOES']);
             }
 
             $save = $this->conn->update(self::TABLE, $values, $w);
@@ -136,7 +136,7 @@ class PerfilModel extends Connection {
 
     public function del($id){
         try {
-            $save = $this->conn->update(self::TABLE, array(':STATUS'=>'D'), array(':ID_PERFIL'=>$id));
+            $save = $this->conn->update(self::TABLE, array(':STATUS'=>'D'), array(':ID_PERMISSOES'=>$id));
             return $save;
         } catch (Exception $e) {
             return $e->getMessage();

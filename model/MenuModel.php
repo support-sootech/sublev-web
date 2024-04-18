@@ -195,24 +195,13 @@ class MenuModel extends Connection {
             $and = '';
             
             if (!$root) {
-                $and.= " and u.status not in('D')";
+                $and.= " and m.status not in('D')";
             }
             
-            $sql = "select u.*,
-                           p.descricao as ds_perfil, 
-                           ps.nome as nm_pessoa, 
-                           ps.email, 
-                           ps.dt_nascimento, 
-                           ps.fg_pessoa, 
-                           (case when ps.fg_pessoa = 'J' then lpad(ps.cpf_cnpj, 14, 0)
-                                else lpad(ps.cpf_cnpj, 11, 0)
-                           end) as cpf_cnpj,
-                           #ps.cpf_cnpj,
-                           ps.genero, e.nome as nm_empresa
-                      from ".self::TABLE." u
-                      inner join tb_perfil p on p.id_perfil = u.id_perfil
-                      inner join tb_pessoas ps on ps.id_pessoas = u.id_pessoas
-                      inner join tb_empresas e on e.id_empresas = ps.id_empresas
+            $sql = "select m.*,
+                           m1.nome as nm_menu_principal
+                      from ".self::TABLE." m
+                      left join ".self::TABLE." m1 on m1.id_menu = m.id_menu_principal                      
                      where 1 = 1 
                        ".$and."";
             $res = $this->conn->select($sql, $arr);
