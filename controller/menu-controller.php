@@ -7,12 +7,66 @@ $app->get('/controle-menu', function() use ($app){
     }
 });
 
+$app->get('/menu-edit/:id', function($id = '') use ($app){
+    if (valida_logado()) {
+        $data = array();
+        try {
+            $class_menu = new MenuModel();
+            $arr = $class_menu->loadId($id);
+            if ($arr) {
+                $data = $arr;                
+            }
+        } catch (Exception $e) {
+            $data = $e->getMessage();
+        }
+
+        $response = $app->response();
+        $response['Access-Control-Allow-Origin'] = '*';
+        $response['Access-Control-Allow-Methods'] = 'GET';
+        $response['Content-Type'] = 'application/json';
+
+        $response->status(200);
+        $response->body(json_encode($data));
+
+    } else {
+        $app->notFound();
+    }
+});
+
 $app->get('/menu-json', function() use ($app){
     if (valida_logado()) {
         $data['data'] = array();
         try {
             $class_menu = new MenuModel();
             $arr = $class_menu->loadAll();
+            if ($arr) {
+                foreach ($arr as $key => $value) {
+                    $data['data'][] = $value;
+                }
+            }
+        } catch (Exception $e) {
+            $data = $e->getMessage();
+        }
+
+        $response = $app->response();
+        $response['Access-Control-Allow-Origin'] = '*';
+        $response['Access-Control-Allow-Methods'] = 'GET';
+        $response['Content-Type'] = 'application/json';
+
+        $response->status(200);
+        $response->body(json_encode($data));
+
+    } else {
+        $app->notFound();
+    }
+});
+
+$app->get('/menu-principal-json', function() use ($app){
+    if (valida_logado()) {
+        $data['data'] = array();
+        try {
+            $class_menu = new MenuModel();
+            $arr = $class_menu->loadAllMenuPrincipal();
             if ($arr) {
                 foreach ($arr as $key => $value) {
                     $data['data'][] = $value;

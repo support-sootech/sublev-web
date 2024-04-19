@@ -157,13 +157,13 @@ $prefix = 'menu';
                         </div>
 
                         <div class="row">
-                            <div class="col-sm-12 col-md-12 col-lg-6 col-xl-6 col-xxl-4 hide" id="div-id-menu-principal" style="display-none">
+                            <div class="col-sm-12 col-md-12 col-lg-6 col-xl-6 col-xxl-4 hide" id="div-id-menu-principal" style="display:none">
                                 <div class="form-group">
                                     <label for="<?=$prefix?>_id_menu_principal">Menus principais</label>
                                     <select class="form-select" id="<?=$prefix?>_id_menu_principal" name="<?=$prefix?>_id_menu_principal"></select>
                                 </div>
                             </div>
-                            <div class="col-sm-12 col-md-12 col-lg-6 col-xl-6 col-xxl-4 hide" id="div-id-menu-descricao" style="display-none">
+                            <div class="col-sm-12 col-md-12 col-lg-6 col-xl-6 col-xxl-4 hide" id="div-id-menu-descricao" style="display:none">
                                 <div class="form-group">
                                     <label for="<?=$prefix?>_descricao">Sub-título</label>
                                     <input type="text" class="form-control requered" id="<?=$prefix?>_descricao" name="<?=$prefix?>_descricao" placeholder="Cadastros...">
@@ -198,11 +198,11 @@ function carrega_lista_menu(){
             "type": "get",
             "data":{}
         },
-        "language": { "url": "https://cdn.datatables.net/plug-ins/1.10.13/i18n/Portuguese-Brasil.json" },
+        "language": { "url": "https://cdn.datatables.net/plug-ins/1.10.13/i18n/Portuguese-Brasil.json", "search": "Pesquisar:", },
         "processing": true,
         "destroy": true,
         "order": [],
-        "columnDefs": [],
+        "columnDefs": [],        
         "columns":
                 [
                     { "data": function ( data, type, row ) {
@@ -278,6 +278,43 @@ function carrega_lista_menu(){
     });
 }
 
+function carrega_combo_menu_principal(id_menu_principal='') {
+    let elemento = $('select[name=<?=$prefix?>_id_menu_principal]');
+
+    $.ajax({
+        url:'/menu-principal-json',
+        type:'get',
+        data:{},
+        dataType:'json',
+        success:function(data){
+            console.log('data', data);
+            if (data.data.length > 0) {
+                let opt = '<option value="">--Selecione--</option>';
+                $.each(data.data, function(i, v){
+                    let selected = '';
+                    if (id_menu_principal != '' && id_menu_principal == v.id_menu) {
+                        selected = 'selected="selected"';
+                    }
+                    opt+= '<option value="'+v.id_menu+'" '+selected+' >'+v.nome+'</option>';
+                });
+                elemento.html(opt);
+            }
+        },
+        beforeSend:function(){
+            elemento.html('<option value="">Carregando...</option>');
+        },
+        error:function(a,b,c){
+            gerarAlerta('Erro Combo Menu Principal: '+a, 'Aviso', 'danger');
+            console.error('a',a);
+            console.error('b',b);
+            console.error('c',c);
+        },
+        complete:function(){
+            preloaderStop();
+        }
+    });
+}
+
 function deletaRegistro(id){
     $.ajax({
         url:'/controle-tipo-pessoas-delete/'+id,
@@ -306,6 +343,26 @@ function deletaRegistro(id){
     });
 }
 
+function tipo_menu(tipo='P', id_menu_principal=''){
+    $('select[name=<?=$prefix?>_id_menu_principal]').val('');
+    $('input[name=<?=$prefix?>_descricao]').val('');
+
+    if(tipo!='') {
+        if (tipo=='P') {
+            $('div[id=div-id-menu-principal]').hide();
+            $('div[id=div-id-menu-descricao]').show();
+        } else {
+            $('div[id=div-id-menu-principal]').show();
+            $('div[id=div-id-menu-descricao]').show();
+            carrega_combo_menu_principal(id_menu_principal);
+        }
+    } else {
+        $('div[id=div-id-menu-principal]').hide();
+        $('div[id=div-id-menu-descricao]').hide();
+    }
+
+}
+
 $(document).ready(function(){
 
     carrega_lista_menu();
@@ -319,22 +376,76 @@ $(document).ready(function(){
         $('form[name=form-<?=$prefix?>]').find('input, select').each(function(){
             $(this).val('');
         });
+        tipo_menu('')
     });
 
     $(document).on('change', 'select[name=<?=$prefix?>_tipo]', function(e){
         e.preventDefault();
         const tipo = $(this).val();
-        if (tipo != '') {
-            $('select[name=<?=$prefix?>_id_menu_principal]').val('');
-            $('input[name=<?=$prefix?>_descricao]').val('');
-            if (tipo=='P') {
-                $('div[id=div-id-menu-principal]').hide();
-                $('div[id=div-id-menu-descricao]').show();
-            } else {
-                $('div[id=div-id-menu-principal]').show();
-                $('div[id=div-id-menu-descricao]').show();
-            }
+        if (tipo != '') {            
+            tipo_menu(tipo);
         }
+    });
+
+    $(document).on('click','a[rel=btn-<?=$prefix?>-editar]', function(e){
+        e.preventDefault();
+        const id = $(this).attr('id');
+        if (id) {            
+            $.ajax({
+                url:'/<?=$prefix?>-edit/'+id,
+                type:'get',
+                dataType:'json',
+                data:{},
+                success:function(data){
+                    if (data) {
+
+                        tipo_menu(data.tipo, data.id_menu_principal);
+
+                        $.each(data, function(i,v){
+                            console.log(i, v);
+                            $('form[name=form-<?=$prefix?>] #<?=$prefix?>_'+i+'').val(v);
+                        });
+                    }
+                },
+                beforeSend:function(){
+                    preloaderStart();
+                },
+                error:function(a,b,c){
+                    preloaderStop();
+                    gerarAlerta(a, 'Aviso', 'danger');
+                    console.error('a',a);
+                    console.error('b',b);
+                    console.error('c',c);
+                },
+                complete:function(){
+                    preloaderStop();
+                }
+            });
+            $('div#modal-<?=$prefix?>').modal('show');
+        }
+    });    
+
+    $(document).on('click','a[rel=btn-<?=$prefix?>-deletar]', async function(e) {
+        e.preventDefault();
+        const id = $(this).attr('id');
+
+        if (id) {
+            Swal.fire({
+                text: 'Você realmente deseja excluír esse registro?',
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#dc3545',
+                confirmButtonText: 'Sim',
+                cancelButtonText: 'Não',
+                showCancelButton: true,
+                icon: "question",
+                background: "#fff",
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    deletaRegistro(id);
+                }
+            });
+        }
+        
     });
 
 

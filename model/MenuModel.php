@@ -161,22 +161,11 @@ class MenuModel extends Connection {
         try {
             $arr[':ID'] = $id;
             
-            $sql = "select u.*, 
-                           p.descricao as ds_perfil, 
-                           ps.nome as nm_pessoa, 
-                           ps.email, 
-                           ps.dt_nascimento, 
-                           ps.fg_pessoa, 
-                           (case when ps.fg_pessoa = 'J' then lpad(ps.cpf_cnpj, 14, 0)
-                                else lpad(ps.cpf_cnpj, 11, 0)
-                           end) as cpf_cnpj,
-                           #ps.cpf_cnpj,
-                           ps.genero, e.nome as nm_empresa
-                      from ".self::TABLE." u
-                      inner join tb_perfil p on p.id_perfil = u.id_perfil
-                      inner join tb_pessoas ps on ps.id_pessoas = u.id_pessoas
-                      inner join tb_empresas e on e.id_empresas = ps.id_empresas
-                     where u.id_usuarios = :ID";
+            $sql = "select m.*,
+                           m1.nome as nm_menu_principal
+                      from ".self::TABLE." m
+                      left join ".self::TABLE." m1 on m1.id_menu = m.id_menu_principal                      
+                     where m.id_menu = :ID";
             $res = $this->conn->select($sql, $arr);
             
             if (isset($res[0])) {
@@ -203,6 +192,31 @@ class MenuModel extends Connection {
                       from ".self::TABLE." m
                       left join ".self::TABLE." m1 on m1.id_menu = m.id_menu_principal                      
                      where 1 = 1 
+                       ".$and."";
+            $res = $this->conn->select($sql, $arr);
+            
+            if (isset($res[0])) {
+                return $res;
+            } else {
+                return false;
+            }
+        } catch (Exception $e) {
+            return $e->getMessage();
+        }
+    }
+
+    public function loadAllMenuPrincipal($root=false) {
+        try {
+            $arr = array();
+            $and = '';
+            
+            if (!$root) {
+                $and.= " and m.status not in('D')";
+            }
+            
+            $sql = "select m.*
+                      from ".self::TABLE." m
+                     where m.tipo = 'P'
                        ".$and."";
             $res = $this->conn->select($sql, $arr);
             

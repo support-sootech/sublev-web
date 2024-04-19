@@ -136,7 +136,7 @@ function carrega_lista(){
             "type": "post",
             "data":{}
         },
-        "language": { "url": "https://cdn.datatables.net/plug-ins/1.10.13/i18n/Portuguese-Brasil.json" },
+        "language": { "url": "https://cdn.datatables.net/plug-ins/1.10.13/i18n/Portuguese-Brasil.json", "search": "Pesquisar:", },
         "processing": true,
         "destroy": true,
         "order": [],
