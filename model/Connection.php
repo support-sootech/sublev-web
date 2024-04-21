@@ -101,10 +101,10 @@ class Connection extends PDO {
 		foreach ($values as $key => $value) {
 	        $fields[] = str_replace(':', '', strtolower($key))." = '".$value."'";
 	    }
-		$sql 	= "DELETE FROM ".$tabela." WHERE ".implode(' and ', $fields);
+		$sql = "DELETE FROM ".$tabela." WHERE ".implode(' and ', $fields);
 		$conn 	= $this->conn;
 		$stmt 	= $conn->prepare($sql);
-		$this->setParams($stmt, $values);
+		//$this->setParams($stmt, $values);
 
 		try {
 	        $conn->beginTransaction();

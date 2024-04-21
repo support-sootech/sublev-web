@@ -154,7 +154,6 @@ require_once('footer.php');
 ?>
 <script>
 function carrega_lista(){
-    console.log('data');
     $('#table-<?=$prefix?>').DataTable({
         "ajax": {
             "url": '/<?=$prefix?>-json',
@@ -245,21 +244,22 @@ function deletaRegistro(id){
     });
 }
 
-function menu_permissao() {
+function menu_permissao(id_perfil) {
     $.ajax({
         url:'/<?=$prefix?>-menu-permissao',
         type:'get',
         dataType:'json',
         data:{},
         success:function(data){
-            console.log('data', data);
+            
             if (data.success) {
                 let el = $('form[name=form-<?=$prefix?>-menu-permissao]');
                 let body = '<small>*Em vermelho são itens inativos.</small><br>';
+                body += '<input type="hidden" name="id_perfil_menu" value="'+id_perfil+'" />';
 
                 if (data.data) {
                     $.each(data.data, function(i, v){
-                        console.log('v', v.nome);
+                        
                         body += '<div class="row">';                                
                             body += '<div class="col">';
                                 body += '<div class="form-check">'+
@@ -430,7 +430,11 @@ $(document).ready(function(){
     $(document).on('click', 'a[rel=btn-<?=$prefix?>-menu-permissao]', function(e){
         e.preventDefault();
         $('div#modal-<?=$prefix?>-menu-permissao').modal('show');
-        menu_permissao();
+        menu_permissao($(this).attr('id'));
+    });
+    
+    $('div#modal-<?=$prefix?>-menu-permissao').on('hidden.bs.modal', function (e) {
+        $('input[name=id_perfil_menu]').val('');    
     });
 
     $(document).on('click', 'input[name^=menu_principal]', function(){
@@ -447,25 +451,92 @@ $(document).ready(function(){
 
         if(t.is(':checked')) {
             permissoes.prop('checked', true);
+            if(!menu_principal.is(':checked')) {
+                menu_principal.prop('checked', true);
+            }
+
         } else {
             permissoes.prop('checked', false);
+            const qtd_submenu = $('input[name^=sub_menu][data-menu='+t.attr('data-menu')+']:checked').length;
+            if (qtd_submenu<1) {
+                menu_principal.prop('checked', false);
+            }
         }
-
-        if(!menu_principal.is(':checked')) {
-            menu_principal.prop('checked', true);
-        }
+        
     });
 
     $(document).on('click', 'input[name^=permissoes]', function(){
         const t = $(this);
         if(!t.is(':checked')) {
             const c = $('input[name^=permissoes][data-submenu='+t.attr('data-submenu')+']:checked').length;
-            console.log('count', c);
             if(c==0) 
                 $('input[name^=sub_menu][value='+t.attr('data-submenu')+']').prop('checked', false);
         } else {
-            // TODO: LÓGICA PARA SELECIONAR CASO NÃO ESTEJA.
+            const sub_menu = $('input[name^=sub_menu][value='+t.attr('data-submenu')+']');
+            if (!sub_menu.is(':checked')) {
+                sub_menu.prop('checked', true);
+            }
         }
+    });
+
+    $(document).on('click', 'a[rel=btn-perfil-menu-permissao-salvar]', function(e){
+        e.preventDefault();
+        const id_perfil = $('input[name=id_perfil_menu]').val();
+        
+        let arr_menu_principal = [];
+        let arr_sub_menu = [];
+        
+        
+        $('form[name=form-perfil-menu-permissao]').find('input[name^=menu_principal]').each(function(){
+            let obj_menu_principal = {};
+            if ($(this).is(':checked')) {
+                obj_menu_principal.id_menu = $(this).val();
+                obj_menu_principal.id_perfil = id_perfil;
+                obj_menu_principal.id_permissoes = 1;
+                arr_menu_principal.push(obj_menu_principal);
+            }
+        });
+        console.log('arr_menu_principal', arr_menu_principal);
+        
+        $('form[name=form-perfil-menu-permissao]').find('input[name^=permissoes]').each(function(){
+            let obj_sub_menu = {};
+            if ($(this).is(':checked')) {
+                obj_sub_menu.id_menu = $(this).attr('data-submenu');
+                obj_sub_menu.id_id_permissao = $(this).val();
+                obj_sub_menu.id_perfil = id_perfil;
+                arr_sub_menu.push(obj_sub_menu);
+            }
+        });
+        console.log('arr_sub_menu', arr_sub_menu);
+
+        $.ajax({
+        url:'/menu-permissoes-<?=$prefix?>-save',
+        type:'post',
+        dataType:'json',
+        data:{
+            'arr_menu_principal':arr_menu_principal,
+            'arr_sub_menu':arr_sub_menu,
+            'id_perfil':id_perfil
+        },
+        success:function(data){
+            console.log('data', data)            
+        },
+        beforeSend:function(){
+            preloaderStart();
+        },
+        error:function(a,b,c){
+            preloaderStop();
+            gerarAlerta(a, 'Aviso', 'danger');
+            console.error('a',a);
+            console.error('b',b);
+            console.error('c',c);
+        },
+        complete:function(){
+            preloaderStop();
+        }
+    });
+        
+
     });
 
 });
