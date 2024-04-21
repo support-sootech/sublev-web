@@ -141,4 +141,35 @@ $app->post('/perfil-save', function() use ($app){
 	$response->status($status);
 	$response->body(json_encode($retorno));
 });
+
+$app->get('/perfil-menu-permissao', function() use ($app){
+    $status = 200;
+	$data = array();
+    if (valida_logado()) {
+        $class_perfil = new PerfilModel();
+        $class_menu = new MenuModel();
+        $class_permissoes = new PermissoesModel();
+        $arr_permissoes = $class_permissoes->loadAll(false);
+
+        try {
+            $data = array(
+                'success'=>true, 
+                'type'=>'success', 
+                'msg'=>messagesDefault('OK'), 
+                'data'=>$class_menu->menuPerfilSistema(),
+                'permissoes'=>$arr_permissoes,
+            );
+        } catch (Exception $e) {
+            $data = array('success'=>false, 'type'=>'danger', 'msg'=>$e->getMessage());
+        }
+    }
+    $response = $app->response();
+	$response['Access-Control-Allow-Origin'] = '*';
+	$response['Access-Control-Allow-Methods'] = 'GET';
+	$response['Content-Type'] = 'application/json';
+
+	$response->status($status);
+	$response->body(json_encode($data));
+});
+
 ?>

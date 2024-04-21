@@ -100,7 +100,7 @@ $prefix = 'menu';
                 </div>
                 <div class="modal-body">
                     <form name="form-<?=$prefix?>" class="formValidate">
-
+                    <input type="hidden" class="form-control" id="<?=$prefix?>_id_menu" name="<?=$prefix?>_id_menu" placeholder="">
                         <div class="row">
                             <div class="col-sm-12 col-md-12 col-lg-6 col-xl-6 col-xxl-4">
                                 <div class="form-group">
@@ -127,7 +127,7 @@ $prefix = 'menu';
                             <div class="col-sm-12 col-md-12 col-lg-6 col-xl-6 col-xxl-4">
                                 <div class="form-group">
                                     <label for="<?=$prefix?>_tipo">Tipo</label>
-                                    <select class="form-select" id="<?=$prefix?>_tipo" name="<?=$prefix?>_tipo">
+                                    <select class="form-select requered" id="<?=$prefix?>_tipo" name="<?=$prefix?>_tipo">
                                         <option value="">--Selecione--</option>
                                         <option value="P">Principal</option>
                                         <option value="S">Sub-Menu</option>
@@ -147,7 +147,7 @@ $prefix = 'menu';
                             <div class="col-sm-12 col-md-12 col-lg-6 col-xl-6 col-xxl-4">
                                 <div class="form-group">
                                     <label for="<?=$prefix?>_status">Status</label>
-                                    <select class="form-select" id="<?=$prefix?>_status" name="<?=$prefix?>_status">
+                                    <select class="form-select requered" id="<?=$prefix?>_status" name="<?=$prefix?>_status">
                                         <option value="">--Selecione--</option>
                                         <option value="A">Ativo</option>
                                         <option value="I">Inativo</option>
@@ -178,7 +178,7 @@ $prefix = 'menu';
                     <button class="btn btn-secondary" type="button" data-dismiss="modal">
                         <i class="fa fa-xmark"></i> Fechar
                     </button>
-                    <a class="btn btn-primary" href="#">
+                    <a class="btn btn-primary" href="#" rel="btn-<?=$prefix?>-salvar">
                         <i class="fa fa-save"></i> Salvar
                     </a>
                 </div>
@@ -287,7 +287,6 @@ function carrega_combo_menu_principal(id_menu_principal='') {
         data:{},
         dataType:'json',
         success:function(data){
-            console.log('data', data);
             if (data.data.length > 0) {
                 let opt = '<option value="">--Selecione--</option>';
                 $.each(data.data, function(i, v){
@@ -297,7 +296,7 @@ function carrega_combo_menu_principal(id_menu_principal='') {
                     }
                     opt+= '<option value="'+v.id_menu+'" '+selected+' >'+v.nome+'</option>';
                 });
-                elemento.html(opt);
+                elemento.html(opt).addClass('requered');
             }
         },
         beforeSend:function(){
@@ -317,14 +316,13 @@ function carrega_combo_menu_principal(id_menu_principal='') {
 
 function deletaRegistro(id){
     $.ajax({
-        url:'/controle-tipo-pessoas-delete/'+id,
+        url:'/<?=$prefix?>-del/'+id,
         type:'get',
         dataType:'json',
         data:{},
         success:function(data){
-            console.log('data', data);
             if (data) {
-                carrega_lista();
+                carrega_lista_menu();
             }
         },
         beforeSend:function(){
@@ -351,20 +349,30 @@ function tipo_menu(tipo='P', id_menu_principal=''){
         if (tipo=='P') {
             $('div[id=div-id-menu-principal]').hide();
             $('div[id=div-id-menu-descricao]').show();
+            $('input[name=<?=$prefix?>_link]').val('').removeClass('requered').prop('readonly', true);
+            $('select[name=<?=$prefix?>_id_menu_principal]').removeClass('requered');
         } else {
             $('div[id=div-id-menu-principal]').show();
             $('div[id=div-id-menu-descricao]').show();
+            $('input[name=<?=$prefix?>_link]').val('').addClass('requered').prop('readonly', false);
+            $('select[name=<?=$prefix?>_id_menu_principal]').addClass('requered');
             carrega_combo_menu_principal(id_menu_principal);
+            
         }
     } else {
         $('div[id=div-id-menu-principal]').hide();
         $('div[id=div-id-menu-descricao]').hide();
+        $('input[name=<?=$prefix?>_link]').val('').addClass('requered').prop('readonly', false);
+        $('select[name=<?=$prefix?>_id_menu_principal]').removeClass('requered');
     }
+
+    formFieldsRequered();
 
 }
 
 $(document).ready(function(){
 
+    formFieldsRequered();
     carrega_lista_menu();
     
     $(document).on('click', 'a[rel=btn-<?=$prefix?>-novo]', function(e){
@@ -402,7 +410,6 @@ $(document).ready(function(){
                         tipo_menu(data.tipo, data.id_menu_principal);
 
                         $.each(data, function(i,v){
-                            console.log(i, v);
                             $('form[name=form-<?=$prefix?>] #<?=$prefix?>_'+i+'').val(v);
                         });
                     }
@@ -448,6 +455,39 @@ $(document).ready(function(){
         
     });
 
+    $(document).on('click','a[rel=btn-<?=$prefix?>-salvar]', function(e){
+		e.preventDefault();
+        
+        if(!isFormValidate($('form[name=form-<?=$prefix?>]'))) {
+            gerarAlerta('<?=messagesDefault('fields_requered')?>', 'Aviso', 'danger');
+            return false;
+        }
+
+        $('form[name=form-<?=$prefix?>]').ajaxForm({
+			data:{},
+    		success : function(data) {
+                gerarAlerta(data.msg, (data.success?'Sucesso':'Erro'), data.type);
+                if (data.success) {
+                    $('div#modal-<?=$prefix?>').modal('hide');
+                    carrega_lista_menu();
+				}
+			},
+			error : function(e) {
+                preloaderStop();
+				gerarAlerta(e.responseJSON.msg, 'Erro', 'danger');
+			},
+            complete:function(){
+                preloaderStop();
+            },
+            beforeSend:function(){
+                preloaderStart();
+            },
+			type:'post',
+			dataType:'json',
+			url: '/<?=$prefix?>-save',
+			resetForm:false
+		}).submit();
+	});
 
 });
 </script>

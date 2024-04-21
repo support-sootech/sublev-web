@@ -545,6 +545,7 @@ function redirect($url){
 }
 
 function messagesDefault($idx) {
+	$message['OK'] = 'OK';
 	$message['register'] = 'Cadastro efetuado com sucesso!';
 	$message['update'] = 'Alteração efetuada com sucesso!';
 	$message['delete'] = 'Registro deletado com sucesso!';

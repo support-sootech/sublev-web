@@ -34,7 +34,7 @@ class MenuModel extends Connection {
 
             foreach ($this->fields as $key => $value) {
                 $this->newModel[$key] = $value;
-                $this->newModel[$key]['value'] = (isset($arr[$key]) ? $arr[$key] : '');
+                $this->newModel[$key]['value'] = (isset($arr[$key]) ? $arr[$key] : null);
             }
 
         }
@@ -157,6 +157,80 @@ class MenuModel extends Connection {
         }
     }
 
+    public function menuPerfilSistema() {
+        try {
+
+            $menu = array();
+            $arr = array();
+            $and = " and m.status not in('D')";
+
+            //MENUS PRINCIPAL
+            $sql = "select m.id_menu, 
+                           m.nome, 
+                           m.descricao, 
+                           m.link, 
+                           m.icone, 
+                           m.status, 
+                           mpp.id_permissoes, 
+                           p.descricao as ds_permissoes,
+                           mpp.id_perfil, 
+                           pf.descricao as ds_perfil
+                      from ".self::TABLE." m
+                     inner join tb_menu_permissao_perfil mpp on mpp.id_menu = m.id_menu
+                     inner join tb_permissoes p on p.id_permissoes = mpp.id_permissoes
+                     inner join tb_perfil pf on pf.id_perfil = mpp.id_perfil  
+                     where m.tipo = 'P'
+                       and mpp.id_permissoes = 1
+                       ".$and."
+                     order by m.ordem";            
+            
+            $res = $this->conn->select($sql, $arr);
+            if (isset($res[0])) {
+                foreach ($res as $key => $value) {
+
+                    $arr_menu_sub = array(
+                        ':ID_MENU_PRINCIPAL'=>$value['id_menu']
+                    );
+
+                    //MENU SUB
+                    $sql = "select m.id_menu, 
+                                   m.nome,
+                                   m.link,
+                                   m.status, 
+                                   m.icone,
+                                   mpp.id_permissoes
+                              from ".self::TABLE." m
+                             inner join tb_menu_permissao_perfil mpp on mpp.id_menu = m.id_menu
+                             inner join tb_perfil pf on pf.id_perfil = mpp.id_perfil  
+                             where m.tipo = 'S'
+                               and m.status = 'A'
+                               and m.id_menu_principal = :ID_MENU_PRINCIPAL
+                             order by m.ordem";
+
+                    $res_menu_sub = $this->conn->select($sql, $arr_menu_sub);
+                    $menu_sub = array();
+                    if (isset($res_menu_sub[0])) {
+                        foreach ($res_menu_sub as $k => $v) {
+                            $menu_sub[$v['id_menu']]['id_menu'] = $v['id_menu'];
+                            $menu_sub[$v['id_menu']]['nome'] = $v['nome'];
+                            $menu_sub[$v['id_menu']]['link'] = $v['link'];
+                            $menu_sub[$v['id_menu']]['icone'] = $v['icone'];
+                        }
+                    }
+
+                    $value['menu_sub'] = $menu_sub;
+
+                    $menu[] = $value;
+                }
+            }
+
+            return $menu;
+
+        } catch (Exception $e) {
+            return $e->getMessage();
+        }
+    }
+
     public function loadId($id) {
         try {
             $arr[':ID'] = $id;
@@ -255,13 +329,13 @@ class MenuModel extends Connection {
         try {
             $this->setFields($arr);
             $values = $this->getFields();
-            if (isset($values[':ID_USUARIOS'])) {
-                unset($values[':ID_USUARIOS']);
+            if (isset($values[':ID_MENU'])) {
+                unset($values[':ID_MENU']);
             }
             $save = $this->conn->insert(self::TABLE, $values);
             return $save;
         } catch (Exception $e) {
-            return $e->getMessage();
+            throw new Exception($e->getMessage(), 1);
         }
     }
 
@@ -269,31 +343,29 @@ class MenuModel extends Connection {
         
         try {
             $this->setFields($arr);
-            $values = $this->getFields();
+            $values = $this->getFields(true);
             
             $w = array();
             foreach ($where as $key => $value) {
                 $w[':'.$key.''] = $value;
             }
 
-            if(isset($values[':ID_USUARIOS'])) {
-                unset($values[':ID_USUARIOS']);
-            }
+            unset($values[":ID_MENU"]);
 
             $save = $this->conn->update(self::TABLE, $values, $w);
             return $save;
         } catch (Exception $e) {
-            return $e->getMessage();
+            throw new Exception($e->getMessage(), 1);
         }
     }
 
     public function del($id){
         try {
-            //$save = $this->conn->delete(self::TABLE, array(':ID_USUARIOS'=>$id));
-            $save = $this->conn->update(self::TABLE, array(':STATUS'=>'D'), array(':ID_USUARIOS'=>$id));
+            //$save = $this->conn->delete(self::TABLE, array(':ID_MENU'=>$id));
+            $save = $this->conn->update(self::TABLE, array(':STATUS'=>'D'), array(':ID_MENU'=>$id));
             return $save;
         } catch (Exception $e) {
-            return $e->getMessage();
+            throw new Exception($e->getMessage(), 1);
         }
     }
 }

@@ -52,9 +52,9 @@ $prefix = 'perfil';
                                     <thead>
                                         <tr>
                                             <th style="width: 5%;">ID</th>
-                                            <th style="width: 65%;">Descrição</th>
-                                            <th style="width: 20%;">Status</th>
-                                            <th style="width: 10%;">Ações</th>
+                                            <th style="width: 60%;">Descrição</th>
+                                            <th style="width: 15%;">Status</th>
+                                            <th style="width: 20%;">Ações</th>
                                         </tr>
                                     </thead>
                                     <tbody></tbody>
@@ -86,7 +86,7 @@ $prefix = 'perfil';
         <i class="fas fa-angle-up"></i>
     </a>
 
-    <!-- Logout Modal-->
+    <!-- Modal Form -->
     <div class="modal fade" id="modal-<?=$prefix?>" tabindex="-1" role="dialog" aria-labelledby="modal<?=$prefix?>" aria-hidden="true">
         <div class="modal-dialog" role="document">
             <div class="modal-content">
@@ -117,6 +117,31 @@ $prefix = 'perfil';
                         <i class="fa fa-xmark"></i> Fechar
                     </button>
                     <a class="btn btn-primary" href="#" rel="btn-<?=$prefix?>-salvar">
+                        <i class="fa fa-save"></i> Salvar
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Form Menu Permissões -->
+    <div class="modal fade" id="modal-<?=$prefix?>-menu-permissao" tabindex="-1" role="dialog" aria-labelledby="modal<?=$prefix?>menupermissao" aria-hidden="true">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modal<?=$prefix?>menupermissao">Menu / Permissões</h5>
+                    <button class="close" type="button" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">×</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form name="form-<?=$prefix?>-menu-permissao" class="form"></form>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" type="button" data-dismiss="modal">
+                        <i class="fa fa-xmark"></i> Fechar
+                    </button>
+                    <a class="btn btn-primary" href="#" rel="btn-<?=$prefix?>-menu-permissao-salvar">
                         <i class="fa fa-save"></i> Salvar
                     </a>
                 </div>
@@ -172,6 +197,10 @@ function carrega_lista(){
                     { "data": function ( data, type, row ) {
                                     var campo = '';
 
+                                    campo+= '<a href="#" title="Menus / Permissões " id="'+data.id_perfil+'" rel="btn-<?=$prefix?>-menu-permissao" role="button" class="btn btn-dark btn-sm" style="margin: 1px 2px">'+
+                                                '<i class="fas fa-list"></i>'+
+                                            '</a>';
+                                    
                                     campo+= '<a href="#" title="Editar" id="'+data.id_perfil+'" rel="btn-<?=$prefix?>-editar" role="button" class="btn btn-primary btn-sm" style="margin: 1px 2px">'+
                                                 '<i class="fas fa-edit"></i>'+
                                             '</a>';
@@ -198,6 +227,78 @@ function deletaRegistro(id){
             if (data) {
                 gerarAlerta(data.msg, (data.success?'Sucesso':'Erro'), data.type);
                 carrega_lista();
+            }
+        },
+        beforeSend:function(){
+            preloaderStart();
+        },
+        error:function(a,b,c){
+            preloaderStop();
+            gerarAlerta(a, 'Aviso', 'danger');
+            console.error('a',a);
+            console.error('b',b);
+            console.error('c',c);
+        },
+        complete:function(){
+            preloaderStop();
+        }
+    });
+}
+
+function menu_permissao() {
+    $.ajax({
+        url:'/<?=$prefix?>-menu-permissao',
+        type:'get',
+        dataType:'json',
+        data:{},
+        success:function(data){
+            console.log('data', data);
+            if (data.success) {
+                let el = $('form[name=form-<?=$prefix?>-menu-permissao]');
+                let body = '<small>*Em vermelho são itens inativos.</small><br>';
+
+                if (data.data) {
+                    $.each(data.data, function(i, v){
+                        console.log('v', v.nome);
+                        body += '<div class="row">';                                
+                            body += '<div class="col">';
+                                body += '<div class="form-check">'+
+                                            '<input class="form-check-input" type="checkbox" value="'+v.id_menu+'" id="menu_principal" name="menu_principal[]">'+
+                                            '<label class="form-check-label '+(v.status=='I' ? 'text-danger' : 'text-black')+'" for="menu_principal"><h6 style="font-weight: bold;">'+v.nome+'<small> (Principal)</small></h6></label>'+
+                                        '</div>';
+
+                                if (v.menu_sub) {
+                                    body += '<table class="table table-bordered">';
+                                    $.each(v.menu_sub, function(a, b){
+                                        body += '<tr>';
+                                            body += '<td>';
+                                                body += '<div class="form-check">'+
+                                                            '<input class="form-check-input" type="checkbox" value="'+b.id_menu+'" data-menu="'+v.id_menu+'" id="sub_menu" name="sub_menu[]">'+
+                                                            '<label class="form-check-label '+(b.status=='I' ? 'text-danger' : '')+'" for="sub_menu"><span style="font-size:11px">'+b.nome+' <small>(Sub-Menu)</small></span></label>'+
+                                                        '</div>';
+                                            body += '</td>';
+
+                                            if (data.permissoes) {
+                                                $.each(data.permissoes, function(x,y) {
+                                                    body += '<td>';
+                                                        body += '<div class="form-check form-check-inline">'+
+                                                                    '<input class="form-check-input" type="checkbox" data-menu="'+v.id_menu+'" data-submenu="'+b.id_menu+'" id="permissoes" name="permissoes[]" value="'+y.id_permissoes+'">'+
+                                                                    '<label class="form-check-label '+(y.status=='I' ? 'text-danger' : '')+'" title="'+(y.status=='I' ? 'Permissão Inativa' : '')+'" for="permissoes" style="font-size:11px">'+y.descricao+'</label>'+
+                                                                '</div>';
+                                                    body += '</td>';
+                                                })
+                                            }
+
+                                        body += '</tr>';
+                                    });
+                                    body += '</table>';
+                                }
+
+                            body += '</div>';
+                        body += '</div>';
+                    });
+                }
+                el.html(body);
             }
         },
         beforeSend:function(){
@@ -325,6 +426,47 @@ $(document).ready(function(){
 			resetForm:false
 		}).submit();
 	});
+
+    $(document).on('click', 'a[rel=btn-<?=$prefix?>-menu-permissao]', function(e){
+        e.preventDefault();
+        $('div#modal-<?=$prefix?>-menu-permissao').modal('show');
+        menu_permissao();
+    });
+
+    $(document).on('click', 'input[name^=menu_principal]', function(){
+        const t = $(this);
+        if(t.not(':checked')) {
+            $('input[name^=sub_menu][data-menu='+t.val()+']').prop('checked', false);
+        }
+    });
+
+    $(document).on('click', 'input[name^=sub_menu]', function(){
+        const t = $(this);
+        const menu_principal = $('input[name^=menu_principal][value='+t.attr('data-menu')+']');
+        const permissoes = $('input[name^=permissoes][data-submenu='+t.val()+']');
+
+        if(t.is(':checked')) {
+            permissoes.prop('checked', true);
+        } else {
+            permissoes.prop('checked', false);
+        }
+
+        if(!menu_principal.is(':checked')) {
+            menu_principal.prop('checked', true);
+        }
+    });
+
+    $(document).on('click', 'input[name^=permissoes]', function(){
+        const t = $(this);
+        if(!t.is(':checked')) {
+            const c = $('input[name^=permissoes][data-submenu='+t.attr('data-submenu')+']:checked').length;
+            console.log('count', c);
+            if(c==0) 
+                $('input[name^=sub_menu][value='+t.attr('data-submenu')+']').prop('checked', false);
+        } else {
+            // TODO: LÓGICA PARA SELECIONAR CASO NÃO ESTEJA.
+        }
+    });
 
 });
 </script>

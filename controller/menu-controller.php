@@ -33,6 +33,33 @@ $app->get('/menu-edit/:id', function($id = '') use ($app){
     }
 });
 
+$app->get('/menu-del/:id', function($id='') use ($app){
+    $status = 400;
+	$data = array();
+    if (valida_logado()) {
+        $class_menu = new MenuModel();
+
+        if (!empty($id)) {
+            $del = $class_menu->del($id);
+            if ($del) {
+                $status = 200;
+                $data = array('success'=>true, 'type'=>'success', 'msg'=>messagesDefault('delete'));
+            } else {
+                $data = array('success'=>false, 'type'=>'danger', 'msg'=>messagesDefault('register_not_found'));
+            }
+        } else {
+            $data = array('success'=>false, 'type'=>'danger', 'msg'=>messagesDefault('register_not_found'));
+        }
+    }
+    $response = $app->response();
+	$response['Access-Control-Allow-Origin'] = '*';
+	$response['Access-Control-Allow-Methods'] = 'GET';
+	$response['Content-Type'] = 'application/json';
+
+	$response->status($status);
+	$response->body(json_encode($data));
+});
+
 $app->get('/menu-json', function() use ($app){
     if (valida_logado()) {
         $data['data'] = array();
@@ -89,62 +116,49 @@ $app->get('/menu-principal-json', function() use ($app){
     }
 });
 
-$app->get('/controle-menu1', function() use ($app){
-    if (valida_logado(true)) {
-        die('Teste');
-    } else {
-        $app->notFound();
-    }
-});
-
-$app->post('/menu-salvar', function() use ($app){
+$app->post('/menu-save', function() use ($app){
 	$status = 400;
 	$data = array();
     $retorno = array();
     $erro = '';
     
     if ($app->request->isPost()) {
-        
-        $nome = $app->request->post('nome');
-        $descricao = $app->request->post('descricao');
-        $link = $app->request->post('link');
-        $icone = $app->request->post('icone');
-        $tipo = $app->request->post('tipo');
-        $status = $app->request->post('status');
-        $id_menu_principal = $app->request->post('id_menu_principal');
-        
 
-        if (empty($nome)) {
-            $erro = 'É necessário informar o nome.';
-        }
-
-        if (empty($status)) {
-            $erro = 'É necessário informar o status.';
-        }
-
-        if (empty($tipo)) {
-            $erro = 'É necessário informar o tipo.';
-        }
-
-        if (empty($erro)) {
-
+        try {
             $class_menu = new MenuModel();
-            //$data = $class_menu->login($email, md5($senha));
-            $data = false;
-            if ($data) {
-                $status = 200;
-                $_SESSION['usuario'] = $data;
-                $retorno = array('success'=>true, 'type'=>'success', 'msg'=>'OK.', 'page'=>'/dashboard', );
+            $post = $app->request->post();
+            $arr = array();
+            $id = '';
+    
+            foreach ($post as $key => $value) {
+                $arr[substr($key, 5)] = $value;
+            }
+    
+            $id = $arr['id_menu'];
+            unset($arr['id_menu']);
+            
+            if (!empty($id)) {
+                $data = $class_menu->edit($arr, array('id_menu'=>$id));
             } else {
-                $retorno = array('success'=>false, 'type'=>'danger', 'msg'=>'E-mail ou senha incorreto.');    
+                $data = $class_menu->add($arr);
             }
             
-        } else {
-            $retorno = array('success'=>false, 'type'=>'danger', 'msg'=>$erro);
+            $status = 200;
+            $retorno = array(
+                'success'=>true, 
+                'type'=>'success', 
+                'msg'=>messagesDefault(empty($id) ? 'register' : 'update'),
+                'id'=>$id,
+                'data'=>$data
+            );
+
+        } catch (Exception $e) {
+            $retorno = array('success'=>false, 'type'=>'danger', 'msg'=>$e->getMessage());
         }
     } else {
         $retorno = array('success'=>false, 'type'=>'danger', 'msg'=>'Método incorreto!');
     }
+    
 
 	$response = $app->response();
 	$response['Access-Control-Allow-Origin'] = '*';

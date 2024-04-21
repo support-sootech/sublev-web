@@ -90,7 +90,9 @@ class Connection extends PDO {
 	    } catch(PDOException $e) {
 	    	$erro = $e->getMessage();
 	        $conn->rollback();
-	        return "Error!: " . $erro . "</br>[".$sql."]";
+	        //return "Error!: " . $erro . "</br>[".$sql."]";
+			throw new Exception("Error!: " . $erro . "</br>[".$sql."]", 1);
+			
 	    }
 	}
 

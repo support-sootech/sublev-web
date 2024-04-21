@@ -55,13 +55,24 @@ function isFormValidate(elementoForm = null) {
         isValidate = error > 0 ? false : true;
     }
 
+    $('form.formValidate').find('.requered').each(function(){
+        if ($(this).val()=='') {
+            $(this).addClass('is-invalid');
+        } else {
+            $(this).removeClass('is-invalid');
+        }
+    });
+
     return isValidate;
 }
 
 function formFieldsRequered() {
-    $('form.formValidate').find('.requered').each(function(){
-        let txt = $('label[for='+$(this).attr('id')+']').text();
-        $('label[for='+$(this).attr('id')+']').text(txt+'*');
+    $('form.formValidate').find('input, select, textarea').each(function(){
+        let txt = $('label[for='+$(this).attr('id')+']').text().replace('*','');
+        if ($(this).hasClass('requered')) {
+            txt = txt+'*';
+        }
+        $('label[for='+$(this).attr('id')+']').text(txt);
     });
 }
 

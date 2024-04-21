@@ -77,10 +77,14 @@ class PermissoesModel extends Connection {
         }
     }
 
-    public function loadAll() {
+    public function loadAll($fg_geral=true) {
         try {
             $arr = array();
-            $and = " and status != 'D'";
+            $and = " and p.status != 'D'";
+
+            if (!$fg_geral) {
+                $and.= " and p.id_permissoes != 1";
+            }
             
             $sql = "select p.*
                       from ".self::TABLE." p
