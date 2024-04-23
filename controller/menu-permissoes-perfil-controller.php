@@ -13,13 +13,27 @@ $app->post('/menu-permissoes-perfil-save', function() use ($app){
 
             $post = $app->request->post();
             $id_perfil = $app->request->post('id_perfil');
+            $arr_menu_principal = $app->request->post('arr_menu_principal');
+            $arr_sub_menu = $app->request->post('arr_sub_menu');
             
             $del_menu_permissoes_perfil = $class_menu_permissoes_perfil->del($id_perfil);
+
+            if (isset($arr_menu_principal) && count($arr_menu_principal) > 0) {
+                foreach ($arr_menu_principal as $key => $value) {
+                    $add_menu_principal = $class_menu_permissoes_perfil->add($value);
+                }
+            }
+
+            if (isset($arr_sub_menu) && count($arr_sub_menu) > 0) {
+                foreach ($arr_sub_menu as $key => $value) {
+                    $add_menu_sub = $class_menu_permissoes_perfil->add($value);
+                }
+            }
             
             $status = 200;
             $retorno = array(
-                'success'=>true, 
-                'type'=>'success', 
+                'success'=>true,
+                'type'=>'success',
                 'msg'=>messagesDefault('register'),
                 'data'=>$data,
                 'post'=>$post,

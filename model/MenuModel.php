@@ -170,17 +170,9 @@ class MenuModel extends Connection {
                            m.descricao, 
                            m.link, 
                            m.icone, 
-                           m.status, 
-                           mpp.id_permissoes, 
-                           p.descricao as ds_permissoes,
-                           mpp.id_perfil, 
-                           pf.descricao as ds_perfil
+                           m.status
                       from ".self::TABLE." m
-                     inner join tb_menu_permissao_perfil mpp on mpp.id_menu = m.id_menu
-                     inner join tb_permissoes p on p.id_permissoes = mpp.id_permissoes
-                     inner join tb_perfil pf on pf.id_perfil = mpp.id_perfil  
                      where m.tipo = 'P'
-                       and mpp.id_permissoes = 1
                        ".$and."
                      order by m.ordem";            
             
@@ -197,13 +189,9 @@ class MenuModel extends Connection {
                                    m.nome,
                                    m.link,
                                    m.status, 
-                                   m.icone,
-                                   mpp.id_permissoes
+                                   m.icone
                               from ".self::TABLE." m
-                             inner join tb_menu_permissao_perfil mpp on mpp.id_menu = m.id_menu
-                             inner join tb_perfil pf on pf.id_perfil = mpp.id_perfil  
                              where m.tipo = 'S'
-                               and m.status = 'A'
                                and m.id_menu_principal = :ID_MENU_PRINCIPAL
                              order by m.ordem";
 
@@ -215,6 +203,7 @@ class MenuModel extends Connection {
                             $menu_sub[$v['id_menu']]['nome'] = $v['nome'];
                             $menu_sub[$v['id_menu']]['link'] = $v['link'];
                             $menu_sub[$v['id_menu']]['icone'] = $v['icone'];
+                            $menu_sub[$v['id_menu']]['status'] = $v['status'];
                         }
                     }
 
@@ -308,15 +297,26 @@ class MenuModel extends Connection {
         try {
             $arr = array(':ID_PERFIL'=>(empty($id_perfil)?0:$id_perfil));
             
-            $sql = "select distinct m.nome, m.link
+            $sql = "select distinct m.id_perfil, m.nome, m.link
                       from tb_menu_permissao_perfil mpp
                      inner join tb_menu m on m.id_menu = mpp.id_menu
+                     where mpp.id_perfil = :ID_PERFIL
+                       and m.tipo = 'S'";
+
+            $sql = "select m.id_menu, m.nome, m.link, mpp.id_permissoes, p.descricao
+                      from tb_menu_permissao_perfil mpp
+                     inner join tb_menu m on m.id_menu = mpp.id_menu
+                     inner join tb_permissoes p on p.id_permissoes = mpp.id_permissoes
                      where mpp.id_perfil = :ID_PERFIL
                        and m.tipo = 'S'";
             $res = $this->conn->select($sql, $arr);
             
             if (isset($res[0])) {
-                return $res;
+                $arr_endpoints = array();
+                foreach ($res as $key => $value) {
+                    $arr_endpoints[$value['link']][] = $value['descricao'];
+                }
+                return $arr_endpoints;
             } else {
                 return false;
             }

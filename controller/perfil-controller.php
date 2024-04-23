@@ -142,22 +142,43 @@ $app->post('/perfil-save', function() use ($app){
 	$response->body(json_encode($retorno));
 });
 
-$app->get('/perfil-menu-permissao', function() use ($app){
+$app->post('/perfil-menu-permissao', function() use ($app){
     $status = 200;
 	$data = array();
     if (valida_logado()) {
-        $class_perfil = new PerfilModel();
-        $class_menu = new MenuModel();
-        $class_permissoes = new PermissoesModel();
-        $arr_permissoes = $class_permissoes->loadAll(false);
-
         try {
+
+            $id_perfil = $app->request->post('id_perfil');
+
+            $class_perfil = new PerfilModel();
+            $class_menu = new MenuModel();
+            
+            $class_permissoes = new PermissoesModel();
+            $arr_permissoes = $class_permissoes->loadAll(false);
+            
+            $class_menu_permissao_perfil = new MenuPermissaoPerfilModel();
+            $arr_menu_permissao_perfil = $class_menu_permissao_perfil->loadAllIdPerfil($id_perfil);
+            $menu_permissao_perfil = array();
+            if ($arr_menu_permissao_perfil) {
+                foreach ($arr_menu_permissao_perfil as $key => $value) {
+                    //$menu_permissao_perfil[$value['id_perfil']][$value['id_menu']][] = $value['id_permissoes'];
+                    //$menu_permissao_perfil[$value['id_perfil']][][$value['id_menu']][] = $value['id_permissoes'];
+
+                    //$menu_permissao_perfil[$value['id_menu']][] = array('id_permissao'=>$value['id_permissoes']);
+                    $menu_permissao_perfil[$value['id_menu']][] = array(
+                        'id_menu'=>$value['id_menu'], 
+                        'id_permissao'=>$value['id_permissoes']
+                    );
+                }
+            }
+
             $data = array(
                 'success'=>true, 
                 'type'=>'success', 
                 'msg'=>messagesDefault('OK'), 
                 'data'=>$class_menu->menuPerfilSistema(),
                 'permissoes'=>$arr_permissoes,
+                'menu_permissao_perfil'=>$menu_permissao_perfil,
             );
         } catch (Exception $e) {
             $data = array('success'=>false, 'type'=>'danger', 'msg'=>$e->getMessage());

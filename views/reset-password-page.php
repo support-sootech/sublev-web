@@ -11,30 +11,31 @@ require_once('header.php');
             <div class="card o-hidden border-0 shadow-lg my-5">
                 <div class="card-body p-0">
                     <!-- Nested Row within Card Body -->
-                    <div class="row">
+                    <div class="row">                        
                         <div class="col">
                             <div class="p-5">
                                 <div class="text-center">
-                                    <h1 class="h4 text-gray-900 mb-4">Acesso ao Sistema</h1>
+                                    <h1 class="h4 text-gray-900 mb-2">Esqueceu sua senha?</h1>
+                                    <p class="mb-4">Será enviado um e-mail para resetar sua senha.</p>
                                 </div>
-                                <form name="form-login" class="">
+                                <form name="form-reset-password" class="">
                                     <div class="form-group">
-                                        <input type="cpf" class="form-control form-control-user mask-cpf-cnpj" id="cpf" name="cpf" aria-describedby="cpf" placeholder="Digite seu CPF">
+                                        <input type="email" class="form-control form-control-user"
+                                            id="email" name="email" aria-describedby="email"
+                                            placeholder="Informe seu e-mail">
                                     </div>
-                                    <div class="form-group">
-                                        <input type="password" class="form-control form-control-user" id="senha" name="senha" placeholder="Senha">
-                                    </div>
-                                    <a href="#" rel="btn-login" class="btn btn-primary btn-user btn-block">
-                                        Acessar
+                                    <a href="#" rel="btn-send" class="btn btn-primary btn-user btn-block">
+                                        Enviar
                                     </a>
                                 </form>
                                 <hr>
                                 <div class="text-center">
-                                    <a class="small" href="/forgot-password">Esqueceu sua senha?</a>
+                                    <a class="small" href="/">Acessar o sistema.</a>
                                 </div>
                             </div>
                         </div>
                     </div>
+                    
                 </div>
             </div>
 
@@ -48,20 +49,22 @@ require_once('footer.php');
 ?>
 <script>
 
-function login() {
-    if($('input[name=cpf]').val() == '' || $('input[name=senha]').val() == ''){
-        gerarAlerta('É necessário informar CPF e senha.', 'Aviso', 'danger');
+function register_password() {
+    if($('input[name=email]').val() == ''){
+        gerarAlerta('O campo e-mail deve ser preenchido!', 'Aviso', 'danger');
         return false;
     }
 
     preloaderStart();
 
-    $('form[name=form-login]').ajaxForm({
+    $('form[name=form-reset-password]').ajaxForm({
         data:{},
         success : function(data) {
             gerarAlerta(data.msg, (data.success?'Sucesso':'Erro'), data.type);
             if (data.success) {
-                window.location.href = data.page
+                setTimeout(() => {
+                    window.location.href = data.page
+                }, 2000);
             }
         },
         error : function(e) {
@@ -76,23 +79,15 @@ function login() {
         },
         type:'post',
         dataType:'json',
-        url: '/login',
+        url: '/reset-password',
         resetForm:false
     }).submit();
 }
 
 $(document).ready(function(){
-    $('a[rel=btn-login]').on('click', function(e){
+    $('a[rel=btn-send]').on('click', function(e){
 		e.preventDefault();
-        login();
+        register_password();
 	});
-
-    $(document).keypress(function (e) {
-        if (e.which == 13) {
-            login();
-            return false;
-        }
-    });
-
 });
 </script>

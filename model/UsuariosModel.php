@@ -11,28 +11,34 @@ class UsuariosModel extends Connection {
     //MODELAGEM DO BANCO
     private $fields = array(
         'id_usuarios'=>array('type'=>'integer', 'requered'=>true, 'max'=>10, 'key'=>true, 'description'=>'ID'),
-        'senha'=>array('type'=>'string', 'requered'=>true, 'max'=>'32', 'key'=>false, 'description'=>'Senha'),
+        'senha'=>array('type'=>'string', 'requered'=>false, 'max'=>'50', 'key'=>false, 'description'=>'Senha'),
         'status'=>array('type'=>'string', 'requered'=>false, 'max'=>'1', 'default'=>'A', 'key'=>false, 'description'=>'status'),
-        'id_perfil'=>array('type'=>'integer', 'requered'=>true, 'max'=>'10', 'key'=>false, 'description'=>'Perfil'),
         'id_pessoas'=>array('type'=>'integer', 'requered'=>true, 'max'=>'10', 'key'=>false, 'description'=>'Código da pessoa'),
     );
     
     private function setFields($arr) {
         if (count($arr) > 0) {
-            /*
-            foreach ($arr as $key => $value) {
-                if (array_key_exists($key, $this->fields)) {
-                    $this->newModel[$key] = $this->fields[$key];
-                    $this->newModel[$key]['value'] = $value;
+
+            //VALIDA A SENHA
+            if (isset($arr['id_usuarios']) && !empty($arr['id_usuarios'])) {
+                $usuario = $this->loadId($arr['id_usuarios']);
+                if ($usuario) {
+                    $arr['senha'] = $arr['senha'] != $usuario['senha'] ? md5($arr['senha']) : $usuario['senha'];
+                } else {
+                    $arr['senha'] = md5($arr['senha']);
+                }
+            } else {
+                if (isset($arr['senha']) && !empty($arr['senha'])) {
+                    $arr['senha'] = md5($arr['senha']);
+                } else {
+                    $arr['senha'] = '';
                 }
             }
-            */
 
             foreach ($this->fields as $key => $value) {
                 $this->newModel[$key] = $value;
                 $this->newModel[$key]['value'] = (isset($arr[$key]) ? $arr[$key] : '');
             }
-
         }
     }
 
@@ -69,6 +75,19 @@ class UsuariosModel extends Connection {
         return $arr;
     }
 
+    private function getModelView($arr) {
+        
+        if (isset($arr['cpf_cnpj']) && !empty($arr['cpf_cnpj'])) {
+            $arr['cpf_cnpj'] = mascaraCpfCnpj($arr['tp_juridico'], $arr['cpf_cnpj']);
+        }
+
+        if (isset($arr['dt_nascimento']) && !empty($arr['dt_nascimento'])) {
+            $arr['dt_nascimento'] = dt_br($arr['dt_nascimento']);
+        }
+
+        return $arr;
+    }
+
     public function login($cpf_cnpj, $senha) {
         try {
             $arr[':CPF_CNPJ'] = limpa_numero($cpf_cnpj);
@@ -83,11 +102,16 @@ class UsuariosModel extends Connection {
                                 else lpad(ps.cpf_cnpj, 11, 0)
                            end) as cpf_cnpj,
                            #ps.cpf_cnpj,
-                           ps.genero, e.nome as nm_empresa,
+                           ps.genero, 
+                           e.id_empresas,
+                           e.nome as nm_empresa,
+                           tp.id_tipos_pessoas,
+                           tp.descricao as ds_tipos_pessoas,
                            md5(concat(u.id_usuarios, now())) as hash_login
                       from ".self::TABLE." u
                       inner join tb_pessoas ps on ps.id_pessoas = u.id_pessoas
                       inner join tb_empresas e on e.id_empresas = ps.id_empresas
+                      inner join tb_tipos_pessoas tp on tp.id_tipos_pessoas = ps.id_tipos_pessoas
                      where u.senha = :SENHA
                        and ps.cpf_cnpj = :CPF_CNPJ";
             $res = $this->conn->select($sql, $arr);
@@ -105,6 +129,7 @@ class UsuariosModel extends Connection {
 
                 $class_menu = new MenuModel();
                 $menu = array();
+                $arr_menu = array();
                 $endpoints = array();
                 if (isset($usuario['perfil']) && count($usuario['perfil'])>0) {
                     foreach ($usuario['perfil'] as $key => $value) {                        
@@ -118,15 +143,23 @@ class UsuariosModel extends Connection {
                         $arr_endpoints = $class_menu->loadEndPointAcesso($value['id_perfil']);
                         if ($arr_endpoints) {
                             foreach ($arr_endpoints as $k => $v) {
-                                $endpoints[] = $v['link'];
+                                //$endpoints[$v['link']] = $v;
+                                $endpoints[$k] = $v;
                             }
                         }
                     }
                 }
-                
-                $usuario['menu'] = $menu;
-                $usuario['endpoints'] = $endpoints;
 
+                //REMOVE OS MENUS REPETIDOS POR CAUSA DO PERFIL
+                $arr_menu = array();
+                foreach ($menu as $key => $value) {
+                    foreach ($value as $k => $v) {
+                        $arr_menu[$v['id_menu']] = $v;
+                    }
+                }
+
+                $usuario['menu'] = $arr_menu;
+                $usuario['endpoints'] = $endpoints;
 
                 return $usuario;
             } else {
@@ -150,15 +183,20 @@ class UsuariosModel extends Connection {
                                 else lpad(ps.cpf_cnpj, 11, 0)
                            end) as cpf_cnpj,
                            #ps.cpf_cnpj,
-                           ps.genero, e.nome as nm_empresa
+                           tp.id_tipos_pessoas,
+                           tp.descricao as ds_tipos_pessoas,
+                           ps.genero, 
+                           e.id_empresas,
+                           e.nome as nm_empresa
                       from ".self::TABLE." u
                       inner join tb_pessoas ps on ps.id_pessoas = u.id_pessoas
                       inner join tb_empresas e on e.id_empresas = ps.id_empresas
+                      inner join tb_tipos_pessoas tp on tp.id_tipos_pessoas = ps.id_tipos_pessoas
                      where u.id_usuarios = :ID";
             $res = $this->conn->select($sql, $arr);
             
             if (isset($res[0])) {
-                return $res[0];
+                return $this->getModelView($res[0]);
             } else {
                 return false;
             }
@@ -167,15 +205,11 @@ class UsuariosModel extends Connection {
         }
     }
 
-    public function loadAll($root=false) {
+    public function loadAll($id_tipos_perfil='', $status='') {
         try {
             $arr = array();
-            $and = '';
-            
-            if (!$root) {
-                $and.= " and u.status not in('D')";
-            }
-            
+            $and = " and u.status not in('D')";
+                        
             $sql = "select u.*,
                            ps.nome as nm_pessoa, 
                            ps.email, 
@@ -185,16 +219,95 @@ class UsuariosModel extends Connection {
                                 else lpad(ps.cpf_cnpj, 11, 0)
                            end) as cpf_cnpj,
                            #ps.cpf_cnpj,
-                           ps.genero, e.nome as nm_empresa
+                           ps.genero, e.nome as nm_empresa,
+                           tp.id_tipos_pessoas,
+                           tp.descricao as ds_tipos_pessoas
                       from ".self::TABLE." u
                       inner join tb_pessoas ps on ps.id_pessoas = u.id_pessoas
                       inner join tb_empresas e on e.id_empresas = ps.id_empresas
+                      inner join tb_tipos_pessoas tp on tp.id_tipos_pessoas = ps.id_tipos_pessoas
                      where 1 = 1 
                        ".$and."";
             $res = $this->conn->select($sql, $arr);
             
             if (isset($res[0])) {
-                return $res;
+                $arr = array();
+
+                foreach ($res as $key => $value) {
+                    $arr[] = $this->getModelView($value);
+                }
+
+                return $arr;
+            } else {
+                return false;
+            }
+        } catch (Exception $e) {
+            return $e->getMessage();
+        }
+    }
+
+    public function loadHash($hash) {
+        try {
+            $arr[':HASH'] = $hash;
+            
+            $sql = "select u.*, 
+                           ps.nome as nm_pessoa, 
+                           ps.email, 
+                           ps.dt_nascimento, 
+                           ps.tp_juridico, 
+                           (case when ps.tp_juridico = 'J' then lpad(ps.cpf_cnpj, 14, 0)
+                                else lpad(ps.cpf_cnpj, 11, 0)
+                           end) as cpf_cnpj,
+                           #ps.cpf_cnpj,
+                           tp.id_tipos_pessoas,
+                           tp.descricao as ds_tipos_pessoas,
+                           ps.genero, 
+                           e.id_empresas,
+                           e.nome as nm_empresa
+                      from ".self::TABLE." u
+                      inner join tb_pessoas ps on ps.id_pessoas = u.id_pessoas
+                      inner join tb_empresas e on e.id_empresas = ps.id_empresas
+                      inner join tb_tipos_pessoas tp on tp.id_tipos_pessoas = ps.id_tipos_pessoas
+                     where md5(concat(u.id_usuarios,ps.email)) = :HASH";
+            $res = $this->conn->select($sql, $arr);
+            
+            if (isset($res[0])) {
+                return $this->getModelView($res[0]);
+            } else {
+                return false;
+            }
+        } catch (Exception $e) {
+            return $e->getMessage();
+        }
+    }
+
+    public function loadEmail($email) {
+        try {
+            $arr[':EMAIL'] = mb_strtolower($email);
+            
+            $sql = "select u.*, 
+                           ps.nome as nm_pessoa, 
+                           ps.email, 
+                           ps.dt_nascimento, 
+                           ps.tp_juridico, 
+                           (case when ps.tp_juridico = 'J' then lpad(ps.cpf_cnpj, 14, 0)
+                                else lpad(ps.cpf_cnpj, 11, 0)
+                           end) as cpf_cnpj,
+                           #ps.cpf_cnpj,
+                           tp.id_tipos_pessoas,
+                           tp.descricao as ds_tipos_pessoas,
+                           ps.genero, 
+                           e.id_empresas,
+                           e.nome as nm_empresa
+                      from ".self::TABLE." u
+                      inner join tb_pessoas ps on ps.id_pessoas = u.id_pessoas
+                      inner join tb_empresas e on e.id_empresas = ps.id_empresas
+                      inner join tb_tipos_pessoas tp on tp.id_tipos_pessoas = ps.id_tipos_pessoas
+                     where ps.email = :EMAIL";
+            $res = $this->conn->select($sql, $arr);
+            
+            if (isset($res[0])) {
+                return $this->getModelView($res[0]);
             } else {
                 return false;
             }
@@ -213,7 +326,7 @@ class UsuariosModel extends Connection {
             $save = $this->conn->insert(self::TABLE, $values);
             return $save;
         } catch (Exception $e) {
-            return $e->getMessage();
+            throw new Exception($e->getMessage(), 1);
         }
     }
 
@@ -235,7 +348,8 @@ class UsuariosModel extends Connection {
             $save = $this->conn->update(self::TABLE, $values, $w);
             return $save;
         } catch (Exception $e) {
-            return $e->getMessage();
+            throw new Exception($e->getMessage(), 1);
+            
         }
     }
 

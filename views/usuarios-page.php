@@ -1,7 +1,7 @@
 <?php
 require_once('header.php');
-$titulo = 'Perfil';
-$prefix = 'perfil';
+$titulo = 'Usuários';
+$prefix = 'usuarios';
 $arr_permissoes = array();
 if (isset($_SESSION['usuario']['endpoints'][returnPage()])) {
     $arr_permissoes = $_SESSION['usuario']['endpoints'][returnPage()];
@@ -58,10 +58,11 @@ if (isset($_SESSION['usuario']['endpoints'][returnPage()])) {
                                 <table class="table table-bordered" id="table-<?=$prefix?>" width="100%" cellspacing="0">
                                     <thead>
                                         <tr>
-                                            <th style="width: 5%;">ID</th>
-                                            <th style="width: 60%;">Descrição</th>
-                                            <th style="width: 15%;">Status</th>
-                                            <th style="width: 20%;">Ações</th>
+                                            <th style="">ID</th>
+                                            <th style="">Nome</th>
+                                            <th style="">CPF / CNPJ</th>
+                                            <th style="">Status</th>
+                                            <th style="">Ações</th>
                                         </tr>
                                     </thead>
                                     <tbody></tbody>
@@ -95,7 +96,7 @@ if (isset($_SESSION['usuario']['endpoints'][returnPage()])) {
 
     <!-- Modal Form -->
     <div class="modal fade" id="modal-<?=$prefix?>" tabindex="-1" role="dialog" aria-labelledby="modal<?=$prefix?>" aria-hidden="true">
-        <div class="modal-dialog" role="document">
+        <div class="modal-dialog modal-lg" role="document">
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title" id="modal<?=$prefix?>"><?=$titulo?></h5>
@@ -104,19 +105,79 @@ if (isset($_SESSION['usuario']['endpoints'][returnPage()])) {
                     </button>
                 </div>
                 <div class="modal-body">
-                    <form name="form-perfil" class="formValidate">
-                        <input type="hidden" class="" id="<?=$prefix?>_id_perfil" name="<?=$prefix?>_id_perfil" value="">
-                        <div class="form-group">
-                            <label for="<?=$prefix?>_descricao">Descrição</label>
-                            <input type="text" class="form-control requered" id="<?=$prefix?>_descricao" name="<?=$prefix?>_descricao" placeholder="Descrição">
+                    <form name="form-<?=$prefix?>" class="formValidate">
+                        <input type="hidden" class="" id="<?=$prefix?>_id_usuarios" name="<?=$prefix?>_id_usuarios" value="">
+                        <input type="hidden" class="" id="<?=$prefix?>_id_pessoas" name="<?=$prefix?>_id_pessoas" value="">
+                        
+                        <div class="row">
+                            <div class="col-sm-12 col-md-12 col-lg-10 col-xl-10 col-xxl-10">
+                                <div class="form-group">
+                                    <label for="<?=$prefix?>_nome">Nome</label>
+                                    <input type="text" class="form-control requered" id="<?=$prefix?>_nome" name="<?=$prefix?>_nome" placeholder="Nome Completo">
+                                </div>
+                            </div>
+                            <div class="col-sm-12 col-md-12 col-lg-2 col-xl-2 col-xxl-2">
+                                <div class="form-group">
+                                    <label for="<?=$prefix?>_tp_juridico">Tipo Jurídico</label>
+                                    <select class="form-select requered" id="<?=$prefix?>_tp_juridico" name="<?=$prefix?>_tp_juridico">
+                                        <option value="F">PF</option>
+                                        <option value="J">PJ</option>
+                                    </select>
+                                </div>
+                            </div>
                         </div>
-                        <div class="form-group">
-                            <label for="<?=$prefix?>_status">Status</label>
-                            <select class="form-select requered" id="<?=$prefix?>_status" name="<?=$prefix?>_status">
-                                <option value="A">Ativo</option>
-                                <option value="I">Inativo</option>
-                            </select>
+
+                        <div class="row">
+                            <div class="col-sm-12 col-md-12 col-lg-4 col-xl-4 col-xxl-4">
+                                <div class="form-group">
+                                    <label for="<?=$prefix?>_cpf_cnpj">CPF / CNPJ</label>
+                                    <input type="text" class="form-control requered mask-cpf" id="<?=$prefix?>_cpf_cnpj" name="<?=$prefix?>_cpf_cnpj" placeholder="999.999.999-99">
+                                </div>
+                            </div>
+                            <div class="col-sm-12 col-md-12 col-lg-4 col-xl-4 col-xxl-4">
+                                <div class="form-group">
+                                <label for="<?=$prefix?>_dt_nascimento">Dt. Nascimento</label>
+                                    <input type="text" class="form-control requered mask-data" id="<?=$prefix?>_dt_nascimento" name="<?=$prefix?>_dt_nascimento" placeholder="99/99/9999">
+                                </div>
+                            </div>
+                            <div class="col-sm-12 col-md-12 col-lg-4 col-xl-4 col-xxl-4">
+                                <div class="form-group">
+                                    <label for="<?=$prefix?>_genero">Gênero</label>
+                                    <select class="form-select requered" id="<?=$prefix?>_genero" name="<?=$prefix?>_genero">
+                                        <option value="F">Feminino</option>
+                                        <option value="M">Masculino</option>
+                                        <option value="O">Outro</option>
+                                    </select>
+                                </div>
+                            </div>
                         </div>
+
+                        <div class="row">
+                            <div class="col-sm-12 col-md-12 col-lg-4 col-xl-4 col-xxl-4">
+                                <div class="form-group">
+                                    <label for="<?=$prefix?>_email">E-mail</label>
+                                    <input type="text" class="form-control requered" id="<?=$prefix?>_email" name="<?=$prefix?>_email" placeholder="aaaaa@aaaa.com">
+                                </div>
+                            </div>
+                            <!--
+                            <div class="col-sm-12 col-md-12 col-lg-4 col-xl-4 col-xxl-4">
+                                <div class="form-group">
+                                <label for="<?=$prefix?>_senha">Senha</label>
+                                    <input type="password" class="form-control requered" id="<?=$prefix?>_senha" name="<?=$prefix?>_senha" placeholder="99999">
+                                </div>
+                            </div>
+                            -->
+                            <div class="col-sm-12 col-md-12 col-lg-4 col-xl-4 col-xxl-4">
+                                <div class="form-group">
+                                    <label for="<?=$prefix?>_status">Status</label>
+                                    <select class="form-select requered" id="<?=$prefix?>_status" name="<?=$prefix?>_status">
+                                        <option value="A">Ativo</option>
+                                        <option value="I">Inativo</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
                     </form>
                 </div>
                 <div class="modal-footer">
@@ -131,30 +192,31 @@ if (isset($_SESSION['usuario']['endpoints'][returnPage()])) {
         </div>
     </div>
 
-    <!-- Modal Form Menu Permissões -->
-    <div class="modal fade" id="modal-<?=$prefix?>-menu-permissao" tabindex="-1" role="dialog" aria-labelledby="modal<?=$prefix?>menupermissao" aria-hidden="true">
-        <div class="modal-dialog modal-lg" role="document">
+    <div class="modal fade" id="modal-<?=$prefix?>-perfil" tabindex="-1" role="dialog" aria-labelledby="modal<?=$prefix?>perfil" aria-hidden="true">
+        <div class="modal-dialog " role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="modal<?=$prefix?>menupermissao">Menu / Permissões</h5>
+                    <h5 class="modal-title" id="modal<?=$prefix?>perfil"><?=$titulo?> / Perfil</h5>
                     <button class="close" type="button" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">×</span>
                     </button>
                 </div>
                 <div class="modal-body">
-                    <form name="form-<?=$prefix?>-menu-permissao" class="form"></form>
+                    <form name="form-<?=$prefix?>-perfil" class="formValidate"></form>
                 </div>
                 <div class="modal-footer">
                     <button class="btn btn-secondary" type="button" data-dismiss="modal">
                         <i class="fa fa-xmark"></i> Fechar
                     </button>
-                    <a class="btn btn-primary" href="#" rel="btn-<?=$prefix?>-menu-permissao-salvar">
+                    <a class="btn btn-primary" href="#" rel="btn-<?=$prefix?>-perfil-salvar">
                         <i class="fa fa-save"></i> Salvar
                     </a>
                 </div>
             </div>
         </div>
     </div>
+
+    
 
 <?php
 require_once('footer.php');
@@ -175,11 +237,15 @@ function carrega_lista(){
         "columns":
                 [
                     { "data": function ( data, type, row ) {
-                                    return data.id_perfil;
+                                    return data.id_usuarios;
                                 }
                     },
                     { "data": function ( data, type, row ) {
-                                    return data.descricao;
+                                    return data.nm_pessoa;
+                                }
+                    },
+                    { "data": function ( data, type, row ) {
+                                    return data.cpf_cnpj;
                                 }
                     },
                     { "data": function ( data, type, row ) {
@@ -203,20 +269,27 @@ function carrega_lista(){
                     { "data": function ( data, type, row ) {
                                     var campo = '';
 
-                                    <?php if(in_array('CADASTRAR', $arr_permissoes)):?>
-                                    <?php endif;?>
-                                        campo+= '<a href="#" title="Menus / Permissões " id="'+data.id_perfil+'" rel="btn-<?=$prefix?>-menu-permissao" role="button" class="btn btn-dark btn-sm" style="margin: 1px 2px">'+
-                                                    '<i class="fas fa-list"></i>'+
+                                    let color_send = 'primary';
+                                    if(data.senha == '') {
+                                        color_send = 'warning';
+                                    }
+
+                                    campo+= '<a href="#" title="E-mail de cadastramento de senha" id="'+data.id_usuarios+'" rel="btn-<?=$prefix?>-register-password" role="button" class="btn btn-'+color_send+' btn-sm" style="margin: 1px 2px">'+
+                                                    '<i class="fas fa-envelope"></i>'+
                                                 '</a>';
 
+                                    campo+= '<a href="#" title="relacionamento de perfil" id="'+data.id_usuarios+'" rel="btn-<?=$prefix?>-perfil" role="button" class="btn btn-dark btn-sm" style="margin: 1px 2px">'+
+                                                    '<i class="fas fa-list"></i>'+
+                                                '</a>';                                   
+
                                     <?php if(in_array('ALTERAR', $arr_permissoes)):?>
-                                        campo+= '<a href="#" title="Editar" id="'+data.id_perfil+'" rel="btn-<?=$prefix?>-editar" role="button" class="btn btn-primary btn-sm" style="margin: 1px 2px">'+
+                                        campo+= '<a href="#" title="Editar" id="'+data.id_usuarios+'" rel="btn-<?=$prefix?>-editar" role="button" class="btn btn-primary btn-sm" style="margin: 1px 2px">'+
                                                     '<i class="fas fa-edit"></i>'+
                                                 '</a>';
                                     <?php endif;?>
                                     
                                     <?php if(in_array('DELETAR', $arr_permissoes)):?>
-                                        campo+= '<a href="#" title="Deletar" rel="btn-<?=$prefix?>-deletar" id="'+data.id_perfil+'" role="button" class="btn btn-danger btn-sm" style="margin: 1px 2px">'+
+                                        campo+= '<a href="#" title="Deletar" rel="btn-<?=$prefix?>-deletar" id="'+data.id_usuarios+'" role="button" class="btn btn-danger btn-sm" style="margin: 1px 2px">'+
                                                     '<i class="fas fa-trash"></i>'+
                                                 '</a>';
                                     <?php endif;?>
@@ -257,73 +330,35 @@ function deletaRegistro(id){
     });
 }
 
-function menu_permissao(id_perfil) {
+function usuario_perfil(id_usuarios) {
     $.ajax({
-        url:'/<?=$prefix?>-menu-permissao',
+        url:'/usuarios-perfil-json',
         type:'post',
         dataType:'json',
         data:{
-            'id_perfil':id_perfil
+            'id_usuarios':id_usuarios
         },
         success:function(data){
+            console.log('data', data);
             
-            if (data.success) {
-                let el = $('form[name=form-<?=$prefix?>-menu-permissao]');
-                let body = '<small>*Em vermelho são itens inativos.</small><br>';
-                body += '<input type="hidden" name="id_perfil_menu" value="'+id_perfil+'" />';
+            if (data.data) {
+                let el = $('form[name=form-<?=$prefix?>-perfil]');
+                let body = '';
+                body += '<input type="hidden" name="id_usuarios_perfil" value="'+id_usuarios+'" />';
 
                 if (data.data) {
+                    body += '<table class="table table-bordered">';
                     $.each(data.data, function(i, v){
-                        
-                        let menu_principal_selected = (data.menu_permissao_perfil[v.id_menu] ? 'checked="checked"' : '');
-
-                        body += '<div class="row">';                                
-                            body += '<div class="col">';
-                                body += '<div class="form-check">'+
-                                            '<input class="form-check-input" type="checkbox" '+menu_principal_selected+' value="'+v.id_menu+'" id="menu_principal" name="menu_principal[]">'+
-                                            '<label class="form-check-label '+(v.status=='I' ? 'text-danger' : 'text-black')+'" for="menu_principal"><h6 style="font-weight: bold;">'+v.nome+'<small> (Principal)</small></h6></label>'+
-                                        '</div>';
-
-                                if (v.menu_sub) {
-                                    body += '<table class="table table-bordered">';
-                                    $.each(v.menu_sub, function(a, b){
-
-                                        let sub_menu_selected = (data.menu_permissao_perfil[b.id_menu] ? 'checked="checked"' : '');
-
-                                        body += '<tr>';
-                                            body += '<td>';
-                                                body += '<div class="form-check">'+
-                                                            '<input class="form-check-input" '+sub_menu_selected+' type="checkbox" value="'+b.id_menu+'" data-menu="'+v.id_menu+'" id="sub_menu" name="sub_menu[]">'+
-                                                            '<label class="form-check-label '+(b.status=='I' ? 'text-danger' : '')+'" for="sub_menu"><span style="font-size:11px">'+b.nome+' <small>(Sub-Menu)</small></span></label>'+
-                                                        '</div>';
-                                            body += '</td>';
-
-                                            if (data.permissoes) {
-                                                $.each(data.permissoes, function(x,y) {
-
-                                                    let permissao_selected = '';
-                                                    if(data.menu_permissao_perfil[b.id_menu]) {
-                                                        permissao_selected = data.menu_permissao_perfil[b.id_menu].some((i)=>i.id_permissao===y.id_permissoes) ? 'checked="checked"' : '';
-                                                    }
-                                                    
-
-                                                    body += '<td>';
-                                                        body += '<div class="form-check form-check-inline">'+
-                                                                    '<input class="form-check-input" '+permissao_selected+' type="checkbox" data-menu="'+v.id_menu+'" data-submenu="'+b.id_menu+'" id="permissoes" name="permissoes[]" value="'+y.id_permissoes+'">'+
-                                                                    '<label class="form-check-label '+(y.status=='I' ? 'text-danger' : '')+'" title="'+(y.status=='I' ? 'Permissão Inativa' : '')+'" for="permissoes" style="font-size:11px">'+y.descricao+'</label>'+
-                                                                '</div>';
-                                                    body += '</td>';
-                                                })
-                                            }
-
-                                        body += '</tr>';
-                                    });
-                                    body += '</table>';
-                                }
-
-                            body += '</div>';
-                        body += '</div>';
+                        body += '<tr>';
+                                body += '<td class="">'+
+                                            '<div class="form-check">'+
+                                                '<input class="form-check-input" '+(v.fg_usuarios_perfil=='S'?'checked':'')+' type="checkbox" value="'+v.id_perfil+'" id="arr_id_perfil_'+v.id_perfil+'" name="arr_id_perfil[]">'+
+                                            '</div>'+
+                                        '</td>';
+                                body += '<td>'+v.descricao+'</td>';
+                        body += '</tr>';
                     });
+                    body += '</table>';
                 }
                 el.html(body);
             }
@@ -344,10 +379,20 @@ function menu_permissao(id_perfil) {
     });
 }
 
+function fieldCpfCnpj(tipo) {
+    $('input[name=<?=$prefix?>_cpf_cnpj]').unmask().val('');
+    if(tipo=='F') {
+        let mask = "999.999.999-99";
+        $('input[name=<?=$prefix?>_cpf_cnpj]').mask(mask).attr('placeholder', mask);
+    } else {
+        let mask = "99.999.999/9999-99";
+        $('input[name=<?=$prefix?>_cpf_cnpj]').mask(mask).attr('placeholder', mask);
+    }
+}
+
 $(document).ready(function(){
 
     formFieldsRequered();
-
     carrega_lista();
 
     $(document).on('click', 'a[rel=btn-<?=$prefix?>-novo]', function(e){
@@ -372,10 +417,20 @@ $(document).ready(function(){
                 data:{},
                 success:function(data){
                     if (data.data) {
-                        $.each(data.data, function(i,v){
-                            console.log(i, v);
-                            $('form[name=form-<?=$prefix?>] #<?=$prefix?>_'+i+'').val(v);
-                        });
+                        $('input[name=<?=$prefix?>_id_usuarios]').val(data.data.id_usuarios);
+                        $('input[name=<?=$prefix?>_id_pessoas]').val(data.data.id_pessoas);
+                        $('input[name=<?=$prefix?>_nome]').val(data.data.nm_pessoa);
+                        $('select[name=<?=$prefix?>_tp_juridico]').val(data.data.tp_juridico);
+                        $('input[name=<?=$prefix?>_dt_nascimento]').val(data.data.dt_nascimento);
+                        $('select[name=<?=$prefix?>_genero]').val(data.data.genero);
+                        $('input[name=<?=$prefix?>_email]').val(data.data.email);
+                        $('input[name=<?=$prefix?>_senha]').val(data.data.senha);
+                        $('select[name=<?=$prefix?>_status]').val(data.data.status);
+                        
+                        fieldCpfCnpj(data.data.tp_juridico);
+                        $('input[name=<?=$prefix?>_cpf_cnpj]').val(data.data.cpf_cnpj);
+
+                        $('div#modal-<?=$prefix?>').modal('show');
                     }
                 },
                 beforeSend:function(){
@@ -392,7 +447,7 @@ $(document).ready(function(){
                     preloaderStop();
                 }
             });
-            $('div#modal-<?=$prefix?>').modal('show');
+            
         }
     });    
 
@@ -433,7 +488,7 @@ $(document).ready(function(){
                 console.log('data', data);
                 gerarAlerta(data.msg, (data.success?'Sucesso':'Erro'), data.type);
                 if (data.success) {
-                    $('div#modal-perfil').modal('hide');
+                    $('div#modal-<?=$prefix?>').modal('hide');
                     carrega_lista();
 				}
 			},
@@ -454,98 +509,40 @@ $(document).ready(function(){
 		}).submit();
 	});
 
-    $(document).on('click', 'a[rel=btn-<?=$prefix?>-menu-permissao]', function(e){
+    $(document).on('change', 'select[name=<?=$prefix?>_tp_juridico]', function(){
+        fieldCpfCnpj($(this).val());
+    });
+
+    $(document).on('click', 'a[rel=btn-<?=$prefix?>-perfil]', function(e){
+        usuario_perfil($(this).attr('id'));
+        $('div[id=modal-<?=$prefix?>-perfil]').modal('show');
+    });
+
+    $('div#modal-<?=$prefix?>-perfil').on('hidden.bs.modal', function (e) {
+        $('form[name=form-<?=$prefix?>-perfil]').html('');
+    });
+
+    $(document).on('click', 'a[rel=btn-<?=$prefix?>-perfil-salvar]', function(e){
         e.preventDefault();
-        $('div#modal-<?=$prefix?>-menu-permissao').modal('show');
-        menu_permissao($(this).attr('id'));
-    });
-    
-    $('div#modal-<?=$prefix?>-menu-permissao').on('hidden.bs.modal', function (e) {
-        $('input[name=id_perfil_menu]').val('');    
-    });
-
-    $(document).on('click', 'input[name^=menu_principal]', function(){
-        const t = $(this);
-        if(t.not(':checked')) {
-            $('input[name^=sub_menu][data-menu='+t.val()+']').prop('checked', false);
-        }
-    });
-
-    $(document).on('click', 'input[name^=sub_menu]', function(){
-        const t = $(this);
-        const menu_principal = $('input[name^=menu_principal][value='+t.attr('data-menu')+']');
-        const permissoes = $('input[name^=permissoes][data-submenu='+t.val()+']');
-
-        if(t.is(':checked')) {
-            permissoes.prop('checked', true);
-            if(!menu_principal.is(':checked')) {
-                menu_principal.prop('checked', true);
-            }
-
-        } else {
-            permissoes.prop('checked', false);
-            const qtd_submenu = $('input[name^=sub_menu][data-menu='+t.attr('data-menu')+']:checked').length;
-            if (qtd_submenu<1) {
-                menu_principal.prop('checked', false);
-            }
-        }
-        
-    });
-
-    $(document).on('click', 'input[name^=permissoes]', function(){
-        const t = $(this);
-        if(!t.is(':checked')) {
-            const c = $('input[name^=permissoes][data-submenu='+t.attr('data-submenu')+']:checked').length;
-            if(c==0) 
-                $('input[name^=sub_menu][value='+t.attr('data-submenu')+']').prop('checked', false);
-        } else {
-            const sub_menu = $('input[name^=sub_menu][value='+t.attr('data-submenu')+']');
-            if (!sub_menu.is(':checked')) {
-                sub_menu.prop('checked', true);
-            }
-        }
-    });
-
-    $(document).on('click', 'a[rel=btn-perfil-menu-permissao-salvar]', function(e){
-        e.preventDefault();
-        const id_perfil = $('input[name=id_perfil_menu]').val();
-        
-        let arr_menu_principal = [];
-        let arr_sub_menu = [];
-        
-        
-        $('form[name=form-perfil-menu-permissao]').find('input[name^=menu_principal]').each(function(){
-            let obj_menu_principal = {};
-            if ($(this).is(':checked')) {
-                obj_menu_principal.id_menu = $(this).val();
-                obj_menu_principal.id_perfil = id_perfil;
-                obj_menu_principal.id_permissoes = 1;
-                arr_menu_principal.push(obj_menu_principal);
-            }
-        });
-        
-        $('form[name=form-perfil-menu-permissao]').find('input[name^=permissoes]').each(function(){
-            let obj_sub_menu = {};
-            if ($(this).is(':checked')) {
-                obj_sub_menu.id_menu = $(this).attr('data-submenu');
-                obj_sub_menu.id_permissoes = $(this).val();
-                obj_sub_menu.id_perfil = id_perfil;
-                arr_sub_menu.push(obj_sub_menu);
+        const id_usuarios = $('form[name=form-<?=$prefix?>-perfil] input[name=id_usuarios_perfil]').val();
+        let arr_perfil = [];
+        $('form[name=form-<?=$prefix?>-perfil]').find('input[name^=arr_id_perfil]').each(function(){
+            if($(this).is(':checked')) {
+                arr_perfil.push($(this).val());
             }
         });
 
         $.ajax({
-            url:'/menu-permissoes-<?=$prefix?>-save',
+            url:'/<?=$prefix?>-perfil-save',
             type:'post',
             dataType:'json',
             data:{
-                'arr_menu_principal':arr_menu_principal,
-                'arr_sub_menu':arr_sub_menu,
-                'id_perfil':id_perfil
+                'id_usuarios':id_usuarios,
+                'arr_perfil': arr_perfil
             },
             success:function(data){
                 gerarAlerta(data.msg, (data.success?'Sucesso':'Erro'), data.type);
-                $('div#modal-<?=$prefix?>-menu-permissao').modal('hide');
+                $('div[id=modal-<?=$prefix?>-perfil]').modal('hide');
             },
             beforeSend:function(){
                 preloaderStart();
@@ -561,7 +558,41 @@ $(document).ready(function(){
                 preloaderStop();
             }
         });
+    });
+
+    $(document).on('click', 'a[rel=btn-<?=$prefix?>-register-password]', function(e){
+        e.preventDefault();
+        const id_usuarios = $(this).attr('id');
         
+        if (id_usuarios) {
+            $.ajax({
+                url:'/usuarios-send-password',
+                type:'post',
+                dataType:'json',
+                data:{
+                    'id_usuarios':id_usuarios,
+                },
+                success:function(data){
+                    gerarAlerta(data.msg, (data.success?'Sucesso':'Erro'), data.type);
+                    if (data.success) {
+                        carrega_lista();
+                    }
+                },
+                beforeSend:function(){
+                    preloaderStart();
+                },
+                error:function(a,b,c){
+                    preloaderStop();
+                    gerarAlerta(a, 'Aviso', 'danger');
+                    console.error('a',a);
+                    console.error('b',b);
+                    console.error('c',c);
+                },
+                complete:function(){
+                    preloaderStop();
+                }
+            });
+        }
 
     });
 

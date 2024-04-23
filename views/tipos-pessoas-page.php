@@ -1,7 +1,7 @@
 <?php
 require_once('header.php');
-$titulo = 'Permissões';
-$prefix = 'permissoes';
+$titulo = 'Tipos Pessoas';
+$prefix = 'tipos-pessoas';
 $arr_permissoes = array();
 if (isset($_SESSION['usuario']['endpoints'][returnPage()])) {
     $arr_permissoes = $_SESSION['usuario']['endpoints'][returnPage()];
@@ -103,7 +103,7 @@ if (isset($_SESSION['usuario']['endpoints'][returnPage()])) {
                 </div>
                 <div class="modal-body">
                     <form name="form-<?=$prefix?>" class="formValidate">
-                        <input type="hidden" class="" id="<?=$prefix?>_id_permissoes" name="<?=$prefix?>_id_permissoes" value="">
+                        <input type="hidden" class="" id="<?=$prefix?>_id_tipos_pessoas" name="<?=$prefix?>_id_tipos_pessoas" value="">
                         <div class="form-group">
                             <label for="<?=$prefix?>_descricao">Descrição</label>
                             <input type="text" class="form-control requered" id="<?=$prefix?>_descricao" name="<?=$prefix?>_descricao" placeholder="Descrição">
@@ -149,7 +149,7 @@ function carrega_lista(){
         "columns":
                 [
                     { "data": function ( data, type, row ) {
-                                    return data.id_permissoes;
+                                    return data.id_tipos_pessoas;
                                 }
                     },
                     { "data": function ( data, type, row ) {
@@ -178,13 +178,13 @@ function carrega_lista(){
                                     var campo = '';
 
                                     <?php if(in_array('ALTERAR', $arr_permissoes)):?>
-                                        campo+= '<a href="#" title="Editar" id="'+data.id_permissoes+'" rel="btn-<?=$prefix?>-editar" role="button" class="btn btn-primary btn-sm" style="margin: 1px 2px">'+
+                                        campo+= '<a href="#" title="Editar" id="'+data.id_tipos_pessoas+'" rel="btn-<?=$prefix?>-editar" role="button" class="btn btn-primary btn-sm" style="margin: 1px 2px">'+
                                                     '<i class="fas fa-edit"></i>'+
                                                 '</a>';
                                     <?php endif;?>
 
                                     <?php if(in_array('DELETAR', $arr_permissoes)):?>
-                                        campo+= '<a href="#" title="Deletar" rel="btn-<?=$prefix?>-deletar" id="'+data.id_permissoes+'" role="button" class="btn btn-danger btn-sm" style="margin: 1px 2px">'+
+                                        campo+= '<a href="#" title="Deletar" rel="btn-<?=$prefix?>-deletar" id="'+data.id_tipos_pessoas+'" role="button" class="btn btn-danger btn-sm" style="margin: 1px 2px">'+
                                                     '<i class="fas fa-trash"></i>'+
                                                 '</a>';
                                     <?php endif;?>

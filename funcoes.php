@@ -375,7 +375,7 @@ function valida_logado($fg_valida_page=false){
 
 		if ($fg_valida_page) {
 			if (isset($_SESSION['usuario']['endpoints'])) {
-				if (in_array(returnPage(), $_SESSION['usuario']['endpoints'])) {
+				if (array_key_exists(returnPage(), $_SESSION['usuario']['endpoints'])) {
 					return true;
 				} else {
 					return false;
@@ -544,6 +544,10 @@ function redirect($url){
     echo '<script type="text/javascript">window.location=\''.$url.'\';</script‌​>';
 }
 
+function senhaValida($senha) {
+    return preg_match('/^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])[\w$@]{6,}$/', $senha);
+}
+
 function messagesDefault($idx) {
 	$message['OK'] = 'OK';
 	$message['register'] = 'Cadastro efetuado com sucesso!';
@@ -553,6 +557,9 @@ function messagesDefault($idx) {
 	$message['invalid_credentials'] = 'Credenciais inválidas!';
 	$message['register_not_found'] = 'Registro não localizado!';
 	$message['incorrect_method'] = 'Método incorreto!';
+	$message[10] = 'CPF / CNPJ já cadastrado no sistema!';
+	$message['register_password'] = 'Senha definida com sucesso!';
+	$message['register_password_send'] = 'E-mail de redefinição de senha enviado com sucesso!';
 
 	return isset($message[$idx]) ? $message[$idx] : '';
 }

@@ -34,7 +34,8 @@ $app->get('/dashboard', function() use ($app){
 });
 
 $app->get('/forgot-password', function() use ($app){	
-	$app->render('/forgot-password-page.php', array());
+	//$app->render('/forgot-password-page.php', array());
+	$app->render('/reset-password-page.php', array());
 });
 
 $app->get('/logout', function() use ($app){
@@ -58,6 +59,9 @@ include_once('controller/menu-controller.php');
 include_once('controller/perfil-controller.php');
 include_once('controller/permissoes-controller.php');
 include_once('controller/menu-permissoes-perfil-controller.php');
+include_once('controller/usuarios-controller.php');
+include_once('controller/tipos-pessoas-controller.php');
+include_once('controller/empresas-controller.php');
 
 $app->run();
 

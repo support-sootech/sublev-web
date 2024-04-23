@@ -1,6 +1,6 @@
 <?php
-class PerfilModel extends Connection {
-    const TABLE = 'tb_perfil';
+class EmpresasModel extends Connection {
+    const TABLE = 'tb_empresas';
     private $conn = false;
     private $newModel = array();
 
@@ -10,9 +10,14 @@ class PerfilModel extends Connection {
 
     //MODELAGEM DO BANCO
     private $fields = array(
-        'id_perfil'=>array('type'=>'integer', 'requered'=>true, 'max'=>10, 'key'=>true, 'description'=>'ID'),
-        'descricao'=>array('type'=>'string', 'requered'=>false, 'max'=>'100', 'default'=>'', 'key'=>false, 'description'=>'Descrição'),
+        'id_empresas'=>array('type'=>'integer', 'requered'=>true, 'max'=>10, 'key'=>true, 'description'=>'ID'),
+        'nome'=>array('type'=>'string', 'requered'=>true, 'max'=>'100', 'key'=>false, 'description'=>'Nome'),
+        'cnpj'=>array('type'=>'integer', 'requered'=>true, 'max'=>'14', 'key'=>false, 'description'=>'CNPJ'),
         'status'=>array('type'=>'string', 'requered'=>false, 'max'=>'1', 'default'=>'A', 'key'=>false, 'description'=>'status'),
+        'smtp_email'=>array('type'=>'string', 'requered'=>false, 'max'=>'200', 'default'=>'', 'key'=>false, 'description'=>'SMTP E-mail'),
+        'smtp'=>array('type'=>'string', 'requered'=>false, 'max'=>'200', 'default'=>'', 'key'=>false, 'description'=>'SMTP'),
+        'smtp_porta'=>array('type'=>'integer', 'requered'=>false, 'max'=>'5', 'default'=>'', 'key'=>false, 'description'=>'SMTP Porta'),
+        'smtp_senha'=>array('type'=>'string', 'requered'=>false, 'max'=>'50', 'default'=>'', 'key'=>false, 'description'=>'SMTP Senha'),
     );
     
     private function setFields($arr) {
@@ -21,7 +26,6 @@ class PerfilModel extends Connection {
                 $this->newModel[$key] = $value;
                 $this->newModel[$key]['value'] = (isset($arr[$key]) ? $arr[$key] : '');
             }
-
         }
     }
 
@@ -62,9 +66,9 @@ class PerfilModel extends Connection {
         try {
             $arr[':ID'] = $id;
             
-            $sql = "select p.*
-                      from ".self::TABLE." p
-                     where p.id_perfil = :ID";
+            $sql = "select x.*
+                      from ".self::TABLE." x
+                     where x.id_empresas = :ID";
             $res = $this->conn->select($sql, $arr);
             
             if (isset($res[0])) {
@@ -80,37 +84,10 @@ class PerfilModel extends Connection {
     public function loadAll() {
         try {
             $arr = array();
-            $and = " and status != 'D'";
-            
-            $sql = "select p.*
-                      from ".self::TABLE." p
-                     where 1 = 1 
-                       ".$and."";
-            $res = $this->conn->select($sql, $arr);
-            
-            if (isset($res[0])) {
-                return $res;
-            } else {
-                return false;
-            }
-        } catch (Exception $e) {
-            return $e->getMessage();
-        }
-    }
-
-    public function loadAllPerfilUsuarios($id_usuarios) {
-        try {
-            $arr = array();
-            $and = " and status != 'D'";
-            
-            $sql = "select p.*,
-                           (case when exists (select 1
-                                                from tb_usuarios_perfil up 
-                                                where up.id_usuarios = ".$id_usuarios." 
-                                                    and up.id_perfil = p.id_perfil) then 'S'
-                                 else 'N'                        
-                            end) as fg_usuarios_perfil                           
-                      from ".self::TABLE." p                      
+            $and = " and x.status not in('D')";
+                        
+            $sql = "select x.*
+                      from ".self::TABLE." x
                      where 1 = 1 
                        ".$and."";
             $res = $this->conn->select($sql, $arr);
@@ -129,8 +106,8 @@ class PerfilModel extends Connection {
         try {
             $this->setFields($arr);
             $values = $this->getFields();
-            if (isset($values[':ID_PERFIL'])) {
-                unset($values[':ID_PERFIL']);
+            if (isset($values[':ID_EMPRESAS'])) {
+                unset($values[':ID_EMPRESAS']);
             }
             $save = $this->conn->insert(self::TABLE, $values);
             return $save;
@@ -147,11 +124,11 @@ class PerfilModel extends Connection {
             
             $w = array();
             foreach ($where as $key => $value) {
-                $w[':'.mb_strtoupper($key).''] = $value;
+                $w[':'.$key.''] = $value;
             }
 
-            if(isset($values[':ID_PERFIL'])) {
-                unset($values[':ID_PERFIL']);
+            if(isset($values[':ID_EMPRESAS'])) {
+                unset($values[':ID_EMPRESAS']);
             }
 
             $save = $this->conn->update(self::TABLE, $values, $w);
@@ -163,7 +140,8 @@ class PerfilModel extends Connection {
 
     public function del($id){
         try {
-            $save = $this->conn->update(self::TABLE, array(':STATUS'=>'D'), array(':ID_PERFIL'=>$id));
+            //$save = $this->conn->delete(self::TABLE, array(':ID_USUARIOS'=>$id));
+            $save = $this->conn->update(self::TABLE, array(':STATUS'=>'D'), array(':ID_EMPRESAS'=>$id));
             return $save;
         } catch (Exception $e) {
             return $e->getMessage();

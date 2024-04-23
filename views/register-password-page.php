@@ -15,23 +15,20 @@ require_once('header.php');
                         <div class="col">
                             <div class="p-5">
                                 <div class="text-center">
-                                    <h1 class="h4 text-gray-900 mb-4">Acesso ao Sistema</h1>
+                                    <h1 class="h4 text-gray-900 mb-4">Cadastro de Senha</h1>
                                 </div>
-                                <form name="form-login" class="">
+                                <form name="form-register-password" class="">
+                                    <input type="hidden" name="hash" value="<?=$usuario['hash']?>" />
                                     <div class="form-group">
-                                        <input type="cpf" class="form-control form-control-user mask-cpf-cnpj" id="cpf" name="cpf" aria-describedby="cpf" placeholder="Digite seu CPF">
+                                        <input type="password" class="form-control" id="senha" name="senha" aria-describedby="senha" placeholder="Senha">
                                     </div>
                                     <div class="form-group">
-                                        <input type="password" class="form-control form-control-user" id="senha" name="senha" placeholder="Senha">
+                                        <input type="password" class="form-control" id="senha_confirm" name="senha_confirm" placeholder="Confirmação de senha">
                                     </div>
-                                    <a href="#" rel="btn-login" class="btn btn-primary btn-user btn-block">
-                                        Acessar
+                                    <a href="#" rel="btn-save" class="btn btn-primary btn-user btn-block">
+                                        Salvar
                                     </a>
                                 </form>
-                                <hr>
-                                <div class="text-center">
-                                    <a class="small" href="/forgot-password">Esqueceu sua senha?</a>
-                                </div>
                             </div>
                         </div>
                     </div>
@@ -48,20 +45,27 @@ require_once('footer.php');
 ?>
 <script>
 
-function login() {
-    if($('input[name=cpf]').val() == '' || $('input[name=senha]').val() == ''){
-        gerarAlerta('É necessário informar CPF e senha.', 'Aviso', 'danger');
+function register_password() {
+    if($('input[name=senha]').val() == '' || $('input[name=senha_confirm]').val() == ''){
+        gerarAlerta('Os campos senha e confirmação de senha devem ser preenchidos!', 'Aviso', 'danger');
+        return false;
+    }
+
+    if($('input[name=senha]').val() != $('input[name=senha_confirm]').val()){
+        gerarAlerta('Os campos senha e confirmação de senha estão diferentes!', 'Aviso', 'danger');
         return false;
     }
 
     preloaderStart();
 
-    $('form[name=form-login]').ajaxForm({
+    $('form[name=form-register-password]').ajaxForm({
         data:{},
         success : function(data) {
             gerarAlerta(data.msg, (data.success?'Sucesso':'Erro'), data.type);
             if (data.success) {
-                window.location.href = data.page
+                setTimeout(() => {
+                    window.location.href = data.page
+                }, 2000);
             }
         },
         error : function(e) {
@@ -76,23 +80,15 @@ function login() {
         },
         type:'post',
         dataType:'json',
-        url: '/login',
+        url: '/register-password',
         resetForm:false
     }).submit();
 }
 
 $(document).ready(function(){
-    $('a[rel=btn-login]').on('click', function(e){
+    $('a[rel=btn-save]').on('click', function(e){
 		e.preventDefault();
-        login();
+        register_password();
 	});
-
-    $(document).keypress(function (e) {
-        if (e.which == 13) {
-            login();
-            return false;
-        }
-    });
-
 });
 </script>

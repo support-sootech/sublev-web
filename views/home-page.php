@@ -44,6 +44,14 @@ $titulo = 'Home';
                             <div class="row">
                                 <div class="col">
                                     <h5>Bem vindo(a), <?=$_SESSION['usuario']['nm_pessoa']?>!</h5>
+                                    <?php
+                                    /*
+                                    $fg = array_search('ROOT', array_column($_SESSION['usuario']['perfil'], 'ds_perfil'));
+                                    if (isset($fg)) {
+                                        verMatriz($_SESSION['usuario']);
+                                    }
+                                    */
+                                    ?>
                                 </div>
                             </div>
                         </div>
