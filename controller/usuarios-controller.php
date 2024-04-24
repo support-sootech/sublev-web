@@ -106,6 +106,15 @@ $app->post('/usuarios-save', function() use ($app){
                 $obj_pessoas['dt_nascimento'] = $app->request->post('usuarios_dt_nascimento');
                 $obj_pessoas['id_empresas'] = $_SESSION['usuario']['id_empresas'];
                 $obj_pessoas['id_tipos_pessoas'] = 1; //USUARIOS
+                $obj_pessoas['telefone'] = $app->request->post('usuarios_telefone');
+                $obj_pessoas['cep'] = $app->request->post('usuarios_cep');
+                $obj_pessoas['logradouro'] = $app->request->post('usuarios_logradouro');
+                $obj_pessoas['numero'] = $app->request->post('usuarios_numero');
+                $obj_pessoas['complemento'] = $app->request->post('usuarios_complemento');
+                $obj_pessoas['bairro'] = $app->request->post('usuarios_bairro');
+                $obj_pessoas['cidade'] = $app->request->post('usuarios_cidade');
+                $obj_pessoas['estado'] = $app->request->post('usuarios_estado');
+                $obj_pessoas['cod_ibge'] = $app->request->post('usuarios_cod_ibge');
 
                 $id_pessoas = $obj_pessoas['id_pessoas'];
                 unset($obj_pessoas['id_pessoas']);

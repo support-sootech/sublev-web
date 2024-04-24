@@ -76,7 +76,71 @@ function formFieldsRequered() {
     });
 }
 
+function soNums(e){
+    //teclas adicionais permitidas (tab,delete,backspace,setas direita e esquerda)
+    keyCodesPermitidos = new Array(8,9,37,39,46);
+    //numeros e 0 a 9 do teclado alfanumerico
+    for(x=48;x<=57;x++){
+        keyCodesPermitidos.push(x);
+    }
+    //numeros e 0 a 9 do teclado numerico
+    for(x=96;x<=105;x++){
+        keyCodesPermitidos.push(x);
+    }
+    //Pega a tecla digitada
+    keyCode = e.which;
+    //Verifica se a tecla digitada é permitida
+    if ($.inArray(keyCode,keyCodesPermitidos) != -1){
+        return true;
+    }
+    return false;
+}
+
+async function buscaCep(numeroCep=''){
+	var obj = {};
+
+	if (numeroCep!='') {
+		var cep = numeroCep.replace(/\D/g, '');
+		//Verifica se campo cep possui valor informado.
+		if (cep != "") {
+            //Expressão regular para validar o CEP.
+            var validacep = /^[0-9]{8}$/;
+            //Valida o formato do CEP.
+            if(validacep.test(cep)) {
+                //Consulta o webservice viacep.com.br/
+                $.getJSON("//viacep.com.br/ws/"+ cep +"/json/?callback=?", function(dados) {
+                    if (!("erro" in dados)) {
+                        obj = dados;
+                        return obj;
+                    }
+                });
+            }
+		}
+	} else{
+        return obj;
+    }
+}
+
+async function consultaViaCep(numeroCep=''){
+	
+    var cep = numeroCep.replace(/\D/g, '');
+    let result;
+	try {
+        result = await $.ajax({
+            url:"//viacep.com.br/ws/"+cep+"/json/?callback=?",
+            type:'get',
+            dataType:'json'            
+        });
+        return result;
+    } catch (error) {
+        console.error('ERROR CONSULTA CEP:', error);
+    }
+}
+
+
 $(document).ready(function(){
+
+    $('.somente_numeros').bind('keydown',soNums);
 
     //MASCARAS
     $("#date").mask("99/99/9999",{completed:function(){alert("completed!");}});

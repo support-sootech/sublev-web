@@ -423,6 +423,7 @@ function mascara($val='', $mask=''){
 
 function mascaraTelefone($telefone){
   $num = '';
+  $telefone = $telefone.'';
 
   if(isset($telefone) && !empty($telefone) && strlen($telefone) >= 10){
     if(strlen($telefone)>10){
@@ -456,7 +457,7 @@ function mascaraCartao($num=''){
 }
 
 function mascaraCep($num=''){
-
+  $num = $num.'';
   if(!empty($num)){
     $num = mascara($num,'#####-###');
   }

@@ -32,6 +32,10 @@ class MenuModel extends Connection {
             }
             */
 
+            if($arr['tipo']=='P') {
+                $arr['id_menu_principal'] = null;
+            }
+
             foreach ($this->fields as $key => $value) {
                 $this->newModel[$key] = $value;
                 $this->newModel[$key]['value'] = (isset($arr[$key]) ? $arr[$key] : null);

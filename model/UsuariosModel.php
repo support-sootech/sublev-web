@@ -85,6 +85,14 @@ class UsuariosModel extends Connection {
             $arr['dt_nascimento'] = dt_br($arr['dt_nascimento']);
         }
 
+        if (isset($arr['cep']) && !empty($arr['cep'])) {
+            $arr['cep'] = mascaraCep($arr['cep']);
+        }
+        
+        if (isset($arr['telefone']) && !empty($arr['telefone'])) {
+            $arr['telefone'] = mascaraTelefone($arr['telefone']);
+        }
+
         return $arr;
     }
 
@@ -103,6 +111,15 @@ class UsuariosModel extends Connection {
                            end) as cpf_cnpj,
                            #ps.cpf_cnpj,
                            ps.genero, 
+                           ps.cep,
+                           ps.logradouro,
+                           ps.numero,
+                           ps.complemento,
+                           ps.bairro,
+                           ps.cidade,
+                           ps.estado,
+                           ps.cod_ibge,
+                           ps.telefone,
                            e.id_empresas,
                            e.nome as nm_empresa,
                            tp.id_tipos_pessoas,
@@ -186,6 +203,15 @@ class UsuariosModel extends Connection {
                            tp.id_tipos_pessoas,
                            tp.descricao as ds_tipos_pessoas,
                            ps.genero, 
+                           ps.cep,
+                           ps.logradouro,
+                           ps.numero,
+                           ps.complemento,
+                           ps.bairro,
+                           ps.cidade,
+                           ps.estado,
+                           ps.cod_ibge,
+                           ps.telefone,
                            e.id_empresas,
                            e.nome as nm_empresa
                       from ".self::TABLE." u
@@ -220,6 +246,15 @@ class UsuariosModel extends Connection {
                            end) as cpf_cnpj,
                            #ps.cpf_cnpj,
                            ps.genero, e.nome as nm_empresa,
+                           ps.cep,
+                           ps.logradouro,
+                           ps.numero,
+                           ps.complemento,
+                           ps.bairro,
+                           ps.cidade,
+                           ps.estado,
+                           ps.cod_ibge,
+                           ps.telefone,
                            tp.id_tipos_pessoas,
                            tp.descricao as ds_tipos_pessoas
                       from ".self::TABLE." u
@@ -262,6 +297,15 @@ class UsuariosModel extends Connection {
                            tp.id_tipos_pessoas,
                            tp.descricao as ds_tipos_pessoas,
                            ps.genero, 
+                           ps.cep,
+                           ps.logradouro,
+                           ps.numero,
+                           ps.complemento,
+                           ps.bairro,
+                           ps.cidade,
+                           ps.estado,
+                           ps.cod_ibge,
+                           ps.telefone,
                            e.id_empresas,
                            e.nome as nm_empresa
                       from ".self::TABLE." u
@@ -297,6 +341,15 @@ class UsuariosModel extends Connection {
                            tp.id_tipos_pessoas,
                            tp.descricao as ds_tipos_pessoas,
                            ps.genero, 
+                           ps.cep,
+                           ps.logradouro,
+                           ps.numero,
+                           ps.complemento,
+                           ps.bairro,
+                           ps.cidade,
+                           ps.estado,
+                           ps.cod_ibge,
+                           ps.telefone,
                            e.id_empresas,
                            e.nome as nm_empresa
                       from ".self::TABLE." u

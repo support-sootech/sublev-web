@@ -21,6 +21,14 @@ class PessoasModel extends Connection {
         //'dh_cadastro'=>array('type'=>'date', 'requered'=>false, 'max'=>'8', 'key'=>false, 'description'=>'Data e Hora de Cadastro'),
         'id_empresas'=>array('type'=>'integer', 'requered'=>true, 'max'=>'10', 'key'=>false, 'description'=>'Código da empresa'),
         'id_tipos_pessoas'=>array('type'=>'integer', 'requered'=>true, 'max'=>'10', 'key'=>false, 'description'=>'Código tipo de pessoa'),
+        'cep'=>array('type'=>'integer', 'requered'=>false, 'max'=>'8', 'key'=>false, 'description'=>'Endereço: CEP'),
+        'logradouro'=>array('type'=>'string', 'requered'=>false, 'max'=>'200', 'key'=>false, 'description'=>'Endereço: Logradouro'),
+        'numero'=>array('type'=>'string', 'requered'=>false, 'max'=>'10', 'key'=>false, 'description'=>'Endereço: Número'),
+        'complemento'=>array('type'=>'string', 'requered'=>false, 'max'=>'200', 'key'=>false, 'description'=>'Endereço: Complemento'),
+        'bairro'=>array('type'=>'string', 'requered'=>false, 'max'=>'200', 'key'=>false, 'description'=>'Endereço: Bairro'),
+        'cidade'=>array('type'=>'string', 'requered'=>false, 'max'=>'200', 'key'=>false, 'description'=>'Endereço: Cidade'),
+        'estado'=>array('type'=>'string', 'requered'=>false, 'max'=>'100', 'key'=>false, 'description'=>'Endereço: Estado'),
+        'cod_ibge'=>array('type'=>'integer', 'requered'=>false, 'max'=>'10', 'key'=>false, 'description'=>'Endereço: Código IBGE'),
     );
     
     private function setFields($arr) {
@@ -40,6 +48,14 @@ class PessoasModel extends Connection {
 
             if (isset($arr['dh_cadastro']) && !empty($arr['dh_cadastro'])) {
                 $arr['dh_cadastro'] = dh_banco($arr['dh_cadastro']);
+            }
+
+            if (isset($arr['cep']) && !empty($arr['cep'])) {
+                $arr['cep'] = limpa_numero($arr['cep']);
+            }
+
+            if (isset($arr['numero']) && !empty($arr['numero'])) {
+                $arr['numero'] = limpa_numero($arr['numero']);
             }
 
             foreach ($this->fields as $key => $value) {

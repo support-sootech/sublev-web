@@ -110,18 +110,18 @@ if (isset($_SESSION['usuario']['endpoints'][returnPage()])) {
                         <input type="hidden" class="" id="<?=$prefix?>_id_pessoas" name="<?=$prefix?>_id_pessoas" value="">
                         
                         <div class="row">
-                            <div class="col-sm-12 col-md-12 col-lg-10 col-xl-10 col-xxl-10">
+                            <div class="col-sm-12 col-md-12 col-lg-9 col-xl-9 col-xxl-9">
                                 <div class="form-group">
                                     <label for="<?=$prefix?>_nome">Nome</label>
                                     <input type="text" class="form-control requered" id="<?=$prefix?>_nome" name="<?=$prefix?>_nome" placeholder="Nome Completo">
                                 </div>
                             </div>
-                            <div class="col-sm-12 col-md-12 col-lg-2 col-xl-2 col-xxl-2">
+                            <div class="col-sm-12 col-md-12 col-lg-3 col-xl-3 col-xxl-3">
                                 <div class="form-group">
                                     <label for="<?=$prefix?>_tp_juridico">Tipo Jurídico</label>
                                     <select class="form-select requered" id="<?=$prefix?>_tp_juridico" name="<?=$prefix?>_tp_juridico">
-                                        <option value="F">PF</option>
-                                        <option value="J">PJ</option>
+                                        <option value="F">Pessoa Física</option>
+                                        <option value="J">Pessoa Jurídica</option>
                                     </select>
                                 </div>
                             </div>
@@ -159,6 +159,12 @@ if (isset($_SESSION['usuario']['endpoints'][returnPage()])) {
                                     <input type="text" class="form-control requered" id="<?=$prefix?>_email" name="<?=$prefix?>_email" placeholder="aaaaa@aaaa.com">
                                 </div>
                             </div>
+                            <div class="col-sm-12 col-md-12 col-lg-4 col-xl-4 col-xxl-4">
+                                <div class="form-group">
+                                    <label for="<?=$prefix?>_telefone">Telefone</label>
+                                    <input type="text" class="form-control requered mask-celular" id="<?=$prefix?>_telefone" name="<?=$prefix?>_telefone" placeholder="(99) 99999-9999">
+                                </div>
+                            </div>
                             <!--
                             <div class="col-sm-12 col-md-12 col-lg-4 col-xl-4 col-xxl-4">
                                 <div class="form-group">
@@ -174,6 +180,55 @@ if (isset($_SESSION['usuario']['endpoints'][returnPage()])) {
                                         <option value="A">Ativo</option>
                                         <option value="I">Inativo</option>
                                     </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-sm-12 col-md-12 col-lg-2 col-xl-2 col-xxl-2">
+                                <div class="form-group">
+                                    <label for="<?=$prefix?>_cep">Cep</label>
+                                    <input type="text" class="form-control requered mask-cep" id="<?=$prefix?>_cep" name="<?=$prefix?>_cep" placeholder="99999-999">
+                                    <input type="hidden" class="" id="<?=$prefix?>_cod_ibge" name="<?=$prefix?>_cod_ibge" placeholder="">
+                                </div>
+                            </div>
+                            <div class="col-sm-12 col-md-12 col-lg-8 col-xl-8 col-xxl-8">
+                                <div class="form-group">
+                                    <label for="<?=$prefix?>_logradouro">Logradouro</label>
+                                    <input type="text" class="form-control requered" id="<?=$prefix?>_logradouro" name="<?=$prefix?>_logradouro" placeholder="Rua Teste...">
+                                </div>
+                            </div>
+                            <div class="col-sm-12 col-md-12 col-lg-2 col-xl-2 col-xxl-2">
+                                <div class="form-group">
+                                    <label for="<?=$prefix?>_numero">Número</label>
+                                    <input type="text" class="form-control" id="<?=$prefix?>_numero" name="<?=$prefix?>_numero" placeholder="99-99">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-sm-12 col-md-12 col-lg-3 col-xl-3 col-xxl-3">
+                                <div class="form-group">
+                                    <label for="<?=$prefix?>_complemento">Complemento</label>
+                                    <input type="text" class="form-control" id="<?=$prefix?>_complemento" name="<?=$prefix?>_complemento" placeholder="Fundos">
+                                </div>
+                            </div>
+                            <div class="col-sm-12 col-md-12 col-lg-3 col-xl-3 col-xxl-3">
+                                <div class="form-group">
+                                    <label for="<?=$prefix?>_bairro">Bairro</label>
+                                    <input type="text" class="form-control requered" id="<?=$prefix?>_bairro" name="<?=$prefix?>_bairro" placeholder="Bairro">
+                                </div>
+                            </div>
+                            <div class="col-sm-12 col-md-12 col-lg-3 col-xl-3 col-xxl-3">
+                                <div class="form-group">
+                                    <label for="<?=$prefix?>_cidade">Cidade</label>
+                                    <input type="text" class="form-control requered" id="<?=$prefix?>_cidade" name="<?=$prefix?>_cidade" placeholder="Cidade">
+                                </div>
+                            </div>
+                            <div class="col-sm-12 col-md-12 col-lg-3 col-xl-3 col-xxl-3">
+                                <div class="form-group">
+                                    <label for="<?=$prefix?>_estado">Estado</label>
+                                    <input type="text" class="form-control requered" id="<?=$prefix?>_estado" name="<?=$prefix?>_estado" placeholder="Estado">
                                 </div>
                             </div>
                         </div>
@@ -426,6 +481,14 @@ $(document).ready(function(){
                         $('input[name=<?=$prefix?>_email]').val(data.data.email);
                         $('input[name=<?=$prefix?>_senha]').val(data.data.senha);
                         $('select[name=<?=$prefix?>_status]').val(data.data.status);
+                        $('input[name=<?=$prefix?>_cep]').val(data.data.cep);
+                        $('input[name=<?=$prefix?>_logradouro]').val(data.data.logradouro);
+                        $('input[name=<?=$prefix?>_numero]').val(data.data.numero);
+                        $('input[name=<?=$prefix?>_bairro]').val(data.data.bairro);
+                        $('input[name=<?=$prefix?>_cidade]').val(data.data.cidade);
+                        $('input[name=<?=$prefix?>_estado]').val(data.data.estado);
+                        $('input[name=<?=$prefix?>_cod_ibge]').val(data.data.cod_ibge);
+                        $('input[name=<?=$prefix?>_telefone]').val(data.data.telefone);
                         
                         fieldCpfCnpj(data.data.tp_juridico);
                         $('input[name=<?=$prefix?>_cpf_cnpj]').val(data.data.cpf_cnpj);
@@ -594,6 +657,48 @@ $(document).ready(function(){
             });
         }
 
+    });
+
+    $(document).on('focusout', 'input[name=<?=$prefix?>_cep]', function(e){
+        const _cep = $(this).val();
+        let cep = $('input[name=<?=$prefix?>_cep]');
+        let logradouro = $('input[name=<?=$prefix?>_logradouro]');
+        let numero = $('input[name=<?=$prefix?>_numero]');
+        let bairro = $('input[name=<?=$prefix?>_bairro]');
+        let cidade = $('input[name=<?=$prefix?>_cidade]');
+        let estado = $('input[name=<?=$prefix?>_estado]');
+        let cod_ibge = $('input[name=<?=$prefix?>_cod_ibge]');
+        if (_cep) {          
+            logradouro.val('Consultando...');  
+            consultaViaCep(_cep)
+                .then((data) => {
+                    if(data.erro){
+                        logradouro.val('');
+                        cep.val('');
+                        bairro.val('');
+                        cidade.val('');
+                        estado.val('');
+                        cod_ibge.val('');
+                    } else {
+                        logradouro.val(data.logradouro);
+                        bairro.val(data.bairro);
+                        cidade.val(data.localidade);
+                        estado.val(data.uf);
+                        cod_ibge.val(data.ibge);
+                    }
+                })
+                .catch(e => {
+                    logradouro.val('');
+                    cep.val('');
+                    bairro.val('');
+                    cidade.val('');
+                    estado.val('');
+                    cod_ibge.val('');
+                    gerarAlerta('Erro ao consultar o Cep, tente novamente!', 'Erro', 'danger');
+                });
+
+            //let endereco = consultaViaCep(cep);
+        }
     });
 
 });
