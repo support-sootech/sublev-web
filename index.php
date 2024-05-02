@@ -62,6 +62,7 @@ include_once('controller/menu-permissoes-perfil-controller.php');
 include_once('controller/usuarios-controller.php');
 include_once('controller/tipos-pessoas-controller.php');
 include_once('controller/empresas-controller.php');
+include_once('controller/fornecedores-controller.php');
 
 $app->run();
 
