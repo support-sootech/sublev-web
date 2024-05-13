@@ -72,13 +72,11 @@ class Connection extends PDO {
 		return $stmt->fetchAll(PDO::FETCH_ASSOC);
 	}    
 
-	public function insert($tabela, $values=array()){
-		$conn 	= $this->conn;
-
+	public function insert($tabela, $values){
+		$conn = $this->conn;
 		try {
 			$sql 	= "INSERT INTO ".$tabela." (".str_replace(':', '', strtolower(implode(',', array_keys($values)))).")
 							    VALUES(".implode(',', array_keys($values)).")";
-
 			$stmt 	= $conn->prepare($sql);
 			$this->setParams($stmt, $values);
 	        $conn->beginTransaction();

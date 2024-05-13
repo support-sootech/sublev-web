@@ -1,11 +1,16 @@
 <?php
-class FornecedoresModel extends PessoasModel {   
+class FornecedoresModel extends Connection {   
     
-    private $conn;
+    //const TABLE = 'tb_pessoas';
+    private $conn = '';
+    private $class_pessoa_model = '';
+
     function __construct()
     {
-        parent::__construct();
-        //$this->conn = parent::conn;
+        //$this->conn = $this->getConnection();
+        $this->conn = new Connection();
+        $this->class_pessoa_model = new PessoasModel();
+
     }
 
     public function loadId($id) {
@@ -35,15 +40,15 @@ class FornecedoresModel extends PessoasModel {
                            ps.telefone,
                            e.id_empresas,
                            e.nome as nm_empresa
-                      from ".self::TABLE." u
+                      from tb_pessoas u
                       inner join tb_pessoas ps on ps.id_pessoas = u.id_pessoas
                       inner join tb_empresas e on e.id_empresas = ps.id_empresas
                       inner join tb_tipos_pessoas tp on tp.id_tipos_pessoas = ps.id_tipos_pessoas
-                     where u.id_usuarios = :ID";
+                     where u.id_pessoas = :ID";
             $res = $this->conn->select($sql, $arr);
             
             if (isset($res[0])) {
-                return $this->getModelView($res[0]);
+                return $this->class_pessoa_model->getModelView($res[0]);
             } else {
                 return false;
             }
@@ -52,6 +57,22 @@ class FornecedoresModel extends PessoasModel {
         }
     }
 
+    public function add($arr) {
+        try {
+            $arr['id_tipos_pessoas'] = '3';
+            $arr['cpf_cnpj'] = '12911671023';
+            return $this->class_pessoa_model->add($arr);
+        } catch (Exception $e) {
+            $msg = messagesDefault($e->getCode());
+            if (empty($msg)) {
+                $msg = $e->getMessage();
+            }
+            return throw new Exception($msg);
+        }
+        
+    }
+
+    /*
     public function loadAll($id_tipos_perfil='', $status='') {
         try {
             $arr = array();
@@ -235,6 +256,6 @@ class FornecedoresModel extends PessoasModel {
         } catch (Exception $e) {
             return $e->getMessage();
         }
-    }
+    }*/
 }
 ?>

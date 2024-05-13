@@ -1,11 +1,16 @@
 <?php
+
 class PessoasModel extends Connection {
     const TABLE = 'tb_pessoas';
-    private $conn = false;
+    private $conn;
     private $newModel = array();
 
     function __construct() {
         $this->conn = new Connection();
+    }
+
+    public function getConnection() {
+        return new Connection();
     }
 
     //MODELAGEM DO BANCO
@@ -31,13 +36,13 @@ class PessoasModel extends Connection {
         'cod_ibge'=>array('type'=>'integer', 'requered'=>false, 'max'=>'10', 'key'=>false, 'description'=>'Endereço: Código IBGE'),
     );
     
-    private function setFields($arr) {
+    public function setFields($arr) {
         if (count($arr) > 0) {
-
+            
             if (isset($arr['dt_nascimento']) && !empty($arr['dt_nascimento'])) {
                 $arr['dt_nascimento'] = dt_banco($arr['dt_nascimento']);
             }
-
+            
             if (isset($arr['cpf_cnpj']) && !empty($arr['cpf_cnpj'])) {
                 $arr['cpf_cnpj'] = limpa_numero($arr['cpf_cnpj']);
             }
@@ -45,10 +50,10 @@ class PessoasModel extends Connection {
             if (isset($arr['telefone']) && !empty($arr['telefone'])) {
                 $arr['telefone'] = limpa_numero($arr['telefone']);
             }
-
+            
             if (isset($arr['dh_cadastro']) && !empty($arr['dh_cadastro'])) {
                 $arr['dh_cadastro'] = dh_banco($arr['dh_cadastro']);
-            }
+            }            
 
             if (isset($arr['cep']) && !empty($arr['cep'])) {
                 $arr['cep'] = limpa_numero($arr['cep']);
@@ -57,7 +62,7 @@ class PessoasModel extends Connection {
             if (isset($arr['numero']) && !empty($arr['numero'])) {
                 $arr['numero'] = limpa_numero($arr['numero']);
             }
-
+            
             foreach ($this->fields as $key => $value) {
                 $this->newModel[$key] = $value;
                 $this->newModel[$key]['value'] = (isset($arr[$key]) ? $arr[$key] : '');
@@ -65,7 +70,7 @@ class PessoasModel extends Connection {
         }
     }
 
-    private function getFields($fgRemoveKey=true) {
+    public function getFields($fgRemoveKey=true) {
         $arr = array();
 
         if (count($this->newModel) > 0) {
@@ -93,6 +98,31 @@ class PessoasModel extends Connection {
 
                 $arr[':'.mb_strtoupper($key).''] = $value['value'];
             }
+        }
+
+        return $arr;
+    }
+
+    public function getModelView($arr) {
+        
+        if (isset($arr['cpf_cnpj']) && !empty($arr['cpf_cnpj'])) {
+            $arr['cpf_cnpj'] = mascaraCpfCnpj($arr['tp_juridico'], $arr['cpf_cnpj']);
+        }
+
+        if (isset($arr['dt_nascimento']) && !empty($arr['dt_nascimento'])) {
+            $arr['dt_nascimento'] = dt_br($arr['dt_nascimento']);
+        }
+
+        if (isset($arr['dh_cadastro']) && !empty($arr['dh_cadastro'])) {
+            $arr['dh_cadastro'] = dh_br($arr['dh_cadastro']);
+        }
+
+        if (isset($arr['cep']) && !empty($arr['cep'])) {
+            $arr['cep'] = mascaraCep($arr['cep']);
+        }
+        
+        if (isset($arr['telefone']) && !empty($arr['telefone'])) {
+            $arr['telefone'] = mascaraTelefone($arr['telefone']);
         }
 
         return $arr;
@@ -155,8 +185,9 @@ class PessoasModel extends Connection {
     }
 
     public function add($arr) {
-        try {
-            $this->setFields($arr);
+        
+        try {            
+            $this->setFields($arr);            
             $values = $this->getFields();
             if (isset($values[':ID_PESSOAS'])) {
                 unset($values[':ID_PESSOAS']);
@@ -164,7 +195,7 @@ class PessoasModel extends Connection {
             $save = $this->conn->insert(self::TABLE, $values);
             return $save;
         } catch (Exception $e) {
-            throw new Exception($e->getMessage(), 10);
+            throw new Exception($e->getMessage());
         }
     }
 

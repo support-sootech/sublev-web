@@ -7,6 +7,26 @@ $app->get('/controle-fornecedores', function() use ($app){
     }
 });
 
+$app->get('/controle-fornecedores-teste', function() use ($app){
+    if (valida_logado(false)) {
+        
+        try {
+            $class_fornecedores = new FornecedoresModel();
+            $fornecedor = $class_fornecedores->loadId(10);
+            //verMatriz($class_fornecedores);
+            unset($fornecedor['nome']);
+            unset($fornecedor['tp_juridico']);
+            $add = $class_fornecedores->add($fornecedor);
+            verMatriz($add);
+        } catch (Exception $e) {            
+            verMatriz(array('success'=>false, 'type'=>'danger', 'msg'=>$e->getMessage()));
+        }
+
+    } else {
+        $app->notFound();
+    }
+});
+
 $app->get('/fornecedores-edit/:id_usuarios', function($id_usuarios='') use ($app){
     $status = 200;
 	$data = array();
