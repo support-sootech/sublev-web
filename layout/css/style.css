@@ -5,3 +5,17 @@
 #dt-length-0 {
     margin-right: 5px;
 }
+
+.collapse-item {
+    white-space: normal !important;
+}
+
+@media (min-width: 768px) {
+    .sidebar {
+        width: 22rem !important;
+    }
+
+    .sidebar .nav-item .nav-link {
+        width: 15rem;
+    }
+}
