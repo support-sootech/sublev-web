@@ -73,7 +73,7 @@ class FornecedoresFabricantesModel extends Connection {
     }
 
     
-    public function loadAll($status='') {
+    public function loadAll($id_empresas, $status='') {
         try {
             $arr = array();
             $and = '';
@@ -84,6 +84,9 @@ class FornecedoresFabricantesModel extends Connection {
             } else {
                 $and.= " and ps.status not in('D')";
             }
+
+            $and.= ' and e.id_empresas = :ID_EMPRESAS';
+            $arr[':ID_EMPRESAS'] = $id_empresas;
                         
             $sql = "select ps.id_pessoas,
                            ps.nome as nm_pessoa, 

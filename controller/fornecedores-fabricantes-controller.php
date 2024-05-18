@@ -85,7 +85,8 @@ $app->post('/fornecedores-fabricantes-json', function() use ($app){
 	$data['data'] = array();
     if (valida_logado()) {
         $class_fornecedores_fabricantes = new FornecedoresFabricantesModel();
-        $data['data'] = $class_fornecedores_fabricantes->loadAll();
+        $id_empresas = $_SESSION['usuario']['id_empresas'];
+        $data['data'] = $class_fornecedores_fabricantes->loadAll($id_empresas);
     }
     $response = $app->response();
 	$response['Access-Control-Allow-Origin'] = '*';
