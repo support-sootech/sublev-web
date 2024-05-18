@@ -34,6 +34,7 @@ class PessoasModel extends Connection {
         'cidade'=>array('type'=>'string', 'requered'=>false, 'max'=>'200', 'key'=>false, 'description'=>'Endereço: Cidade'),
         'estado'=>array('type'=>'string', 'requered'=>false, 'max'=>'100', 'key'=>false, 'description'=>'Endereço: Estado'),
         'cod_ibge'=>array('type'=>'integer', 'requered'=>false, 'max'=>'10', 'key'=>false, 'description'=>'Endereço: Código IBGE'),
+        'status'=>array('type'=>'string', 'requered'=>false, 'max'=>'1', 'default'=>'A', 'key'=>false, 'description'=>'status'),
     );
     
     public function setFields($arr) {
@@ -212,8 +213,8 @@ class PessoasModel extends Connection {
 
             if(isset($values[':ID_PESSOAS'])) {
                 unset($values[':ID_PESSOAS']);
-            }
-
+            }   
+            
             $save = $this->conn->update(self::TABLE, $values, $w);
             return $save;
         } catch (Exception $e) {

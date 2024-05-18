@@ -1,7 +1,7 @@
 <?php
 require_once('header.php');
-$titulo = 'Fornecedores';
-$prefix = 'fornecedores';
+$titulo = 'Fornecedores / Fabricantes';
+$prefix = 'fornecedores_fabricantes';
 $arr_permissoes = array();
 if (isset($_SESSION['usuario']['endpoints'][returnPage()])) {
     $arr_permissoes = $_SESSION['usuario']['endpoints'][returnPage()];
@@ -55,12 +55,13 @@ if (isset($_SESSION['usuario']['endpoints'][returnPage()])) {
                         </div>
                         <div class="card-body">
                             <div class="table-responsive">
-                                <table class="table table-bordered" id="table-<?=$prefix?>" width="100%" cellspacing="0">
+                                <table class="table table-bordered" id="table-<?=str_replace('_','-',$prefix)?>" width="100%" cellspacing="0">
                                     <thead>
                                         <tr>
                                             <th>ID</th>
                                             <th>Nome</th>
                                             <th>CPF / CNPJ</th>
+                                            <th>Tipo</th>
                                             <th>Status</th>
                                             <th>Ações</th>
                                         </tr>
@@ -106,7 +107,6 @@ if (isset($_SESSION['usuario']['endpoints'][returnPage()])) {
                 </div>
                 <div class="modal-body">
                     <form name="form-<?=$prefix?>" class="formValidate">
-                        <input type="hidden" class="" id="<?=$prefix?>_id_usuarios" name="<?=$prefix?>_id_usuarios" value="">
                         <input type="hidden" class="" id="<?=$prefix?>_id_pessoas" name="<?=$prefix?>_id_pessoas" value="">
                         
                         <div class="row">
@@ -136,44 +136,35 @@ if (isset($_SESSION['usuario']['endpoints'][returnPage()])) {
                             </div>
                             <div class="col-sm-12 col-md-12 col-lg-4 col-xl-4 col-xxl-4">
                                 <div class="form-group">
-                                <label for="<?=$prefix?>_dt_nascimento">Dt. Nascimento</label>
+                                <label for="<?=$prefix?>_dt_nascimento">Dt. Abertura</label>
                                     <input type="text" class="form-control requered mask-data" id="<?=$prefix?>_dt_nascimento" name="<?=$prefix?>_dt_nascimento" placeholder="99/99/9999">
                                 </div>
                             </div>
                             <div class="col-sm-12 col-md-12 col-lg-4 col-xl-4 col-xxl-4">
                                 <div class="form-group">
-                                    <label for="<?=$prefix?>_genero">Gênero</label>
-                                    <select class="form-select requered" id="<?=$prefix?>_genero" name="<?=$prefix?>_genero">
-                                        <option value="F">Feminino</option>
-                                        <option value="M">Masculino</option>
-                                        <option value="O">Outro</option>
+                                    <label for="<?=$prefix?>_id_tipos_pessoas">Tipo</label>
+                                    <select class="form-select requered" id="<?=$prefix?>_id_tipos_pessoas" name="<?=$prefix?>_id_tipos_pessoas">
+                                        <option value="2">Fabricantes</option>
+                                        <option value="3">Fornecedores</option>
                                     </select>
                                 </div>
                             </div>
                         </div>
 
                         <div class="row">
-                            <div class="col-sm-12 col-md-12 col-lg-4 col-xl-4 col-xxl-4">
+                            <div class="col-sm-12 col-md-12 col-lg-6 col-xl-6 col-xxl-6">
                                 <div class="form-group">
                                     <label for="<?=$prefix?>_email">E-mail</label>
                                     <input type="text" class="form-control requered" id="<?=$prefix?>_email" name="<?=$prefix?>_email" placeholder="aaaaa@aaaa.com">
                                 </div>
                             </div>
-                            <div class="col-sm-12 col-md-12 col-lg-4 col-xl-4 col-xxl-4">
+                            <div class="col-sm-12 col-md-12 col-lg-3 col-xl-3 col-xxl-3">
                                 <div class="form-group">
                                     <label for="<?=$prefix?>_telefone">Telefone</label>
                                     <input type="text" class="form-control requered mask-celular" id="<?=$prefix?>_telefone" name="<?=$prefix?>_telefone" placeholder="(99) 99999-9999">
                                 </div>
                             </div>
-                            <!--
-                            <div class="col-sm-12 col-md-12 col-lg-4 col-xl-4 col-xxl-4">
-                                <div class="form-group">
-                                <label for="<?=$prefix?>_senha">Senha</label>
-                                    <input type="password" class="form-control requered" id="<?=$prefix?>_senha" name="<?=$prefix?>_senha" placeholder="99999">
-                                </div>
-                            </div>
-                            -->
-                            <div class="col-sm-12 col-md-12 col-lg-4 col-xl-4 col-xxl-4">
+                            <div class="col-sm-12 col-md-12 col-lg-3 col-xl-3 col-xxl-3">
                                 <div class="form-group">
                                     <label for="<?=$prefix?>_status">Status</label>
                                     <select class="form-select requered" id="<?=$prefix?>_status" name="<?=$prefix?>_status">
@@ -181,7 +172,7 @@ if (isset($_SESSION['usuario']['endpoints'][returnPage()])) {
                                         <option value="I">Inativo</option>
                                     </select>
                                 </div>
-                            </div>
+                            </div>                         
                         </div>
 
                         <div class="row">
@@ -247,29 +238,7 @@ if (isset($_SESSION['usuario']['endpoints'][returnPage()])) {
         </div>
     </div>
 
-    <div class="modal fade" id="modal-<?=$prefix?>-perfil" tabindex="-1" role="dialog" aria-labelledby="modal<?=$prefix?>perfil" aria-hidden="true">
-        <div class="modal-dialog " role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="modal<?=$prefix?>perfil"><?=$titulo?> / Perfil</h5>
-                    <button class="close" type="button" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">×</span>
-                    </button>
-                </div>
-                <div class="modal-body">
-                    <form name="form-<?=$prefix?>-perfil" class="formValidate"></form>
-                </div>
-                <div class="modal-footer">
-                    <button class="btn btn-secondary" type="button" data-dismiss="modal">
-                        <i class="fa fa-xmark"></i> Fechar
-                    </button>
-                    <a class="btn btn-primary" href="#" rel="btn-<?=$prefix?>-perfil-salvar">
-                        <i class="fa fa-save"></i> Salvar
-                    </a>
-                </div>
-            </div>
-        </div>
-    </div>
+    
 
     
 
@@ -278,9 +247,9 @@ require_once('footer.php');
 ?>
 <script>
 function carrega_lista(){
-    $('#table-<?=$prefix?>').DataTable({
+    $('#table-<?=str_replace('_','-',$prefix)?>').DataTable({
         "ajax": {
-            "url": '/<?=$prefix?>-json',
+            "url": '/<?=str_replace('_','-',$prefix)?>-json',
             "type": "post",
             "data":{}
         },
@@ -292,7 +261,7 @@ function carrega_lista(){
         "columns":
                 [
                     { "data": function ( data, type, row ) {
-                                    return data.id_usuarios;
+                                    return data.id_pessoas;
                                 }
                     },
                     { "data": function ( data, type, row ) {
@@ -301,6 +270,13 @@ function carrega_lista(){
                     },
                     { "data": function ( data, type, row ) {
                                     return data.cpf_cnpj;
+                                }
+                    },
+                    { "data": function ( data, type, row ) {
+
+                                    var tipo_label = data.status=='I' ? 'warning' : 'primary';
+                                    var campo = '<span class="badge text-bg-'+tipo_label+'" title="'+data.ds_tipos_pessoas+'">'+data.ds_tipos_pessoas+'</span>';
+                                    return campo;
                                 }
                     },
                     { "data": function ( data, type, row ) {
@@ -324,27 +300,14 @@ function carrega_lista(){
                     { "data": function ( data, type, row ) {
                                     var campo = '';
 
-                                    let color_send = 'primary';
-                                    if(data.senha == '') {
-                                        color_send = 'warning';
-                                    }
-
-                                    campo+= '<a href="#" title="E-mail de cadastramento de senha" id="'+data.id_usuarios+'" rel="btn-<?=$prefix?>-register-password" role="button" class="btn btn-'+color_send+' btn-sm" style="margin: 1px 2px">'+
-                                                    '<i class="fas fa-envelope"></i>'+
-                                                '</a>';
-
-                                    campo+= '<a href="#" title="relacionamento de perfil" id="'+data.id_usuarios+'" rel="btn-<?=$prefix?>-perfil" role="button" class="btn btn-dark btn-sm" style="margin: 1px 2px">'+
-                                                    '<i class="fas fa-list"></i>'+
-                                                '</a>';                                   
-
                                     <?php if(in_array('ALTERAR', $arr_permissoes)):?>
-                                        campo+= '<a href="#" title="Editar" id="'+data.id_usuarios+'" rel="btn-<?=$prefix?>-editar" role="button" class="btn btn-primary btn-sm" style="margin: 1px 2px">'+
+                                        campo+= '<a href="#" title="Editar" id="'+data.id_pessoas+'" rel="btn-<?=$prefix?>-editar" role="button" class="btn btn-primary btn-sm" style="margin: 1px 2px">'+
                                                     '<i class="fas fa-edit"></i>'+
                                                 '</a>';
                                     <?php endif;?>
                                     
                                     <?php if(in_array('DELETAR', $arr_permissoes)):?>
-                                        campo+= '<a href="#" title="Deletar" rel="btn-<?=$prefix?>-deletar" id="'+data.id_usuarios+'" role="button" class="btn btn-danger btn-sm" style="margin: 1px 2px">'+
+                                        campo+= '<a href="#" title="Deletar" rel="btn-<?=$prefix?>-deletar" id="'+data.id_pessoas+'" role="button" class="btn btn-danger btn-sm" style="margin: 1px 2px">'+
                                                     '<i class="fas fa-trash"></i>'+
                                                 '</a>';
                                     <?php endif;?>
@@ -359,7 +322,7 @@ function carrega_lista(){
 
 function deletaRegistro(id){
     $.ajax({
-        url:'/<?=$prefix?>-del/'+id,
+        url:'/<?=str_replace('_','-',$prefix)?>-del/'+id,
         type:'get',
         dataType:'json',
         data:{},
@@ -385,54 +348,6 @@ function deletaRegistro(id){
     });
 }
 
-function usuario_perfil(id_usuarios) {
-    $.ajax({
-        url:'/usuarios-perfil-json',
-        type:'post',
-        dataType:'json',
-        data:{
-            'id_usuarios':id_usuarios
-        },
-        success:function(data){
-            console.log('data', data);
-            
-            if (data.data) {
-                let el = $('form[name=form-<?=$prefix?>-perfil]');
-                let body = '';
-                body += '<input type="hidden" name="id_usuarios_perfil" value="'+id_usuarios+'" />';
-
-                if (data.data) {
-                    body += '<table class="table table-bordered">';
-                    $.each(data.data, function(i, v){
-                        body += '<tr>';
-                                body += '<td class="">'+
-                                            '<div class="form-check">'+
-                                                '<input class="form-check-input" '+(v.fg_usuarios_perfil=='S'?'checked':'')+' type="checkbox" value="'+v.id_perfil+'" id="arr_id_perfil_'+v.id_perfil+'" name="arr_id_perfil[]">'+
-                                            '</div>'+
-                                        '</td>';
-                                body += '<td>'+v.descricao+'</td>';
-                        body += '</tr>';
-                    });
-                    body += '</table>';
-                }
-                el.html(body);
-            }
-        },
-        beforeSend:function(){
-            preloaderStart();
-        },
-        error:function(a,b,c){
-            preloaderStop();
-            gerarAlerta(a, 'Aviso', 'danger');
-            console.error('a',a);
-            console.error('b',b);
-            console.error('c',c);
-        },
-        complete:function(){
-            preloaderStop();
-        }
-    });
-}
 
 function fieldCpfCnpj(tipo) {
     $('input[name=<?=$prefix?>_cpf_cnpj]').unmask().val('');
@@ -466,21 +381,19 @@ $(document).ready(function(){
         const id = $(this).attr('id');
         if (id) {            
             $.ajax({
-                url:'/<?=$prefix?>-edit/'+id,
+                url:'/<?=str_replace('_','-',$prefix)?>-edit/'+id,
                 type:'get',
                 dataType:'json',
                 data:{},
                 success:function(data){
                     if (data.data) {
-                        $('input[name=<?=$prefix?>_id_usuarios]').val(data.data.id_usuarios);
                         $('input[name=<?=$prefix?>_id_pessoas]').val(data.data.id_pessoas);
                         $('input[name=<?=$prefix?>_nome]').val(data.data.nm_pessoa);
                         $('select[name=<?=$prefix?>_tp_juridico]').val(data.data.tp_juridico);
                         $('input[name=<?=$prefix?>_dt_nascimento]').val(data.data.dt_nascimento);
-                        $('select[name=<?=$prefix?>_genero]').val(data.data.genero);
-                        $('input[name=<?=$prefix?>_email]').val(data.data.email);
-                        $('input[name=<?=$prefix?>_senha]').val(data.data.senha);
+                        $('select[name=<?=$prefix?>_id_tipos_pessoas]').val(data.data.id_tipos_pessoas);
                         $('select[name=<?=$prefix?>_status]').val(data.data.status);
+                        $('input[name=<?=$prefix?>_email]').val(data.data.email);
                         $('input[name=<?=$prefix?>_cep]').val(data.data.cep);
                         $('input[name=<?=$prefix?>_logradouro]').val(data.data.logradouro);
                         $('input[name=<?=$prefix?>_numero]').val(data.data.numero);
@@ -494,6 +407,8 @@ $(document).ready(function(){
                         $('input[name=<?=$prefix?>_cpf_cnpj]').val(data.data.cpf_cnpj);
 
                         $('div#modal-<?=$prefix?>').modal('show');
+                    } else {
+                        gerarAlerta(data.msg, 'Aviso', 'warning');
                     }
                 },
                 beforeSend:function(){
@@ -548,7 +463,7 @@ $(document).ready(function(){
         $('form[name=form-<?=$prefix?>]').ajaxForm({
 			data:{},
     		success : function(data) {
-                console.log('data', data);
+                
                 gerarAlerta(data.msg, (data.success?'Sucesso':'Erro'), data.type);
                 if (data.success) {
                     $('div#modal-<?=$prefix?>').modal('hide');
@@ -567,96 +482,13 @@ $(document).ready(function(){
             },
 			type:'post',
 			dataType:'json',
-			url: '/<?=$prefix?>-save',
+			url: '/<?=str_replace('_','-',$prefix)?>-save',
 			resetForm:false
 		}).submit();
 	});
 
     $(document).on('change', 'select[name=<?=$prefix?>_tp_juridico]', function(){
         fieldCpfCnpj($(this).val());
-    });
-
-    $(document).on('click', 'a[rel=btn-<?=$prefix?>-perfil]', function(e){
-        usuario_perfil($(this).attr('id'));
-        $('div[id=modal-<?=$prefix?>-perfil]').modal('show');
-    });
-
-    $('div#modal-<?=$prefix?>-perfil').on('hidden.bs.modal', function (e) {
-        $('form[name=form-<?=$prefix?>-perfil]').html('');
-    });
-
-    $(document).on('click', 'a[rel=btn-<?=$prefix?>-perfil-salvar]', function(e){
-        e.preventDefault();
-        const id_usuarios = $('form[name=form-<?=$prefix?>-perfil] input[name=id_usuarios_perfil]').val();
-        let arr_perfil = [];
-        $('form[name=form-<?=$prefix?>-perfil]').find('input[name^=arr_id_perfil]').each(function(){
-            if($(this).is(':checked')) {
-                arr_perfil.push($(this).val());
-            }
-        });
-
-        $.ajax({
-            url:'/<?=$prefix?>-perfil-save',
-            type:'post',
-            dataType:'json',
-            data:{
-                'id_usuarios':id_usuarios,
-                'arr_perfil': arr_perfil
-            },
-            success:function(data){
-                gerarAlerta(data.msg, (data.success?'Sucesso':'Erro'), data.type);
-                $('div[id=modal-<?=$prefix?>-perfil]').modal('hide');
-            },
-            beforeSend:function(){
-                preloaderStart();
-            },
-            error:function(a,b,c){
-                preloaderStop();
-                gerarAlerta(a, 'Aviso', 'danger');
-                console.error('a',a);
-                console.error('b',b);
-                console.error('c',c);
-            },
-            complete:function(){
-                preloaderStop();
-            }
-        });
-    });
-
-    $(document).on('click', 'a[rel=btn-<?=$prefix?>-register-password]', function(e){
-        e.preventDefault();
-        const id_usuarios = $(this).attr('id');
-        
-        if (id_usuarios) {
-            $.ajax({
-                url:'/usuarios-send-password',
-                type:'post',
-                dataType:'json',
-                data:{
-                    'id_usuarios':id_usuarios,
-                },
-                success:function(data){
-                    gerarAlerta(data.msg, (data.success?'Sucesso':'Erro'), data.type);
-                    if (data.success) {
-                        carrega_lista();
-                    }
-                },
-                beforeSend:function(){
-                    preloaderStart();
-                },
-                error:function(a,b,c){
-                    preloaderStop();
-                    gerarAlerta(a, 'Aviso', 'danger');
-                    console.error('a',a);
-                    console.error('b',b);
-                    console.error('c',c);
-                },
-                complete:function(){
-                    preloaderStop();
-                }
-            });
-        }
-
     });
 
     $(document).on('focusout', 'input[name=<?=$prefix?>_cep]', function(e){
