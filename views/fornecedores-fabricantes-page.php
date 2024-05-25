@@ -6,7 +6,6 @@ $arr_permissoes = array();
 if (isset($_SESSION['usuario']['endpoints'][returnPage()])) {
     $arr_permissoes = $_SESSION['usuario']['endpoints'][returnPage()];
 }
-
 ?>
 
 <!-- Page Wrapper -->
