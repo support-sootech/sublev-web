@@ -1,7 +1,7 @@
 <?php
 require_once('header.php');
-$titulo = 'Marcas de Materiais';
-$prefix = 'materiais_marcas';
+$titulo = 'Embalagens';
+$prefix = 'embalagens';
 $arr_permissoes = array();
 if (isset($_SESSION['usuario']['endpoints'][returnPage()])) {
     $arr_permissoes = $_SESSION['usuario']['endpoints'][returnPage()];
@@ -57,8 +57,9 @@ if (isset($_SESSION['usuario']['endpoints'][returnPage()])) {
                                     <thead>
                                         <tr>
                                             <th style="width: 5%;">ID</th>
-                                            <th style="width: 65%;">Descrição</th>
-                                            <th style="width: 20%;">Status</th>
+                                            <th style="width: 50%;">Descrição</th>
+                                            <th style="width: 30%;">Tipo</th>
+                                            <th style="width: 5%;">Status</th>
                                             <th style="width: 10%;">Ações</th>
                                         </tr>
                                     </thead>
@@ -103,10 +104,28 @@ if (isset($_SESSION['usuario']['endpoints'][returnPage()])) {
                 </div>
                 <div class="modal-body">
                     <form name="form-<?=str_replace('_','-',$prefix)?>" class="formValidate">
-                        <input type="hidden" class="" id="<?=$prefix?>_id_materiais_marcas" name="<?=$prefix?>_id_materiais_marcas" value="">
+                        <input type="hidden" class="" id="<?=$prefix?>_id_embalagens" name="<?=$prefix?>_id_embalagens" value="">
                         <div class="form-group">
                             <label for="<?=$prefix?>_descricao">Descrição</label>
                             <input type="text" class="form-control requered" id="<?=$prefix?>_descricao" name="<?=$prefix?>_descricao" placeholder="Descrição">
+                        </div>
+                        <div class="row">
+                            <div class="col">
+                                <div class="form-group">
+                                    <label for="<?=$prefix?>_qtd_minima">Qtd. Mínima</label>
+                                    <input type="text" class="form-control requered somente_numeros" id="<?=$prefix?>_qtd_minima" name="<?=$prefix?>_qtd_minima" maxlength="2" placeholder="Ex.: 3">
+                                </div>
+                            </div>
+                            <div class="col">
+                                <div class="form-group">
+                                    <label for="<?=$prefix?>_qtd_maxima">Qtd. Máxima</label>
+                                    <input type="text" class="form-control requered somente_numeros" id="<?=$prefix?>_qtd_maxima" name="<?=$prefix?>_qtd_maxima" maxlength="2" placeholder="Ex.: 5">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="<?=$prefix?>_id_embalagens_tipos">Tipos de embalagens</label>
+                            <select class="form-select requered" id="<?=$prefix?>_id_embalagens_tipos" name="<?=$prefix?>_id_embalagens_tipos"></select>
                         </div>
                         <div class="form-group">
                             <label for="<?=$prefix?>_status">Status</label>
@@ -148,11 +167,15 @@ function carrega_lista(){
         "columns":
                 [
                     { "data": function ( data, type, row ) {
-                                    return data.id_materiais_marcas;
+                                    return data.id_embalagens;
                                 }
                     },
                     { "data": function ( data, type, row ) {
                                     return data.descricao;
+                                }
+                    },
+                    { "data": function ( data, type, row ) {
+                                    return data.ds_embalagens_tipos;
                                 }
                     },
                     { "data": function ( data, type, row ) {
@@ -177,13 +200,13 @@ function carrega_lista(){
                                     var campo = '';
 
                                     <?php if(in_array('ALTERAR', $arr_permissoes)):?>
-                                        campo+= '<a href="#" title="Editar" id="'+data.id_materiais_marcas+'" rel="btn-<?=str_replace('_','-',$prefix)?>-editar" role="button" class="btn btn-primary btn-sm" style="margin: 1px 2px">'+
+                                        campo+= '<a href="#" title="Editar" id="'+data.id_embalagens+'" rel="btn-<?=str_replace('_','-',$prefix)?>-editar" role="button" class="btn btn-primary btn-sm" style="margin: 1px 2px">'+
                                                     '<i class="fas fa-edit"></i>'+
                                                 '</a>';
                                     <?php endif;?>
 
                                     <?php if(in_array('DELETAR', $arr_permissoes)):?>
-                                        campo+= '<a href="#" title="Deletar" rel="btn-<?=str_replace('_','-',$prefix)?>-deletar" id="'+data.id_materiais_marcas+'" role="button" class="btn btn-danger btn-sm" style="margin: 1px 2px">'+
+                                        campo+= '<a href="#" title="Deletar" rel="btn-<?=str_replace('_','-',$prefix)?>-deletar" id="'+data.id_embalagens+'" role="button" class="btn btn-danger btn-sm" style="margin: 1px 2px">'+
                                                     '<i class="fas fa-trash"></i>'+
                                                 '</a>';
                                     <?php endif;?>
@@ -224,6 +247,41 @@ function deletaRegistro(id){
     });
 }
 
+function carrega_combo_embalagens_tipos(id_embalagens_tipos='') {
+    let el = $('select[name=<?=$prefix?>_id_embalagens_tipos]');
+    $.ajax({
+        url:'/<?=str_replace('_','-',$prefix)?>-tipos-json',
+        type:'post',
+        dataType:'json',
+        data:{
+            'status': 'A'
+        },
+        success:function(data){
+            let op = '<option value="">--Selecione--</option>';
+            if (data.data.length > 0) {
+                $.each(data.data, function(i, v){
+                    op += '<option value="'+v.id_embalagens_tipos+'" '+(id_embalagens_tipos==v.id_embalagens_tipos?'selected':'')+' >'+v.descricao+'</option>';
+                });
+            }
+            el.html(op);
+        },
+        beforeSend:function(){
+            el.html('<option>Carregando...</option>');
+            preloaderStart();
+        },
+        error:function(a,b,c){
+            preloaderStop();
+            gerarAlerta(a, 'Aviso', 'danger');
+            console.error('a',a);
+            console.error('b',b);
+            console.error('c',c);
+        },
+        complete:function(){
+            preloaderStop();
+        }
+    });
+}
+
 $(document).ready(function(){
 
     formFieldsRequered();
@@ -232,6 +290,7 @@ $(document).ready(function(){
 
     $(document).on('click', 'a[rel=btn-<?=str_replace('_','-',$prefix)?>-novo]', function(e){
         e.preventDefault();
+        carrega_combo_embalagens_tipos();
         $('div#modal-<?=str_replace('_','-',$prefix)?>').modal('show');
     });
 
@@ -253,9 +312,9 @@ $(document).ready(function(){
                 success:function(data){
                     if (data.data) {
                         $.each(data.data, function(i,v){
-                            
                             $('form[name=form-<?=str_replace('_','-',$prefix)?>] #<?=$prefix?>_'+i+'').val(v);
                         });
+                        carrega_combo_embalagens_tipos(data.data.id_embalagens_tipos);
                         $('div#modal-<?=str_replace('_','-',$prefix)?>').modal('show');
                     } else {
                         gerarAlerta(data.msg, 'Aviso', data.type);
@@ -320,9 +379,12 @@ $(document).ready(function(){
                     carrega_lista();
 				}
 			},
-			error : function(e) {
+			error : function(a,b,c) {
+                console.log('ERROR A', a);
+                console.log('ERROR B', b);
+                console.log('ERROR C', c);
                 preloaderStop();
-				gerarAlerta(e.responseJSON.msg, 'Erro', 'danger');
+				gerarAlerta(a.responseJSON.msg, 'Erro', 'danger');
 			},
             complete:function(){
                 preloaderStop();

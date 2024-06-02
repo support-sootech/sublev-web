@@ -31,6 +31,14 @@ function returnPage(){
     return $PAGINA;
 }
 
+function getIdEmpresasLogado() {
+	$id_empresas = '';
+	if (isset($_SESSION['usuario']['id_empresas'])) {
+		$id_empresas = $_SESSION['usuario']['id_empresas'];
+	}
+	return $id_empresas;
+}
+
 function salvar_log($string){
   $arquivo    = site_url().'/imagens/log.txt';
   $fg_existe  = '';
@@ -563,6 +571,33 @@ function messagesDefault($idx) {
 	$message['register_password_send'] = 'E-mail de redefinição de senha enviado com sucesso!';
 
 	return isset($message[$idx]) ? $message[$idx] : '';
+}
+
+function buscaProdutosCodigoBarras($codigo_barras = '') {
+
+	$data = false;
+
+	if (!empty($codigo_barras)) {
+		$client = new GuzzleHttp\Client();
+
+		try {
+			$res = $client->request('GET', 'https://pt.product-search.net/?q='.$codigo_barras);
+			$data = $res;
+		} catch (GuzzleHttp\Exception\ClientException $e) {
+			$response = $e->getResponse();
+			$responseBodyAsString = $response->getBody()->getContents();
+
+			if ($e->getCode()==403) {
+				throw new Exception('Você não tem permissão para consultar!');
+			} else {
+				throw $e->getMessage();
+			}
+			
+		}
+	}
+
+	return $data;
+
 }
 
 ?>

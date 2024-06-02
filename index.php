@@ -64,6 +64,14 @@ include_once('controller/usuarios-controller.php');
 include_once('controller/tipos-pessoas-controller.php');
 include_once('controller/empresas-controller.php');
 include_once('controller/fornecedores-fabricantes-controller.php');
+include_once('controller/embalagens-controller.php');
+include_once('controller/embalagens-tipos-controller.php');
+include_once('controller/unidades-medidas-controller.php');
+include_once('controller/materiais-tipos-controller.php');
+include_once('controller/materiais-marcas-controller.php');
+include_once('controller/materiais-categorias-controller.php');
+include_once('controller/produtos-controller.php');
+include_once('controller/materiais-controller.php');
 
 $app->run();
 

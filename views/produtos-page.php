@@ -1,7 +1,7 @@
 <?php
 require_once('header.php');
-$titulo = 'Marcas de Materiais';
-$prefix = 'materiais_marcas';
+$titulo = 'Produtos';
+$prefix = 'produtos';
 $arr_permissoes = array();
 if (isset($_SESSION['usuario']['endpoints'][returnPage()])) {
     $arr_permissoes = $_SESSION['usuario']['endpoints'][returnPage()];
@@ -56,10 +56,12 @@ if (isset($_SESSION['usuario']['endpoints'][returnPage()])) {
                                 <table class="table table-bordered" id="table-<?=str_replace('_','-',$prefix)?>" width="100%" cellspacing="0">
                                     <thead>
                                         <tr>
-                                            <th style="width: 5%;">ID</th>
-                                            <th style="width: 65%;">Descrição</th>
-                                            <th style="width: 20%;">Status</th>
-                                            <th style="width: 10%;">Ações</th>
+                                            <th >ID</th>
+                                            <th >Descrição</th>
+                                            <th >Validade</th>
+                                            <th >Validade Aberto</th>
+                                            <th >Status</th>
+                                            <th >Ações</th>
                                         </tr>
                                     </thead>
                                     <tbody></tbody>
@@ -103,11 +105,35 @@ if (isset($_SESSION['usuario']['endpoints'][returnPage()])) {
                 </div>
                 <div class="modal-body">
                     <form name="form-<?=str_replace('_','-',$prefix)?>" class="formValidate">
-                        <input type="hidden" class="" id="<?=$prefix?>_id_materiais_marcas" name="<?=$prefix?>_id_materiais_marcas" value="">
+                        <input type="hidden" class="" id="<?=$prefix?>_id_produtos" name="<?=$prefix?>_id_produtos" value="">
+
+                        <div class="form-group">
+                            <label for="<?=$prefix?>_codigo_barras">Código barras</label>
+                            <input type="text" class="form-control requered" id="<?=$prefix?>_codigo_barras" name="<?=$prefix?>_codigo_barras" maxlength="50" placeholder="Ex.: 7895444">
+                            <span class="form-text" id="basic-addon4">Após o preenchimento do código de barras aperte a tecla enter.</span>
+                        </div>
+
                         <div class="form-group">
                             <label for="<?=$prefix?>_descricao">Descrição</label>
                             <input type="text" class="form-control requered" id="<?=$prefix?>_descricao" name="<?=$prefix?>_descricao" placeholder="Descrição">
                         </div>
+                        
+                        <div class="row">
+                            <div class="col">
+                                <div class="form-group">
+                                    <label for="<?=$prefix?>_dias_vencimento">Qtd. dias vencimento</label>
+                                    <input type="text" class="form-control requered" id="<?=$prefix?>_dias_vencimento" name="<?=$prefix?>_dias_vencimento" maxlength="2" placeholder="Ex.: 30">
+                                </div>
+                            </div>
+
+                            <div class="col">
+                                <div class="form-group">
+                                    <label for="<?=$prefix?>_dias_vencimento_aberto">Qtd. dias vencimento aberto</label>
+                                    <input type="text" class="form-control requered" id="<?=$prefix?>_dias_vencimento_aberto" name="<?=$prefix?>_dias_vencimento_aberto" maxlength="2" placeholder="Ex.: 30">
+                                </div>
+                            </div>
+                        </div>
+
                         <div class="form-group">
                             <label for="<?=$prefix?>_status">Status</label>
                             <select class="form-select requered" id="<?=$prefix?>_status" name="<?=$prefix?>_status">
@@ -148,11 +174,19 @@ function carrega_lista(){
         "columns":
                 [
                     { "data": function ( data, type, row ) {
-                                    return data.id_materiais_marcas;
+                                    return data.id_produtos;
                                 }
                     },
                     { "data": function ( data, type, row ) {
                                     return data.descricao;
+                                }
+                    },
+                    { "data": function ( data, type, row ) {
+                                    return data.dias_vencimento;
+                                }
+                    },
+                    { "data": function ( data, type, row ) {
+                                    return data.dias_vencimento_aberto;
                                 }
                     },
                     { "data": function ( data, type, row ) {
@@ -177,13 +211,13 @@ function carrega_lista(){
                                     var campo = '';
 
                                     <?php if(in_array('ALTERAR', $arr_permissoes)):?>
-                                        campo+= '<a href="#" title="Editar" id="'+data.id_materiais_marcas+'" rel="btn-<?=str_replace('_','-',$prefix)?>-editar" role="button" class="btn btn-primary btn-sm" style="margin: 1px 2px">'+
+                                        campo+= '<a href="#" title="Editar" id="'+data.id_produtos+'" rel="btn-<?=str_replace('_','-',$prefix)?>-editar" role="button" class="btn btn-primary btn-sm" style="margin: 1px 2px">'+
                                                     '<i class="fas fa-edit"></i>'+
                                                 '</a>';
                                     <?php endif;?>
 
                                     <?php if(in_array('DELETAR', $arr_permissoes)):?>
-                                        campo+= '<a href="#" title="Deletar" rel="btn-<?=str_replace('_','-',$prefix)?>-deletar" id="'+data.id_materiais_marcas+'" role="button" class="btn btn-danger btn-sm" style="margin: 1px 2px">'+
+                                        campo+= '<a href="#" title="Deletar" rel="btn-<?=str_replace('_','-',$prefix)?>-deletar" id="'+data.id_produtos+'" role="button" class="btn btn-danger btn-sm" style="margin: 1px 2px">'+
                                                     '<i class="fas fa-trash"></i>'+
                                                 '</a>';
                                     <?php endif;?>
@@ -336,6 +370,39 @@ $(document).ready(function(){
 			resetForm:false
 		}).submit();
 	});
+
+    $(document).on('keypress', 'input[name=<?=$prefix?>_codigo_barras]', function(e) {
+        if (e.keyCode == 13) {
+            const codigo_barras = $(this).val();
+            if (codigo_barras) {
+                console.log('CODIGO DE BARRAS', codigo_barras);
+                ///produtos
+                $.ajax({
+                url:'/<?=str_replace('_','-',$prefix)?>-busca-codigo-barras/'+codigo_barras,
+                type:'get',
+                dataType:'json',
+                data:{},
+                success:function(data){
+                    //gerarAlerta(data.msg, 'Aviso', data.type);
+                    console.log('data', data);
+                },
+                beforeSend:function(){
+                    preloaderStart();
+                },
+                error:function(a,b,c){
+                    preloaderStop();
+                    gerarAlerta(a.responseJSON.msg, 'Aviso', 'danger');
+                    console.error('a',a);
+                    console.error('b',b);
+                    console.error('c',c);
+                },
+                complete:function(){
+                    preloaderStop();
+                }
+            });
+            }
+        }
+    });
 
 });
 </script>

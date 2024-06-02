@@ -1,7 +1,7 @@
 <?php
 require_once('header.php');
-$titulo = 'Marcas de Materiais';
-$prefix = 'materiais_marcas';
+$titulo = 'Unidades de Medida';
+$prefix = 'unidades_medidas';
 $arr_permissoes = array();
 if (isset($_SESSION['usuario']['endpoints'][returnPage()])) {
     $arr_permissoes = $_SESSION['usuario']['endpoints'][returnPage()];
@@ -103,7 +103,7 @@ if (isset($_SESSION['usuario']['endpoints'][returnPage()])) {
                 </div>
                 <div class="modal-body">
                     <form name="form-<?=str_replace('_','-',$prefix)?>" class="formValidate">
-                        <input type="hidden" class="" id="<?=$prefix?>_id_materiais_marcas" name="<?=$prefix?>_id_materiais_marcas" value="">
+                        <input type="hidden" class="" id="<?=$prefix?>_id_unidades_medidas" name="<?=$prefix?>_id_unidades_medidas" value="">
                         <div class="form-group">
                             <label for="<?=$prefix?>_descricao">Descrição</label>
                             <input type="text" class="form-control requered" id="<?=$prefix?>_descricao" name="<?=$prefix?>_descricao" placeholder="Descrição">
@@ -148,7 +148,7 @@ function carrega_lista(){
         "columns":
                 [
                     { "data": function ( data, type, row ) {
-                                    return data.id_materiais_marcas;
+                                    return data.id_unidades_medidas;
                                 }
                     },
                     { "data": function ( data, type, row ) {
@@ -177,13 +177,13 @@ function carrega_lista(){
                                     var campo = '';
 
                                     <?php if(in_array('ALTERAR', $arr_permissoes)):?>
-                                        campo+= '<a href="#" title="Editar" id="'+data.id_materiais_marcas+'" rel="btn-<?=str_replace('_','-',$prefix)?>-editar" role="button" class="btn btn-primary btn-sm" style="margin: 1px 2px">'+
+                                        campo+= '<a href="#" title="Editar" id="'+data.id_unidades_medidas+'" rel="btn-<?=str_replace('_','-',$prefix)?>-editar" role="button" class="btn btn-primary btn-sm" style="margin: 1px 2px">'+
                                                     '<i class="fas fa-edit"></i>'+
                                                 '</a>';
                                     <?php endif;?>
 
                                     <?php if(in_array('DELETAR', $arr_permissoes)):?>
-                                        campo+= '<a href="#" title="Deletar" rel="btn-<?=str_replace('_','-',$prefix)?>-deletar" id="'+data.id_materiais_marcas+'" role="button" class="btn btn-danger btn-sm" style="margin: 1px 2px">'+
+                                        campo+= '<a href="#" title="Deletar" rel="btn-<?=str_replace('_','-',$prefix)?>-deletar" id="'+data.id_unidades_medidas+'" role="button" class="btn btn-danger btn-sm" style="margin: 1px 2px">'+
                                                     '<i class="fas fa-trash"></i>'+
                                                 '</a>';
                                     <?php endif;?>
