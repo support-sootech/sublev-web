@@ -57,8 +57,8 @@ if (isset($_SESSION['usuario']['endpoints'][returnPage()])) {
                                         <tr>
                                             <th >ID</th>
                                             <th >Descrição</th>
-                                            <th >Validade</th>
-                                            <th >Validade Aberto</th>
+                                            <th >Fabricante</th>
+                                            <th >Fornecedor</th>
                                             <th >Status</th>
                                             <th >Ações</th>
                                         </tr>
@@ -106,17 +106,22 @@ if (isset($_SESSION['usuario']['endpoints'][returnPage()])) {
                     <form name="form-<?=str_replace('_','-',$prefix)?>" class="formValidate">
                         <input type="hidden" class="" id="<?=$prefix?>_id_materiais" name="<?=$prefix?>_id_materiais" value="">
 
-                        <div class="form-group">
-                            <label for="<?=$prefix?>_codigo_barras">Código barras</label>
-                            <input type="text" class="form-control requered" id="<?=$prefix?>_codigo_barras" name="<?=$prefix?>_codigo_barras" maxlength="50" placeholder="Ex.: 7895444">
-                            <span class="form-text" id="basic-addon4">Após o preenchimento do código de barras aperte a tecla enter.</span>
+                        <div class="row">
+
+                            <div class="col-sm-12 col-md-12 col-lg-3 col-xl-3 col-xxl-3">                                
+                                <div class="form-group">
+                                    <label for="<?=$prefix?>_cod_barras">Código de Barras</label>
+                                    <input type="text" class="form-control requered" id="<?=$prefix?>_cod_barras" name="<?=$prefix?>_cod_barras" placeholder="Descrição">
+                                </div>
+                            </div>
+                            <div class="col">
+                                <div class="form-group">
+                                    <label for="<?=$prefix?>_descricao">Descrição</label>
+                                    <input type="text" class="form-control requered" id="<?=$prefix?>_descricao" name="<?=$prefix?>_descricao" placeholder="Descrição">
+                                </div>
+                            </div>
                         </div>
 
-                        <div class="form-group">
-                            <label for="<?=$prefix?>_descricao">Descrição</label>
-                            <input type="text" class="form-control requered" id="<?=$prefix?>_descricao" name="<?=$prefix?>_descricao" placeholder="Descrição">
-                        </div>
-                        
                         <div class="row">
                             <div class="col">
                                 <div class="form-group">
@@ -127,19 +132,128 @@ if (isset($_SESSION['usuario']['endpoints'][returnPage()])) {
 
                             <div class="col">
                                 <div class="form-group">
-                                    <label for="<?=$prefix?>_dias_vencimento_aberto">Qtd. dias vencimento aberto</label>
+                                    <label for="<?=$prefix?>_dias_vencimento_aberto">Qtd. dias venc. aberto</label>
                                     <input type="text" class="form-control requered" id="<?=$prefix?>_dias_vencimento_aberto" name="<?=$prefix?>_dias_vencimento_aberto" maxlength="2" placeholder="Ex.: 30">
+                                </div>
+                            </div>
+                            
+                            <div class="col">
+                                <div class="form-group">
+                                    <label for="<?=$prefix?>_id_materiais_categorias">Categoria</label>
+                                    <select class="form-select requered" id="<?=$prefix?>_id_materiais_categorias" name="<?=$prefix?>_id_materiais_categorias"></select>
+                                </div>
+                            </div>
+
+                            <div class="col">
+                                <div class="form-group">
+                                    <label for="<?=$prefix?>_id_materiais_tipos">Tipo</label>
+                                    <select class="form-select requered" id="<?=$prefix?>_id_materiais_tipos" name="<?=$prefix?>_id_materiais_tipos"></select>
+                                </div>
+                            </div>
+
+                        </div>
+
+                        <div class="row">
+                            <div class="col">
+                                <div class="form-group">
+                                    <label for="<?=$prefix?>_id_pessoas_fornecedor">Fornecedores</label>
+                                    <select class="form-select requered" id="<?=$prefix?>_id_pessoas_fornecedor" name="<?=$prefix?>_id_pessoas_fornecedor"></select>
+                                </div>
+                            </div>
+                            <div class="col">
+                                <div class="form-group">
+                                    <label for="<?=$prefix?>_id_pessoas_fabricantes">Fabricantes</label>
+                                    <select class="form-select requered" id="<?=$prefix?>_id_pessoas_fabricantes" name="<?=$prefix?>_id_pessoas_fabricantes"></select>
                                 </div>
                             </div>
                         </div>
 
-                        <div class="form-group">
-                            <label for="<?=$prefix?>_status">Status</label>
-                            <select class="form-select requered" id="<?=$prefix?>_status" name="<?=$prefix?>_status">
-                                <option value="A">Ativo</option>
-                                <option value="I">Inativo</option>
-                            </select>
+                        <div class="row">
+                            <div class="col">
+                                <div class="form-group">
+                                    <label for="<?=$prefix?>_id_materiais_marcas">Marcas</label>
+                                    <select class="form-select requered" id="<?=$prefix?>_id_materiais_categorias" name="<?=$prefix?>_id_materiais_marcas"></select>
+                                </div>
+                            </div>
+
+                            <div class="col">
+                                <div class="form-group">
+                                    <label for="<?=$prefix?>_id_unidades_medidas">Unidades de Medida</label>
+                                    <select class="form-select requered" id="<?=$prefix?>_id_unidades_medidas" name="<?=$prefix?>_id_unidades_medidas"></select>
+                                </div>
+                            </div>
                         </div>
+
+                        <div class="row">
+
+                            <div class="col">
+                                <div class="form-group">
+                                    <label for="<?=$prefix?>_dt_fabricacao">Data de Fabricação</label>
+                                    <input type="text" class="form-control mask-data requered" id="<?=$prefix?>_dt_fabricacao" name="<?=$prefix?>_dt_fabricacao" maxlength="10" placeholder="Ex.: 99/99/9999">
+                                </div>
+                            </div>
+
+                            <div class="col">
+                                <div class="form-group">
+                                    <label for="<?=$prefix?>_dt_vencimento">Data de Vencimento</label>
+                                    <input type="text" class="form-control mask-data requered" id="<?=$prefix?>_dt_vencimento" name="<?=$prefix?>_dt_vencimento" maxlength="10" placeholder="Ex.: 99/99/9999">
+                                </div>
+                            </div>
+
+                            <div class="col">
+                                <div class="form-group">
+                                    <label for="<?=$prefix?>_dt_vencimento_aberto">Data de Venc. Aberto</label>
+                                    <input type="text" class="form-control mask-data requered" id="<?=$prefix?>_dt_vencimento_aberto" name="<?=$prefix?>_dt_vencimento_aberto" maxlength="10" placeholder="Ex.: 99/99/9999">
+                                </div>
+                            </div>
+
+                        </div>
+
+                        <div class="row">
+                            <div class="col">
+                                <div class="form-group">
+                                    <label for="<?=$prefix?>_peso">Peso</label>
+                                    <input type="text" class="form-control valor-decimal requered" id="<?=$prefix?>_peso" name="<?=$prefix?>_peso" maxlength="10" placeholder="Ex.: 3,00">
+                                </div>
+                            </div>
+
+                            <div class="col">
+                                <div class="form-group">
+                                    <label for="<?=$prefix?>_quantidade">Quantidade</label>
+                                    <input type="text" class="form-control somente_numeros requered" id="<?=$prefix?>_quantidade" name="<?=$prefix?>_quantidade" maxlength="2" placeholder="Ex.: 11">
+                                </div>
+                            </div>
+
+                            <div class="col">
+                                <div class="form-group">
+                                    <label for="<?=$prefix?>_preco">Preço</label>
+                                    <input type="text" class="form-control moeda_real requered" id="<?=$prefix?>_preco" name="<?=$prefix?>_preco" maxlength="10" placeholder="Ex.: 3,00">
+                                </div>
+                            </div>
+
+                            <div class="col">
+                                <div class="form-group">
+                                    <label for="<?=$prefix?>_lote">Lote</label>
+                                    <input type="text" class="form-control requered" id="<?=$prefix?>_lote" name="<?=$prefix?>_lote" maxlength="50" placeholder="">
+                                </div>
+                            </div>
+
+                        </div>
+
+                        <div class="row">
+                            <div class="col-sm-12 col-md-12 col-lg-3 col-xl-3 col-xxl-3">
+                                <div class="form-group">
+                                    <label for="<?=$prefix?>_status">Status</label>
+                                    <select class="form-select requered" id="<?=$prefix?>_status" name="<?=$prefix?>_status">
+                                        <option value="A">Ativo</option>
+                                        <option value="I">Inativo</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        
+
                     </form>
                 </div>
                 <div class="modal-footer">
@@ -257,6 +371,146 @@ function deletaRegistro(id){
     });
 }
 
+function busca_produto_codigo_barra(cod_barra='') {
+
+    if (cod_barra!='') {
+        $.ajax({
+            url:'/produtos-busca-codigo-barras/'+cod_barra,
+            type:'get',
+            dataType:'json',
+            data:{},
+            success:function(data){
+                console.log('data',data);
+                $('input[name=materiais_descricao]').val(data.data.descricao);
+                $('input[name=materiais_dias_vencimento]').val(data.data.dias_vencimento);
+                $('input[name=materiais_dias_vencimento_aberto]').val(data.data.dias_vencimento_aberto);
+                $('input[name=materiais_dt_vencimento]').val(data.data.dt_vencimento);
+                $('input[name=materiais_dt_vencimento_aberto]').val(data.data.dt_vencimento_aberto);
+                $('input[name=materiais_dt_fabricacao]').val('<?=date('d/m/Y')?>');
+            },
+            beforeSend:function(){
+                preloaderStart();
+            },
+            error:function(a,b,c){
+                preloaderStop();
+                gerarAlerta('Produto não localizado.', 'Aviso', 'warning');
+                console.error('a',a);
+                console.error('b',b);
+                console.error('c',c);
+            },
+            complete:function(){
+                preloaderStop();
+            }
+        });
+    }
+    
+}
+
+function calcula_datas() {
+
+    const dt_fabricacao = $('input[name=materiais_dt_fabricacao]').val();
+    const qtd_dias_vencimento = $('input[name=materiais_dias_vencimento]').val();
+    const qtd_dias_vencimento_aberto = $('input[name=materiais_dias_vencimento_aberto]').val();
+
+    if (dt_fabricacao!='' && qtd_dias_vencimento && qtd_dias_vencimento_aberto) {
+        $.ajax({
+            url:'/produtos-calcula-datas',
+            type:'post',
+            dataType:'json',
+            data:{
+                'dt_fabricacao':dt_fabricacao,
+                'qtd_dias_vencimento':qtd_dias_vencimento,
+                'qtd_dias_vencimento_aberto':qtd_dias_vencimento_aberto
+            },
+            success:function(data){
+                console.log('data',data);
+                $('input[name=materiais_dt_vencimento]').val(data.data.dt_vencimento);
+                $('input[name=materiais_dt_vencimento_aberto]').val(data.data.dt_vencimento_aberto);
+            },
+            beforeSend:function(){
+                preloaderStart();
+            },
+            error:function(a,b,c){
+                preloaderStop();
+                gerarAlerta('Produto não localizado.', 'Aviso', 'warning');
+                console.error('a',a);
+                console.error('b',b);
+                console.error('c',c);
+            },
+            complete:function(){
+                preloaderStop();
+            }
+        });
+    }
+
+}
+
+//COMBO DE CATEGORIAS
+function comboCategorias(id_materiais_categorias=''){
+    const el = $('select[name=<?=$prefix?>_id_materiais_categorias]')
+    let opt = '';
+    $.ajax({
+        url:'/materiais-categorias-json',
+        type:'post',
+        dataType:'json',
+        data:{status:'A'},
+        success:function(data) {
+            console.log('data', data);
+            if (data.data.length > 0) {
+                opt = '<option value="">--Selecione--</option>';
+                $.each(data.data, function(i,v){
+                    opt+= '<option value="'+v.id_materiais_categorias+'" '+(v.id_materiais_categorias==id_materiais_categorias?'selected':'')+' >'+v.descricao+'</option>'
+                });                
+            }
+            el.html(opt);
+        },
+        beforeSend:function(){
+            opt = '<option>Carregando...</option>';
+        },
+        complete:function(){
+
+        },
+        error:function(a,b,c){
+            console.log('a',a);
+            console.log('b',b);
+            console.log('c',c);
+        }
+    });
+}
+
+//COMBO DE CATEGORIAS
+function comboTipos(id_materiais_tipos=''){
+    const el = $('select[name=<?=$prefix?>_id_materiais_tipos]')
+    let opt = '';
+    $.ajax({
+        url:'/materiais-tipos-json',
+        type:'post',
+        dataType:'json',
+        data:{status:'A'},
+        success:function(data) {
+            console.log('data', data);
+            if (data.data.length > 0) {
+                opt = '<option value="">--Selecione--</option>';
+                $.each(data.data, function(i,v){
+                    opt+= '<option value="'+v.id_materiais_tipos+'" '+(v.id_materiais_tipos==id_materiais_tipos?'selected':'')+' >'+v.descricao+'</option>'
+                });                
+            }
+            el.html(opt);
+        },
+        beforeSend:function(){
+            opt = '<option>Carregando...</option>';
+        },
+        complete:function(){
+
+        },
+        error:function(a,b,c){
+            console.log('a',a);
+            console.log('b',b);
+            console.log('c',c);
+        }
+    });
+}
+
 $(document).ready(function(){
 
     formFieldsRequered();
@@ -265,6 +519,8 @@ $(document).ready(function(){
 
     $(document).on('click', 'a[rel=btn-<?=str_replace('_','-',$prefix)?>-novo]', function(e){
         e.preventDefault();
+        comboCategorias();
+        comboTipos();
         $('div#modal-<?=str_replace('_','-',$prefix)?>').modal('show');
     });
 
@@ -401,6 +657,17 @@ $(document).ready(function(){
             });
             }
         }
+    });
+
+    $(document).on('focusout','input[name=materiais_cod_barras]', function(){
+        const cod_barra = $(this).val();
+        if (cod_barra) {
+            busca_produto_codigo_barra(cod_barra);
+        }
+    });
+
+    $(document).on('focusout','input[name=materiais_dt_fabricacao]', function(){
+        calcula_datas();
     });
 
 });

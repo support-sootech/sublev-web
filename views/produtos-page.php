@@ -110,7 +110,7 @@ if (isset($_SESSION['usuario']['endpoints'][returnPage()])) {
                         <div class="form-group">
                             <label for="<?=$prefix?>_codigo_barras">Código barras</label>
                             <input type="text" class="form-control requered" id="<?=$prefix?>_codigo_barras" name="<?=$prefix?>_codigo_barras" maxlength="50" placeholder="Ex.: 7895444">
-                            <span class="form-text" id="basic-addon4">Após o preenchimento do código de barras aperte a tecla enter.</span>
+                            <!-- <span class="form-text" id="basic-addon4">Após o preenchimento do código de barras aperte a tecla enter.</span> -->
                         </div>
 
                         <div class="form-group">
@@ -371,6 +371,7 @@ $(document).ready(function(){
 		}).submit();
 	});
 
+    /*
     $(document).on('keypress', 'input[name=<?=$prefix?>_codigo_barras]', function(e) {
         if (e.keyCode == 13) {
             const codigo_barras = $(this).val();
@@ -403,6 +404,6 @@ $(document).ready(function(){
             }
         }
     });
-
+    */
 });
 </script>

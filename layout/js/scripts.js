@@ -141,6 +141,8 @@ async function consultaViaCep(numeroCep=''){
 $(document).ready(function(){
 
     $('.somente_numeros').bind('keydown',soNums);
+    $(".moeda_real").maskMoney({symbol:'R$ ', showSymbol:true, thousands:'.', decimal:',', symbolStay: true, allowZero: true, allowEmpty: true});
+	$(".valor-decimal").maskMoney({thousands:'.', decimal:',', allowZero: true, allowEmpty: true});
 
     //MASCARAS
     $("#date").mask("99/99/9999",{completed:function(){alert("completed!");}});

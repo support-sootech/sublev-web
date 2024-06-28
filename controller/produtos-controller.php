@@ -161,24 +161,41 @@ $app->get('/produtos-busca-codigo-barras/:codigo_barras', function($codigo_barra
 
     $status = 400;
 	$data = array();
-    if (valida_logado()) {
+    if (valida_logado() || 1==1) {
         $class_produtos = new ProdutosModel();
 
         if (!empty($codigo_barras)) {
 
             $arr = $class_produtos->loadCodigoBarras($codigo_barras);
             if ($arr) {
-                $data = array('success'=>false, 'type'=>'danger', 'msg'=>'Produto já cadastrado!');
-            } else {
+                $status = 200;
 
+                $arr['dt_vencimento'] = dt_br(somar_dias(date('Y-m-d'), $arr['dias_vencimento']));
+                $arr['dt_vencimento_aberto'] = dt_br(somar_dias(date('Y-m-d'), $arr['dias_vencimento_aberto']));
+
+                $data = array('success'=>true, 'type'=>'success', 'msg'=>'Produto já cadastrado!', 'data'=>$arr);
+            } else {
+                /*
                 try {
-                    $produto = buscaProdutosCodigoBarras($codigo_barras);
+                    //$produto = buscaProdutosCodigoBarras($codigo_barras);
+
+                    $ch = curl_init();
+                    // set url
+                    curl_setopt($ch, CURLOPT_URL, "https://pt.product-search.net/?q=".$codigo_barras);
+                    //return the transfer as a string
+                    curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+                    // $output contains the output string
+                    $produto = curl_exec($ch);
+                    // close curl resource to free up system resources
+                    curl_close($ch);  
     
                     $data = array('success'=>true, 'type'=>'success', 'msg'=>'OK', 'data'=>$produto);
                     $status = 200;
                 } catch (Exception $e) {
                     $data = array('success'=>true, 'type'=>'success', 'msg'=>$e->getMessage());
                 }
+                */
+                $data = array('success'=>false, 'type'=>'danger', 'msg'=>messagesDefault('register_not_found'));
             }
         } else {
             $data = array('success'=>false, 'type'=>'danger', 'msg'=>messagesDefault('register_not_found'));
@@ -187,6 +204,43 @@ $app->get('/produtos-busca-codigo-barras/:codigo_barras', function($codigo_barra
     $response = $app->response();
 	$response['Access-Control-Allow-Origin'] = '*';
 	$response['Access-Control-Allow-Methods'] = 'GET';
+	$response['Content-Type'] = 'application/json';
+
+	$response->status($status);
+	$response->body(json_encode($data));
+});
+
+$app->post('/produtos-calcula-datas', function() use ($app){
+
+    $status = 400;
+	$data = array();
+    if (valida_logado()) {
+
+        $qtd_dias_vencimento = $app->request->post('qtd_dias_vencimento');
+        $qtd_dias_vencimento_aberto = $app->request->post('qtd_dias_vencimento_aberto');
+        $dt_fabricacao = $app->request->post('dt_fabricacao');
+
+        $dt_vencimento = '';
+        $dt_vencimento_aberto = '';
+
+        if (!empty($qtd_dias_vencimento) && !empty($qtd_dias_vencimento_aberto) && $dt_fabricacao) {
+
+            $dt_vencimento = dt_br(somar_dias(dt_banco($dt_fabricacao), $qtd_dias_vencimento));
+            $dt_vencimento_aberto = dt_br(somar_dias(dt_banco($dt_fabricacao), $qtd_dias_vencimento_aberto));
+            $status = 200;
+            $data = array(
+                'success'=>true, 
+                'type'=>'success', 
+                'msg'=>'OK!', 
+                'data'=>array('dt_vencimento'=>$dt_vencimento, 'dt_vencimento_aberto'=>$dt_vencimento_aberto)
+            );
+        } else {
+            $data = array('success'=>false, 'type'=>'danger', 'msg'=>messagesDefault('register_not_found'));
+        }
+    }
+    $response = $app->response();
+	$response['Access-Control-Allow-Origin'] = '*';
+	$response['Access-Control-Allow-Methods'] = 'POST';
 	$response['Content-Type'] = 'application/json';
 
 	$response->status($status);
