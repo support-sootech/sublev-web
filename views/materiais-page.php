@@ -1,7 +1,7 @@
 <?php
 require_once('header.php');
 $titulo = 'Materiais';
-$prefix = 'materiais';
+$prefix = 'material';
 $arr_permissoes = array();
 if (isset($_SESSION['usuario']['endpoints'][returnPage()])) {
     $arr_permissoes = $_SESSION['usuario']['endpoints'][returnPage()];
@@ -162,8 +162,8 @@ if (isset($_SESSION['usuario']['endpoints'][returnPage()])) {
                             </div>
                             <div class="col">
                                 <div class="form-group">
-                                    <label for="<?=$prefix?>_id_pessoas_fabricantes">Fabricantes</label>
-                                    <select class="form-select requered" id="<?=$prefix?>_id_pessoas_fabricantes" name="<?=$prefix?>_id_pessoas_fabricantes"></select>
+                                    <label for="<?=$prefix?>_id_pessoas_fabricante">Fabricantes</label>
+                                    <select class="form-select requered" id="<?=$prefix?>_id_pessoas_fabricante" name="<?=$prefix?>_id_pessoas_fabricante"></select>
                                 </div>
                             </div>
                         </div>
@@ -275,7 +275,7 @@ require_once('footer.php');
 function carrega_lista(){
     $('#table-<?=str_replace('_','-',$prefix)?>').DataTable({
         "ajax": {
-            "url": '/<?=str_replace('_','-',$prefix)?>-json',
+            "url": '/materiais-json',
             "type": "post",
             "data":{}
         },
@@ -295,11 +295,11 @@ function carrega_lista(){
                                 }
                     },
                     { "data": function ( data, type, row ) {
-                                    return data.dias_vencimento;
+                                    return data.nm_fornecedor;
                                 }
                     },
                     { "data": function ( data, type, row ) {
-                                    return data.dias_vencimento_aberto;
+                                    return data.nm_fabricante;
                                 }
                     },
                     { "data": function ( data, type, row ) {
@@ -345,7 +345,7 @@ function carrega_lista(){
 
 function deletaRegistro(id){
     $.ajax({
-        url:'/<?=str_replace('_','-',$prefix)?>-del/'+id,
+        url:'/materiais-del/'+id,
         type:'get',
         dataType:'json',
         data:{},
@@ -381,12 +381,18 @@ function busca_produto_codigo_barra(cod_barra='') {
             data:{},
             success:function(data){
                 console.log('data',data);
-                $('input[name=materiais_descricao]').val(data.data.descricao);
-                $('input[name=materiais_dias_vencimento]').val(data.data.dias_vencimento);
-                $('input[name=materiais_dias_vencimento_aberto]').val(data.data.dias_vencimento_aberto);
-                $('input[name=materiais_dt_vencimento]').val(data.data.dt_vencimento);
-                $('input[name=materiais_dt_vencimento_aberto]').val(data.data.dt_vencimento_aberto);
-                $('input[name=materiais_dt_fabricacao]').val('<?=date('d/m/Y')?>');
+
+                if(data.data.descricao) {
+                    $('input[name=<?=$prefix?>_descricao]').val(data.data.descricao);
+                    $('input[name=<?=$prefix?>_dias_vencimento]').val(data.data.dias_vencimento).prop('readonly', true);;
+                    $('input[name=<?=$prefix?>_dias_vencimento_aberto]').val(data.data.dias_vencimento_aberto).prop('readonly', true);;
+                    $('input[name=<?=$prefix?>_dt_vencimento]').val(data.data.dt_vencimento);
+                    $('input[name=<?=$prefix?>_dt_vencimento_aberto]').val(data.data.dt_vencimento_aberto);
+                    $('input[name=<?=$prefix?>_dt_fabricacao]').val('<?=date('d/m/Y')?>');
+                }
+
+                //$('input[name=<?=$prefix?>_cod_barras]').prop('readonly', false);
+                
             },
             beforeSend:function(){
                 preloaderStart();
@@ -394,6 +400,12 @@ function busca_produto_codigo_barra(cod_barra='') {
             error:function(a,b,c){
                 preloaderStop();
                 gerarAlerta('Produto não localizado.', 'Aviso', 'warning');
+                $('input[name=<?=$prefix?>_descricao]').val('');
+                $('input[name=<?=$prefix?>_dias_vencimento]').val('').prop('readonly', false);;
+                $('input[name=<?=$prefix?>_dias_vencimento_aberto]').val('').prop('readonly', false);;
+                $('input[name=<?=$prefix?>_dt_vencimento]').val('');
+                $('input[name=<?=$prefix?>_dt_vencimento_aberto]').val('');
+                $('input[name=<?=$prefix?>_dt_fabricacao]').val('');
                 console.error('a',a);
                 console.error('b',b);
                 console.error('c',c);
@@ -408,9 +420,9 @@ function busca_produto_codigo_barra(cod_barra='') {
 
 function calcula_datas() {
 
-    const dt_fabricacao = $('input[name=materiais_dt_fabricacao]').val();
-    const qtd_dias_vencimento = $('input[name=materiais_dias_vencimento]').val();
-    const qtd_dias_vencimento_aberto = $('input[name=materiais_dias_vencimento_aberto]').val();
+    const dt_fabricacao = $('input[name=<?=$prefix?>_dt_fabricacao]').val();
+    const qtd_dias_vencimento = $('input[name=<?=$prefix?>_dias_vencimento]').val();
+    const qtd_dias_vencimento_aberto = $('input[name=<?=$prefix?>_dias_vencimento_aberto]').val();
 
     if (dt_fabricacao!='' && qtd_dias_vencimento && qtd_dias_vencimento_aberto) {
         $.ajax({
@@ -424,8 +436,8 @@ function calcula_datas() {
             },
             success:function(data){
                 console.log('data',data);
-                $('input[name=materiais_dt_vencimento]').val(data.data.dt_vencimento);
-                $('input[name=materiais_dt_vencimento_aberto]').val(data.data.dt_vencimento_aberto);
+                $('input[name=<?=$prefix?>_dt_vencimento]').val(data.data.dt_vencimento);
+                $('input[name=<?=$prefix?>_dt_vencimento_aberto]').val(data.data.dt_vencimento_aberto);
             },
             beforeSend:function(){
                 preloaderStart();
@@ -511,6 +523,111 @@ function comboTipos(id_materiais_tipos=''){
     });
 }
 
+//COMBO DE FORNECEDORES E FABRICANTES
+function comboFornecedoresFabricantes(id='', id_tipos_pessoas=''){
+    let el = '';
+    if (id_tipos_pessoas==2) {
+        el = $('select[name=<?=$prefix?>_id_pessoas_fabricante]')
+    } else {
+        el = $('select[name=<?=$prefix?>_id_pessoas_fornecedor]')
+    }
+    
+    let opt = '';
+    $.ajax({
+        url:'/fornecedores-fabricantes-json',
+        type:'post',
+        dataType:'json',
+        data:{status:'A', id_tipos_pessoas:id_tipos_pessoas},
+        success:function(data) {
+            console.log('data', data);
+            if (data.data.length > 0) {
+                opt = '<option value="">--Selecione--</option>';
+                $.each(data.data, function(i,v){
+                    opt+= '<option value="'+v.id_pessoas+'" '+(v.id_pessoas==id?'selected':'')+' >'+v.nm_pessoa+'</option>'
+                });                
+            }
+            el.html(opt);
+        },
+        beforeSend:function(){
+            opt = '<option>Carregando...</option>';
+        },
+        complete:function(){
+
+        },
+        error:function(a,b,c){
+            console.log('a',a);
+            console.log('b',b);
+            console.log('c',c);
+        }
+    });
+}
+
+//COMBO DE MARCAS
+function comboMarcas(id_materiais_marcas=''){
+    const el = $('select[name=<?=$prefix?>_id_materiais_marcas]')
+    let opt = '';
+    $.ajax({
+        url:'/materiais-marcas-json',
+        type:'post',
+        dataType:'json',
+        data:{status:'A'},
+        success:function(data) {
+            console.log('data', data);
+            if (data.data.length > 0) {
+                opt = '<option value="">--Selecione--</option>';
+                $.each(data.data, function(i,v){
+                    opt+= '<option value="'+v.id_materiais_marcas+'" '+(v.id_materiais_marcas==id_materiais_marcas?'selected':'')+' >'+v.descricao+'</option>'
+                });                
+            }
+            el.html(opt);
+        },
+        beforeSend:function(){
+            opt = '<option>Carregando...</option>';
+        },
+        complete:function(){
+
+        },
+        error:function(a,b,c){
+            console.log('a',a);
+            console.log('b',b);
+            console.log('c',c);
+        }
+    });
+}
+
+//COMBO DE MARCAS
+function comboUnidadesMedidas(id_unidades_medidas=''){
+    const el = $('select[name=<?=$prefix?>_id_unidades_medidas]')
+    let opt = '';
+    $.ajax({
+        url:'/unidades-medidas-json',
+        type:'post',
+        dataType:'json',
+        data:{status:'A'},
+        success:function(data) {
+            console.log('data', data);
+            if (data.data.length > 0) {
+                opt = '<option value="">--Selecione--</option>';
+                $.each(data.data, function(i,v){
+                    opt+= '<option value="'+v.id_unidades_medidas+'" '+(v.id_unidades_medidas==id_unidades_medidas?'selected':'')+' >'+v.descricao+'</option>'
+                });                
+            }
+            el.html(opt);
+        },
+        beforeSend:function(){
+            opt = '<option>Carregando...</option>';
+        },
+        complete:function(){
+
+        },
+        error:function(a,b,c){
+            console.log('a',a);
+            console.log('b',b);
+            console.log('c',c);
+        }
+    });
+}
+
 $(document).ready(function(){
 
     formFieldsRequered();
@@ -521,6 +638,10 @@ $(document).ready(function(){
         e.preventDefault();
         comboCategorias();
         comboTipos();
+        comboFornecedoresFabricantes('',2);
+        comboFornecedoresFabricantes('',3);
+        comboMarcas();
+        comboUnidadesMedidas();
         $('div#modal-<?=str_replace('_','-',$prefix)?>').modal('show');
     });
 
@@ -528,6 +649,9 @@ $(document).ready(function(){
         $('form[name=form-<?=str_replace('_','-',$prefix)?>]').find('input, select').each(function(){
             $(this).val('');
         });
+        $('input[name=<?=$prefix?>_cod_barras]').prop('readonly', false);
+        $('input[name=<?=$prefix?>_dias_vencimento]').prop('readonly', false);
+        $('input[name=<?=$prefix?>_dias_vencimento_aberto]').prop('readonly', false);
     });
 
     $(document).on('click','a[rel=btn-<?=str_replace('_','-',$prefix)?>-editar]', function(e){
@@ -535,16 +659,29 @@ $(document).ready(function(){
         const id = $(this).attr('id');
         if (id) {            
             $.ajax({
-                url:'/<?=str_replace('_','-',$prefix)?>-edit/'+id,
+                url:'/materiais-edit/'+id,
                 type:'get',
                 dataType:'json',
                 data:{},
                 success:function(data){
                     if (data.data) {
                         $.each(data.data, function(i,v){
-                            
                             $('form[name=form-<?=str_replace('_','-',$prefix)?>] #<?=$prefix?>_'+i+'').val(v);
                         });
+
+                        console.log('material', data);
+
+                        comboCategorias(data.data.id_materiais_categorias);
+                        comboTipos(data.data.id_materiais_tipos);
+                        comboFornecedoresFabricantes(data.data.id_pessoas_fabricante,2);
+                        comboFornecedoresFabricantes(data.data.id_pessoas_fornecedor,3);
+                        comboMarcas(data.data.id_materiais_marcas);
+                        comboUnidadesMedidas(data.data.id_unidades_medidas);
+
+                        $('input[name=<?=$prefix?>_cod_barras]').prop('readonly', true);
+                        $('input[name=<?=$prefix?>_dias_vencimento]').prop('readonly', true);
+                        $('input[name=<?=$prefix?>_dias_vencimento_aberto]').prop('readonly', true);
+
                         $('div#modal-<?=str_replace('_','-',$prefix)?>').modal('show');
                     } else {
                         gerarAlerta(data.msg, 'Aviso', data.type);
@@ -602,7 +739,7 @@ $(document).ready(function(){
         $('form[name=form-<?=str_replace('_','-',$prefix)?>]').ajaxForm({
 			data:{},
     		success : function(data) {
-                console.log('data', data);
+                
                 gerarAlerta(data.msg, (data.success?'Sucesso':'Erro'), data.type);
                 if (data.success) {
                     $('div#modal-<?=str_replace('_','-',$prefix)?>').modal('hide');
@@ -621,7 +758,7 @@ $(document).ready(function(){
             },
 			type:'post',
 			dataType:'json',
-			url: '/<?=str_replace('_','-',$prefix)?>-save',
+			url: '/materiais-save',
 			resetForm:false
 		}).submit();
 	});
@@ -630,16 +767,16 @@ $(document).ready(function(){
         if (e.keyCode == 13) {
             const codigo_barras = $(this).val();
             if (codigo_barras) {
-                console.log('CODIGO DE BARRAS', codigo_barras);
+                
                 ///produtos
                 $.ajax({
-                url:'/<?=str_replace('_','-',$prefix)?>-busca-codigo-barras/'+codigo_barras,
+                url:'/materiais-busca-codigo-barras/'+codigo_barras,
                 type:'get',
                 dataType:'json',
                 data:{},
                 success:function(data){
                     //gerarAlerta(data.msg, 'Aviso', data.type);
-                    console.log('data', data);
+                    
                 },
                 beforeSend:function(){
                     preloaderStart();
@@ -659,14 +796,14 @@ $(document).ready(function(){
         }
     });
 
-    $(document).on('focusout','input[name=materiais_cod_barras]', function(){
+    $(document).on('focusout','input[name=<?=$prefix?>_cod_barras]', function(){
         const cod_barra = $(this).val();
         if (cod_barra) {
             busca_produto_codigo_barra(cod_barra);
         }
     });
 
-    $(document).on('focusout','input[name=materiais_dt_fabricacao]', function(){
+    $(document).on('focusout','input[name=<?=$prefix?>_dt_fabricacao]', function(){
         calcula_datas();
     });
 

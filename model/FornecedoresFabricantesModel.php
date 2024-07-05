@@ -73,16 +73,23 @@ class FornecedoresFabricantesModel extends Connection {
     }
 
     
-    public function loadAll($id_empresas, $status='') {
+    public function loadAll($id_empresas, $status='', $id_tipos_pessoas='') {
         try {
             $arr = array();
             $and = '';
             
             if (!empty($status)) {
-                $and.= " and u.status = :STATUS";
+                $and.= " and ps.status = :STATUS";
                 $arr[':STATUS'] = $status;
             } else {
                 $and.= " and ps.status not in('D')";
+            }
+
+            if (!empty($id_tipos_pessoas)) {
+                $and.= " and tp.id_tipos_pessoas = :ID_TIPOS_PESSOAS";
+                $arr[':ID_TIPOS_PESSOAS'] = $id_tipos_pessoas;
+            } else {
+                $and.= " and tp.id_tipos_pessoas in(2,3)";
             }
 
             $and.= ' and e.id_empresas = :ID_EMPRESAS';
@@ -112,7 +119,7 @@ class FornecedoresFabricantesModel extends Connection {
                       from ".self::TABLE." ps
                       inner join tb_empresas e on e.id_empresas = ps.id_empresas
                       inner join tb_tipos_pessoas tp on tp.id_tipos_pessoas = ps.id_tipos_pessoas
-                     where tp.id_tipos_pessoas in(2,3) 
+                     where 1 = 1 
                        ".$and."";
             $res = $this->conn->select($sql, $arr);
             

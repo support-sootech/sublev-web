@@ -65,7 +65,7 @@ $app->post('/materiais-json', function() use ($app){
     $status = 200;
 	$data['data'] = array();
     if (valida_logado()) {
-        /*
+        
         try {
             $id_empresas = $_SESSION['usuario']['id_empresas'];
 
@@ -84,7 +84,7 @@ $app->post('/materiais-json', function() use ($app){
         } catch (Exception $e) {
             die('ERROR: '.$e->getMessage().'');
         }
-        */
+        
 
     }
     $response = $app->response();
@@ -129,6 +129,21 @@ $app->post('/materiais-save', function() use ($app){
                 }
                 
                 if ($data) {
+
+                    $class_produtos = new ProdutosModel();
+                    $fg_produto = $class_produtos->loadCodigoBarras($post['cod_barras']);
+                    if (!$fg_produto) {
+                        $class_produtos->add(
+                            array(
+                                'descricao'=>$post['descricao'],
+                                'codigo_barras'=>$post['cod_barras'],
+                                'dias_vencimento'=>$post['dias_vencimento'],
+                                'dias_vencimento_aberto'=>$post['dias_vencimento_aberto'],
+                                'status'=>'A'
+                            )
+                        );
+                    }
+
                     $status = 200;
                     $retorno = array(
                         'success'=>true, 
@@ -142,6 +157,7 @@ $app->post('/materiais-save', function() use ($app){
             } catch (Exception $e) {
                 $retorno = array('success'=>false, 'type'=>'danger', 'msg'=>$e->getMessage());
             }
+            
         }
         
         
