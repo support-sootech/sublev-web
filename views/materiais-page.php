@@ -143,13 +143,15 @@ if (isset($_SESSION['usuario']['endpoints'][returnPage()])) {
                                     <select class="form-select requered" id="<?=$prefix?>_id_materiais_categorias" name="<?=$prefix?>_id_materiais_categorias"></select>
                                 </div>
                             </div>
-
+                            
+                            <!--
                             <div class="col">
                                 <div class="form-group">
                                     <label for="<?=$prefix?>_id_materiais_tipos">Tipo</label>
                                     <select class="form-select requered" id="<?=$prefix?>_id_materiais_tipos" name="<?=$prefix?>_id_materiais_tipos"></select>
                                 </div>
                             </div>
+                            -->
 
                         </div>
 
@@ -157,13 +159,13 @@ if (isset($_SESSION['usuario']['endpoints'][returnPage()])) {
                             <div class="col">
                                 <div class="form-group">
                                     <label for="<?=$prefix?>_id_pessoas_fornecedor">Fornecedores</label>
-                                    <select class="form-select requered" id="<?=$prefix?>_id_pessoas_fornecedor" name="<?=$prefix?>_id_pessoas_fornecedor"></select>
+                                    <select class="form-select" id="<?=$prefix?>_id_pessoas_fornecedor" name="<?=$prefix?>_id_pessoas_fornecedor"></select>
                                 </div>
                             </div>
                             <div class="col">
                                 <div class="form-group">
                                     <label for="<?=$prefix?>_id_pessoas_fabricante">Fabricantes</label>
-                                    <select class="form-select requered" id="<?=$prefix?>_id_pessoas_fabricante" name="<?=$prefix?>_id_pessoas_fabricante"></select>
+                                    <select class="form-select" id="<?=$prefix?>_id_pessoas_fabricante" name="<?=$prefix?>_id_pessoas_fabricante"></select>
                                 </div>
                             </div>
                         </div>
@@ -172,7 +174,7 @@ if (isset($_SESSION['usuario']['endpoints'][returnPage()])) {
                             <div class="col">
                                 <div class="form-group">
                                     <label for="<?=$prefix?>_id_materiais_marcas">Marcas</label>
-                                    <select class="form-select requered" id="<?=$prefix?>_id_materiais_categorias" name="<?=$prefix?>_id_materiais_marcas"></select>
+                                    <select class="form-select" id="<?=$prefix?>_id_materiais_categorias" name="<?=$prefix?>_id_materiais_marcas"></select>
                                 </div>
                             </div>
 
@@ -643,15 +645,17 @@ $(document).ready(function(){
         comboMarcas();
         comboUnidadesMedidas();
         $('div#modal-<?=str_replace('_','-',$prefix)?>').modal('show');
+        $('select[name=<?=$prefix?>_status]').val('A').prop('disabled', true);
     });
 
     $('div#modal-<?=str_replace('_','-',$prefix)?>').on('hidden.bs.modal', function (e) {
         $('form[name=form-<?=str_replace('_','-',$prefix)?>]').find('input, select').each(function(){
-            $(this).val('');
+            $(this).val('').removeClass('is-invalid');
         });
         $('input[name=<?=$prefix?>_cod_barras]').prop('readonly', false);
         $('input[name=<?=$prefix?>_dias_vencimento]').prop('readonly', false);
         $('input[name=<?=$prefix?>_dias_vencimento_aberto]').prop('readonly', false);
+        
     });
 
     $(document).on('click','a[rel=btn-<?=str_replace('_','-',$prefix)?>-editar]', function(e){
@@ -681,6 +685,7 @@ $(document).ready(function(){
                         $('input[name=<?=$prefix?>_cod_barras]').prop('readonly', true);
                         $('input[name=<?=$prefix?>_dias_vencimento]').prop('readonly', true);
                         $('input[name=<?=$prefix?>_dias_vencimento_aberto]').prop('readonly', true);
+                        $('select[name=<?=$prefix?>_status]').prop('disabled', false);                        
 
                         $('div#modal-<?=str_replace('_','-',$prefix)?>').modal('show');
                     } else {
@@ -739,7 +744,7 @@ $(document).ready(function(){
         $('form[name=form-<?=str_replace('_','-',$prefix)?>]').ajaxForm({
 			data:{},
     		success : function(data) {
-                
+                console.log('data', data);
                 gerarAlerta(data.msg, (data.success?'Sucesso':'Erro'), data.type);
                 if (data.success) {
                     $('div#modal-<?=str_replace('_','-',$prefix)?>').modal('hide');
@@ -767,7 +772,7 @@ $(document).ready(function(){
         if (e.keyCode == 13) {
             const codigo_barras = $(this).val();
             if (codigo_barras) {
-                
+                console.log('CODIGO DE BARRAS', codigo_barras);
                 ///produtos
                 $.ajax({
                 url:'/materiais-busca-codigo-barras/'+codigo_barras,
@@ -776,7 +781,7 @@ $(document).ready(function(){
                 data:{},
                 success:function(data){
                     //gerarAlerta(data.msg, 'Aviso', data.type);
-                    
+                    console.log('data', data);
                 },
                 beforeSend:function(){
                     preloaderStart();

@@ -96,6 +96,88 @@ $app->post('/materiais-json', function() use ($app){
 	$response->body(json_encode($data));
 });
 
+$app->post('/materiais-da-categoria-json', function() use ($app){
+    $status = 200;
+	$data['data'] = array();
+   
+    if (valida_logado()) {
+        
+        try {
+            $id_empresas = $_SESSION['usuario']['id_empresas'];
+
+            $status = '';
+            if ($app->request->post('status')) {
+                $status = $app->request->post('status');
+            }
+            
+            $id_materiais_categorias = '';
+            if ($app->request->post('id_materiais_categorias')) {
+                $id_materiais_categorias = $app->request->post('id_materiais_categorias');
+            }
+    
+            $class_materiais = new MateriaisModel();
+            $arr = $class_materiais->loadIdMaterialCategoria($status,$id_materiais_categorias);
+            if ($arr) {
+                foreach ($arr as $key => $value) {
+                    $data['data'][] = $value;
+                }
+            }
+        } catch (Exception $e) {
+            die('ERROR: '.$e->getMessage().'');
+        }
+        
+
+    }
+    $response = $app->response();
+	$response['Access-Control-Allow-Origin'] = '*';
+	$response['Access-Control-Allow-Methods'] = 'POST';
+	$response['Content-Type'] = 'application/json';
+
+	$response->status($status);
+	$response->body(json_encode($data));
+});
+
+$app->post('/detalhes-materiais-json', function() use ($app){
+    $status = 200;
+	$data['data'] = array();
+   
+    if (valida_logado()) {
+        
+        try {
+            $id_empresas = $_SESSION['usuario']['id_empresas'];
+
+            $status = '';
+            if ($app->request->post('status')) {
+                $status = $app->request->post('status');
+            }
+            
+            $id_materiais = '';
+            if ($app->request->post('id_materiais')) {
+                $id_materiais = $app->request->post('id_materiais');
+            }
+    
+            $class_materiais = new MateriaisModel();
+            $arr = $class_materiais->loadIdMaterialDetalhes($status,$id_materiais);
+            if ($arr) {
+                foreach ($arr as $key => $value) {
+                    $data['data'][] = $value;
+                }
+            }
+        } catch (Exception $e) {
+            die('ERROR: '.$e->getMessage().'');
+        }
+        
+
+    }
+    $response = $app->response();
+	$response['Access-Control-Allow-Origin'] = '*';
+	$response['Access-Control-Allow-Methods'] = 'POST';
+	$response['Content-Type'] = 'application/json';
+
+	$response->status($status);
+	$response->body(json_encode($data));
+});
+
 $app->post('/materiais-save', function() use ($app){
 	$status = 400;
 	$data = array();
@@ -115,6 +197,10 @@ $app->post('/materiais-save', function() use ($app){
             if (isset($post['id_materiais'])) {
                 $id_materiais = $post['id_materiais'];
                 unset($post['id_materiais']);
+            } 
+            
+            if (!isset($post['status'])) {
+                $post['status'] = 'A';
             }
 
             $post['id_empresas'] = $_SESSION['usuario']['id_empresas'];

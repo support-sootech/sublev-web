@@ -23,10 +23,10 @@ class MateriaisModel extends Connection {
         'dt_vencimento_aberto'=>array('type'=>'date', 'requered'=>false, 'max'=>'10', 'default'=>'', 'key'=>false, 'description'=>'Data de Vencimento Aberto'),
         'qtd_restante'=>array('type'=>'double', 'requered'=>false, 'max'=>'10', 'default'=>'', 'key'=>false, 'description'=>'Qtd. Restante'),
         'fg_embalagem'=>array('type'=>'string', 'requered'=>false, 'max'=>'1', 'default'=>'N', 'key'=>false, 'description'=>'Flag da embalagem'),
-        'id_pessoas_fornecedor'=>array('type'=>'integer', 'requered'=>true, 'max'=>'10', 'default'=>'N', 'key'=>false, 'description'=>'Informar o fornecedor'),
-        'id_pessoas_fabricante'=>array('type'=>'integer', 'requered'=>true, 'max'=>'10', 'default'=>'N', 'key'=>false, 'description'=>'Informar o fabricante'),
+        'id_pessoas_fornecedor'=>array('type'=>'integer', 'requered'=>false, 'max'=>'10', 'default'=>null, 'key'=>false, 'description'=>'Informar o fornecedor'),
+        'id_pessoas_fabricante'=>array('type'=>'integer', 'requered'=>false, 'max'=>'10', 'default'=>null, 'key'=>false, 'description'=>'Informar o fabricante'),
         'id_embalagens'=>array('type'=>'integer', 'requered'=>false, 'max'=>'10', 'default'=>'N', 'key'=>false, 'description'=>'Selecionar uma embalagem'),
-        'id_materiais_marcas'=>array('type'=>'integer', 'requered'=>false, 'max'=>'10', 'default'=>'N', 'key'=>false, 'description'=>'Selecionar uma marca'),
+        'id_materiais_marcas'=>array('type'=>'integer', 'requered'=>false, 'max'=>'10', 'default'=>'', 'key'=>false, 'description'=>'Selecionar uma marca'),
         'id_materiais_tipos'=>array('type'=>'integer', 'requered'=>false, 'max'=>'10', 'default'=>'N', 'key'=>false, 'description'=>'Selecionar um tipo'),
         'id_unidades_medidas'=>array('type'=>'integer', 'requered'=>false, 'max'=>'10', 'default'=>'N', 'key'=>false, 'description'=>'Selecionar uma unidade de medida'),
         'id_materiais_categorias'=>array('type'=>'integer', 'requered'=>false, 'max'=>'10', 'default'=>'', 'key'=>false, 'description'=>'Selecionar uma categoria'),
@@ -133,8 +133,79 @@ class MateriaisModel extends Connection {
         }
     }
 
-    
+    public function loadIdMaterialCategoria($status,$id) {
+        
+        try {
+            $arr= array();
 
+            $arr[':ID'] = $id;
+            $arr[':STATUS'] = $status;
+
+            $and = '';
+
+            if (!empty($status)) {
+                $arr[':STATUS'] = $status;
+                $and .= " and status = :STATUS";
+            } else {
+                $arr[':STATUS'] = 'D';
+                $and .= " and status != :STATUS";
+            }
+
+            $sql = "select p.*
+                      from ".self::TABLE." p
+                     where p.id_materiais_categorias = :ID
+                     ".$and."";
+            
+            $res = $this->conn->select($sql, $arr);
+            
+            if (isset($res[0])) {
+                return $res;
+            } else {
+                return false;
+            }
+        } catch (Exception $e) {
+            return $e->getMessage();
+        }
+    }
+
+    public function loadIdMaterialDetalhes($status,$id) {
+        
+        try {
+            $arr= array();
+
+            $arr[':ID'] = $id;
+            $arr[':STATUS'] = $status;
+
+            $and = '';
+
+            if (!empty($status)) {
+                $arr[':STATUS'] = $status;
+                $and .= " and p.status = :STATUS";
+            } else {
+                $arr[':STATUS'] = 'D';
+                $and .= " and p.status != :STATUS";
+            }
+
+            $sql = "select p.*, 
+                           mm.descricao as marca
+                      from ".self::TABLE." p,
+                           tb_materiais_marcas mm
+                     where p.id_materiais = :ID
+                           and p.id_materiais_marcas = mm.id_materiais_marcas
+                     ".$and."";
+            
+            $res = $this->conn->select($sql, $arr);
+            
+            if (isset($res[0])) {
+                return $res;
+            } else {
+                return false;
+            }
+        } catch (Exception $e) {
+            return $e->getMessage();
+        }
+    }
+    
     public function loadAll($status='') {
         try {
             $arr = array();
@@ -150,8 +221,8 @@ class MateriaisModel extends Connection {
             
             $sql = "select p.*, p1.nome as nm_fabricante, p2.nome as nm_fornecedor 
                       from ".self::TABLE." p
-                      inner join tb_pessoas p1 on p1.id_pessoas = p.id_pessoas_fabricante
-                      inner join tb_pessoas p2 on p2.id_pessoas = p.id_pessoas_fornecedor
+                      left join tb_pessoas p1 on p1.id_pessoas = p.id_pessoas_fabricante
+                      left join tb_pessoas p2 on p2.id_pessoas = p.id_pessoas_fornecedor
                      where 1 = 1 
                        ".$and."";
             $res = $this->conn->select($sql, $arr);
