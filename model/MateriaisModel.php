@@ -187,20 +187,18 @@ class MateriaisModel extends Connection {
             }
 
             $sql = "select p.*, 
-                           mm.descricao as marca
-                      from ".self::TABLE." p,
-                           tb_materiais_marcas mm
+                           ifnull(mm.descricao, '') as marca,
+                           ifnull(um.descricao, '') as ds_unidade_medida
+                      from ".self::TABLE." p
+                      left join tb_materiais_marcas mm on mm.id_materiais_marcas = p.id_materiais_marcas
+                      left join tb_unidades_medidas um on um.id_unidades_medidas = p.id_unidades_medidas
                      where p.id_materiais = :ID
-                           and p.id_materiais_marcas = mm.id_materiais_marcas
                      ".$and."";
             
             $res = $this->conn->select($sql, $arr);
             
-            if (isset($res[0])) {
-                return $res;
-            } else {
-                return false;
-            }
+            return isset($res[0]) ? $res[0] : false;
+            
         } catch (Exception $e) {
             return $e->getMessage();
         }

@@ -253,7 +253,7 @@ $(document).ready(function(){
                 success:function(data){
                     if (data.data) {
                         $.each(data.data, function(i,v){
-                            
+                            console.log(i, v);
                             $('form[name=form-<?=str_replace('_','-',$prefix)?>] #<?=$prefix?>_'+i+'').val(v);
                         });
                         $('div#modal-<?=str_replace('_','-',$prefix)?>').modal('show');

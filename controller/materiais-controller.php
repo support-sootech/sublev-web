@@ -139,7 +139,7 @@ $app->post('/materiais-da-categoria-json', function() use ($app){
 
 $app->post('/detalhes-materiais-json', function() use ($app){
     $status = 200;
-	$data['data'] = array();
+	$data = array();
    
     if (valida_logado()) {
         
@@ -159,9 +159,11 @@ $app->post('/detalhes-materiais-json', function() use ($app){
             $class_materiais = new MateriaisModel();
             $arr = $class_materiais->loadIdMaterialDetalhes($status,$id_materiais);
             if ($arr) {
-                foreach ($arr as $key => $value) {
-                    $data['data'][] = $value;
+                if(!empty($arr['peso'])) {
+                    $arr['peso'] = numberformat($arr['peso'], false);
                 }
+
+                $data = $arr;
             }
         } catch (Exception $e) {
             die('ERROR: '.$e->getMessage().'');
