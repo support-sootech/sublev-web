@@ -58,11 +58,11 @@ if (isset($_SESSION['usuario']['endpoints'][returnPage()])) {
                                 <table class="table table-bordered" id="table-<?=$prefix?>" width="100%" cellspacing="0">
                                     <thead>
                                         <tr>
-                                            <th style="">ID</th>
-                                            <th style="">Nome</th>
-                                            <th style="">CPF / CNPJ</th>
-                                            <th style="">Status</th>
-                                            <th style="">Ações</th>
+                                            <th>ID</th>
+                                            <th>Nome</th>
+                                            <th>CPF / CNPJ</th>
+                                            <th>Status</th>
+                                            <th>Ações</th>
                                         </tr>
                                     </thead>
                                     <tbody></tbody>
@@ -229,6 +229,15 @@ if (isset($_SESSION['usuario']['endpoints'][returnPage()])) {
                                 <div class="form-group">
                                     <label for="<?=$prefix?>_estado">Estado</label>
                                     <input type="text" class="form-control requered" id="<?=$prefix?>_estado" name="<?=$prefix?>_estado" placeholder="Estado">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-sm-12 col-md-12 col-lg-3 col-xl-3 col-xxl-3">
+                                <div class="form-group">
+                                    <label for="<?=$prefix?>_id_setor">Setor</label>
+                                    <select class="form-select requered" id="<?=$prefix?>_id_setor" name="<?=$prefix?>_id_setor"></select>
                                 </div>
                             </div>
                         </div>
@@ -445,6 +454,38 @@ function fieldCpfCnpj(tipo) {
     }
 }
 
+function comboSetores(id_setor=''){
+    const el = $('select[name=<?=$prefix?>_id_setor]')
+    let opt = '';
+    $.ajax({
+        url:'/setor-json',
+        type:'post',
+        dataType:'json',
+        data:{status:'A'},
+        success:function(data) {
+            console.log('data', data);
+            if (data.data.length > 0) {
+                opt = '<option value="">--Selecione--</option>';
+                $.each(data.data, function(i,v){
+                    opt+= '<option value="'+v.id_setor+'" '+(v.id_setor==id_setor?'selected':'')+' >'+v.nome+'</option>'
+                });                
+            }
+            el.html(opt);
+        },
+        beforeSend:function(){
+            opt = '<option>Carregando...</option>';
+        },
+        complete:function(){
+
+        },
+        error:function(a,b,c){
+            console.log('a',a);
+            console.log('b',b);
+            console.log('c',c);
+        }
+    });
+}
+
 $(document).ready(function(){
 
     formFieldsRequered();
@@ -452,6 +493,7 @@ $(document).ready(function(){
 
     $(document).on('click', 'a[rel=btn-<?=$prefix?>-novo]', function(e){
         e.preventDefault();
+        comboSetores();
         $('div#modal-<?=$prefix?>').modal('show');
     });
 
@@ -492,6 +534,7 @@ $(document).ready(function(){
                         
                         fieldCpfCnpj(data.data.tp_juridico);
                         $('input[name=<?=$prefix?>_cpf_cnpj]').val(data.data.cpf_cnpj);
+                        comboSetores(data.data.id_setor);
 
                         $('div#modal-<?=$prefix?>').modal('show');
                     }

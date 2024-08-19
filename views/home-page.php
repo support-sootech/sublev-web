@@ -36,7 +36,11 @@ $titulo = 'Home';
                         <div class="card-header py-3">
                             <div class="row">
                                 <div class="col">
-                                    
+                                <?php
+                                if (isset($_GET['debug'])==1) {
+                                    verMatriz($_SESSION['usuario']);
+                                }
+                                ?>
                                 </div>
                             </div>
                         </div>

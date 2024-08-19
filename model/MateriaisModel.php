@@ -23,14 +23,14 @@ class MateriaisModel extends Connection {
         'dt_vencimento_aberto'=>array('type'=>'date', 'requered'=>false, 'max'=>'10', 'default'=>'', 'key'=>false, 'description'=>'Data de Vencimento Aberto'),
         'qtd_restante'=>array('type'=>'double', 'requered'=>false, 'max'=>'10', 'default'=>'', 'key'=>false, 'description'=>'Qtd. Restante'),
         'fg_embalagem'=>array('type'=>'string', 'requered'=>false, 'max'=>'1', 'default'=>'N', 'key'=>false, 'description'=>'Flag da embalagem'),
-        'id_pessoas_fornecedor'=>array('type'=>'integer', 'requered'=>false, 'max'=>'10', 'default'=>null, 'key'=>false, 'description'=>'Informar o fornecedor'),
-        'id_pessoas_fabricante'=>array('type'=>'integer', 'requered'=>false, 'max'=>'10', 'default'=>null, 'key'=>false, 'description'=>'Informar o fabricante'),
-        'id_embalagens'=>array('type'=>'integer', 'requered'=>false, 'max'=>'10', 'default'=>'N', 'key'=>false, 'description'=>'Selecionar uma embalagem'),
-        'id_materiais_marcas'=>array('type'=>'integer', 'requered'=>false, 'max'=>'10', 'default'=>'', 'key'=>false, 'description'=>'Selecionar uma marca'),
-        'id_materiais_tipos'=>array('type'=>'integer', 'requered'=>false, 'max'=>'10', 'default'=>'N', 'key'=>false, 'description'=>'Selecionar um tipo'),
-        'id_unidades_medidas'=>array('type'=>'integer', 'requered'=>false, 'max'=>'10', 'default'=>'N', 'key'=>false, 'description'=>'Selecionar uma unidade de medida'),
-        'id_materiais_categorias'=>array('type'=>'integer', 'requered'=>false, 'max'=>'10', 'default'=>'', 'key'=>false, 'description'=>'Selecionar uma categoria'),
-        'id_empresas'=>array('type'=>'integer', 'requered'=>false, 'max'=>'10', 'default'=>'N', 'key'=>false, 'description'=>'Selecionar uma empresa'),
+        'id_pessoas_fornecedor'=>array('type'=>'integer', 'fk'=>true, 'requered'=>false, 'max'=>'10', 'default'=>null, 'key'=>false, 'description'=>'Informar o fornecedor'),
+        'id_pessoas_fabricante'=>array('type'=>'integer', 'fk'=>true, 'requered'=>false, 'max'=>'10', 'default'=>null, 'key'=>false, 'description'=>'Informar o fabricante'),
+        'id_embalagens'=>array('type'=>'integer', 'fk'=>true, 'requered'=>false, 'max'=>'10', 'default'=>'N', 'key'=>false, 'description'=>'Selecionar uma embalagem'),
+        'id_materiais_marcas'=>array('type'=>'integer', 'fk'=>true, 'requered'=>false, 'max'=>'10', 'default'=>'', 'key'=>false, 'description'=>'Selecionar uma marca'),
+        'id_materiais_tipos'=>array('type'=>'integer', 'fk'=>true, 'requered'=>false, 'max'=>'10', 'default'=>'N', 'key'=>false, 'description'=>'Selecionar um tipo'),
+        'id_unidades_medidas'=>array('type'=>'integer', 'fk'=>true, 'requered'=>false, 'max'=>'10', 'default'=>'N', 'key'=>false, 'description'=>'Selecionar uma unidade de medida'),
+        'id_materiais_categorias'=>array('type'=>'integer', 'fk'=>true, 'requered'=>false, 'max'=>'10', 'default'=>'', 'key'=>false, 'description'=>'Selecionar uma categoria'),
+        'id_empresas'=>array('type'=>'integer', 'fk'=>true, 'requered'=>false, 'max'=>'10', 'default'=>'N', 'key'=>false, 'description'=>'Selecionar uma empresa'),
         'cod_barras'=>array('type'=>'string', 'requered'=>false, 'max'=>'50', 'default'=>'N', 'key'=>false, 'description'=>'Código barras'),
         'dias_vencimento'=>array('type'=>'integer', 'requered'=>false, 'max'=>'2', 'default'=>'', 'key'=>false, 'description'=>'Qtd dias vencimento'),
         'dias_vencimento_aberto'=>array('type'=>'integer', 'requered'=>false, 'max'=>'2', 'default'=>'', 'key'=>false, 'description'=>'Qtd dias vencimento aberto'),
@@ -54,7 +54,7 @@ class MateriaisModel extends Connection {
 
                 $campo = (isset($value['description']) && !empty($value['description']) ? $value['description'] : $key);
 
-                if ($value['requered']==true && empty($value['value']) && !$value['key']) {
+                if ($value['requered']==true && (!isset($value['value']) && empty($value['value'])) && !$value['key']) {
                     throw new Exception('O campo '.$campo.' não pode ser vazio!');
                 }
 
@@ -62,11 +62,17 @@ class MateriaisModel extends Connection {
                     throw new Exception('O campo '.$campo.' deve conter no máximo '.$value['max'].' caracter(es)!');
                 }
 
-                /*
-                if ($value['type']=='integer' && is_numeric($value['value'])) {
-                    throw new Exception('O campo '.$campo.' deve ser do tipo numérico!');
+                if ($value['type']=='integer' && !$value['key']) {
+
+                    $value['value'] = $value['value']!=null ? intval($value['value']) : null;
+
+                    if ((isset($value['fk']) && $value['fk']) && (empty($value['value']) && $value['requered'])) {
+                        throw new Exception('O campo '.$value['description'].' não pode ser vazio.');
+                    } else if(!is_int($value['value']) && (isset($value['fk']) && !$value['fk'])) {
+                        throw new Exception('O campo '.$campo.' deve ser do tipo numérico!');
+                    }
+
                 }
-                */
 
                 if ($value['type']=='date' && !empty($value['value'])) {
                     $value['value'] = dt_banco($value['value']);
@@ -80,9 +86,11 @@ class MateriaisModel extends Connection {
                     unset($this->newModel[$key]);
                 }
 
-                $arr[':'.mb_strtoupper($key).''] = !empty($value['value']) ? $value['value'] : null;
-                
-
+                if ($value['type']=='integer') {
+                    $arr[':'.mb_strtoupper($key).''] = is_int($value['value']) ? $value['value'] : null;
+                } else {
+                    $arr[':'.mb_strtoupper($key).''] = !empty($value['value']) ? $value['value'] : null;
+                }
             }
         }
 
@@ -108,8 +116,11 @@ class MateriaisModel extends Connection {
         }
 
         if (!empty($data['peso'])) {
+            $data['peso_banco'] = $data['peso'];
             $data['peso'] = numberformat($data['peso'], false);
         }
+
+        
 
         return $data;
     }
@@ -154,7 +165,8 @@ class MateriaisModel extends Connection {
             $sql = "select p.*
                       from ".self::TABLE." p
                      where p.id_materiais_categorias = :ID
-                     ".$and."";
+                     ".$and."
+                     order by p.descricao";
             
             $res = $this->conn->select($sql, $arr);
             
@@ -244,33 +256,24 @@ class MateriaisModel extends Connection {
         
         $save = $this->conn->insert(self::TABLE, $values);
         return $save;
-        /*try {
-        } catch (Exception $e) {
-            throw $e->getMessage();
-        }
-            */
     }
 
     public function edit(Array $arr, Array $where){
+
+        $this->setFields($arr);
+        $values = $this->getFields();
         
-        try {
-            $this->setFields($arr);
-            $values = $this->getFields();
-            
-            $w = array();
-            foreach ($where as $key => $value) {
-                $w[':'.mb_strtoupper($key).''] = $value;
-            }
-
-            if(isset($values[':ID_MATERIAIS'])) {
-                unset($values[':ID_MATERIAIS']);
-            }
-
-            $save = $this->conn->update(self::TABLE, $values, $w);
-            return $save;
-        } catch (Exception $e) {
-            return $e->getMessage();
+        $w = array();
+        foreach ($where as $key => $value) {
+            $w[':'.mb_strtoupper($key).''] = $value;
         }
+
+        if(isset($values[':ID_MATERIAIS'])) {
+            unset($values[':ID_MATERIAIS']);
+        }
+        
+        $save = $this->conn->update(self::TABLE, $values, $w);
+        return $save;
     }
 
     public function del($id){
@@ -281,7 +284,7 @@ class MateriaisModel extends Connection {
             );
             return $save;
         } catch (Exception $e) {
-            return $e->getMessage();
+            throw $e->getMessage();
         }
     }
 }

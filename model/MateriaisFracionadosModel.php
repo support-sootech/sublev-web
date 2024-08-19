@@ -1,7 +1,7 @@
 <?php
 class MateriaisFracionadosModel extends Connection {
     const TABLE = 'tb_materiais_fracionados';
-    private $conn = false;
+    private $conn;
     private $newModel = array();
 
     function __construct() {
@@ -16,8 +16,10 @@ class MateriaisFracionadosModel extends Connection {
         'status'=>array('type'=>'string', 'requered'=>false, 'max'=>'1', 'default'=>'A', 'key'=>false, 'description'=>'status'),
         'motivo_descarte'=>array('type'=>'string', 'requered'=>false, 'max'=>'1000', 'default'=>'', 'key'=>false, 'description'=>'Motivo do descarte'),
         'id_materiais'=>array('type'=>'integer', 'requered'=>true, 'max'=>10, 'key'=>false, 'description'=>'ID MATERIAL'),
-        'id_embalagens'=>array('type'=>'integer', 'requered'=>false, 'max'=>'10', 'default'=>'N', 'key'=>false, 'description'=>'Selecionar uma embalagem'),
+        'id_embalagens'=>array('type'=>'integer', 'requered'=>false, 'max'=>'10', 'default'=>'null', 'key'=>false, 'description'=>'Selecionar uma embalagem'),
+        'id_unidades_medidas'=>array('type'=>'integer', 'requered'=>true, 'max'=>'10', 'default'=>'null', 'key'=>false, 'description'=>'Faltou a unidade de medida'),
         'id_usuarios'=>array('type'=>'integer', 'requered'=>false, 'max'=>'10', 'default'=>'N', 'key'=>false, 'description'=>'Usuário'),
+        'id_setor'=>array('type'=>'integer', 'requered'=>false, 'max'=>'10', 'default'=>'N', 'key'=>false, 'description'=>'Setor'),
     );
     
     private function setFields($arr) {
@@ -73,6 +75,10 @@ class MateriaisFracionadosModel extends Connection {
             $data['dt_vencimento'] = dt_br($data['dt_vencimento']);
         }
 
+        if (!empty($data['qtd_fracionada'])) {
+            $data['qtd_fracionada_formatado'] = numberformat($data['qtd_fracionada'], false);
+        }
+
         return $data;
     }
 
@@ -118,6 +124,39 @@ class MateriaisFracionadosModel extends Connection {
         }
     }
 
+    public function load($id_empresas, $status='') {
+        try {
+            $and = '';
+
+            $arr[':ID_EMPRESAS'] = $id_empresas;
+
+            if(!empty($status)) {
+                $and = " and p.status = :STATUS";
+                $arr[':STATUS'] = $status;
+            } else {
+                $and = " and p.status in('A','I')";
+            }
+            
+            $sql = "select p.*, m.descricao as ds_materiais
+                      from ".self::TABLE." p
+                      inner join tb_materiais m on m.id_materiais = p.id_materiais
+                     where m.id_empresas = :ID_EMPRESAS ".$and;
+            $res = $this->conn->select($sql, $arr);
+            
+            if (isset($res[0])) {
+                $arr = array();
+                foreach ($res as $key => $value) {
+                    $arr[] = $this->getFieldsView($value);
+                }
+                return $arr;
+            } else {
+                return false;
+            }
+        } catch (Exception $e) {
+            throw $e->getMessage();
+        }
+    }
+
     public function add($arr) {
         $this->setFields($arr);
         $values = $this->getFields();
@@ -152,7 +191,7 @@ class MateriaisFracionadosModel extends Connection {
             $save = $this->conn->update(self::TABLE, $values, $w);
             return $save;
         } catch (Exception $e) {
-            return $e->getMessage();
+            throw $e->getMessage();
         }
     }
 
@@ -164,7 +203,7 @@ class MateriaisFracionadosModel extends Connection {
             );
             return $save;
         } catch (Exception $e) {
-            return $e->getMessage();
+            throw $e->getMessage();
         }
     }
 }

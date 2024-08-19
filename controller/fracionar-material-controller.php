@@ -33,18 +33,62 @@ $app->post('/fracionar-materiais', function() use ($app){
     $status = 200;
 	$data = array();
     if (valida_logado()) {
-        
+
         $id_materiais = $app->request->post('id_materiais');
         $arr_quantidades = $app->request->post('arr_quantidades');
 
         if (!empty($id_materiais)) {
             
             $data = fracionarMateriais($id_materiais, $arr_quantidades);
-            $status = $data['success'] ? 200 : 400;
+            $status = isset($data['success']) ? 200 : 400;
             
         } else {
             $data = array('success'=>false, 'type'=>'danger', 'msg'=>messagesDefault('register_not_found'));
         }
+    }
+    $response = $app->response();
+	$response['Access-Control-Allow-Origin'] = '*';
+	$response['Access-Control-Allow-Methods'] = 'POST';
+	$response['Content-Type'] = 'application/json';
+
+	$response->status($status);
+	$response->body(json_encode($data));
+});
+
+
+$app->get('/materiais-fracionados', function() use ($app){
+    if (valida_logado(true)) {
+        $app->render('/materiais-fracionados-page.php');
+    } else {
+        $app->notFound();
+    }
+});
+
+$app->post('/materiais-fracionados-json', function() use ($app){
+    $status = 200;
+	$data['data'] = array();
+    if (valida_logado()) {
+        
+        try {
+            $id_empresas = $_SESSION['usuario']['id_empresas'];
+
+            $status = '';
+            if ($app->request->post('status')) {
+                $status = $app->request->post('status');
+            }
+    
+            $class_materiais = new MateriaisFracionadosModel();
+            $arr = $class_materiais->load($id_empresas, $status);
+            if ($arr) {
+                foreach ($arr as $key => $value) {
+                    $data['data'][] = $value;
+                }
+            }
+        } catch (Exception $e) {
+            die('ERROR: '.$e->getMessage().'');
+        }
+        
+
     }
     $response = $app->response();
 	$response['Access-Control-Allow-Origin'] = '*';

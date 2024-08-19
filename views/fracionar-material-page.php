@@ -76,6 +76,35 @@ if (isset($_SESSION['usuario']['endpoints'][returnPage()])) {
         <i class="fas fa-angle-up"></i>
     </a>
 
+    <!-- Logout Modal-->
+    <div class="modal fade" id="modal-fracionamento" tabindex="-1" role="dialog" aria-labelledby="modalFracionamento" aria-hidden="true">
+        <div class="modal-dialog modal-sm" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modalFracionamento"></h5>
+                    <button class="close" type="button" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">×</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form name="form-fracionamento" class="formValidate">
+                        <input type="hidden" class="" id="id_materiais" name="id_materiais" value="">
+                        <input type="hidden" class="" id="peso" name="peso" value="">
+                        <div id="fracao-campos"></div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" type="button" data-dismiss="modal">
+                        <i class="fa fa-xmark"></i> Fechar
+                    </button>
+                    <a class="btn btn-primary" href="#" rel="btn-fracao-salvar">
+                        <i class="fa fa-save"></i> Salvar
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
 <?php
 require_once('footer.php');
 ?>
@@ -166,9 +195,13 @@ function carrega_materiais(id){
                 if (data.data) {
                     
                     $.each(data.data, function(i, v){
-                        body += '<div class="p-4 col-sm-12 col-md-12 col-lg-4 col-xl-4 col-xxl-4 d-grid gap-2mx-auto">';
-                        body += '<a id="'+v.id_materiais+'" rel="btn-material-<?=str_replace('_','-',$prefix)?>-selecionar" class="btn btn-outline-primary p-4" style="height: 80px;">'+v.descricao+'</a>';
-                        body += '</div>';
+
+                        if (v.quantidade > 0) {
+                            body += '<div class="p-4 col-sm-12 col-md-12 col-lg-4 col-xl-4 col-xxl-4 d-grid gap-2mx-auto">';
+                            body += '<a id="'+v.id_materiais+'" rel="btn-material-<?=str_replace('_','-',$prefix)?>-selecionar" class="btn btn-outline-primary p-4" style="height: 80px;">'+v.descricao+' <small>('+v.quantidade+')</small></a>';
+                            body += '</div>';
+                        }
+
                     });
                     
                 }
@@ -218,7 +251,7 @@ function carrega_detalhes_material(id){
                     body += '<div  class="col-sm"><b>Data de Validade (Fechado)</b></div>';
                     body += '<div  class="col-sm"><b>Data de Validade (Após Aberto)</b></div>';
                     body += '<div  class="col-sm"><b>Peso</b></div>';
-                    body += '<div  class="col-sm"><b>Quantidade a Fracionar</b></div>';
+                    body += '<div  class="col-sm"><b>Fracionar em</b></div>';
                     body += '</div><div class="row col-sm text-center">';
                     
                     data_vencimento = new Date(data.dt_vencimento);
@@ -235,7 +268,7 @@ function carrega_detalhes_material(id){
                     
                 }
                 body += '</div><div class="row col-sm text-center">&nbsp;</div><div class="row col-sm text-center">&nbsp;</div><div class="row col-sm text-center">';
-                body += '<div class="col-sm"><a id="btn_fracionar_'+id+'" data-id="'+data.id_materiais+'" rel="btn-material-<?=str_replace('_','-',$prefix)?>-fracionar" class="btn btn-success p-4" style="height: 70px; width:200px;">Fracionar</a></div>';
+                body += '<div class="col-sm"><a id="btn_fracionar_'+id+'" data-peso="'+data.peso+'" data-descricao="'+data.descricao+'" data-id="'+data.id_materiais+'" rel="btn-material-<?=str_replace('_','-',$prefix)?>-fracionar" class="btn btn-success p-4" style="height: 70px; width:200px;">Fracionar</a></div>';
                 body += '<div class="col-sm"><a id="btn_utilizar_'+id+'" data-id="'+data.id_materiais+'" rel="btn-material-<?=str_replace('_','-',$prefix)?>-utilizar" class="btn btn-primary p-4" style="height: 70px; width:200px;">Utilizar Unidade</a></div>';
                 body += '<div class="col-sm"><a id="btn_cancelar_'+id+'" data-id="'+data.id_materiais+'" rel="btn-material-<?=str_replace('_','-',$prefix)?>-cancelar" class="btn btn-warning p-4" style="height: 70px; width:200px;">Cancelar</a></div>';
                 body += '</div></div>';
@@ -284,7 +317,139 @@ $(document).ready(function(){
         if (id) {
             carrega_detalhes_material(id);
         }
-    });    
+    });
+
+    $(document).on('click','a[rel=btn-material-<?=str_replace('_','-',$prefix)?>-utilizar]', function(e){
+        e.preventDefault();
+        const id = $(this).attr('data-id');
+        if (id) {
+            $.ajax({
+                url:'/fracionar-materiais',
+                type:'post',
+                dataType:'json',
+                data:{'id_materiais':id},
+                success:function(data){
+                    console.log(data);
+                    gerarAlerta(data.msg, (data.success?'Sucesso':'Erro'), data.type);
+                    
+                    if (data.success) {
+                        setTimeout(() => {
+                            window.location.reload();
+                        }, 2000);
+                    }
+                },
+                beforeSend:function(){
+                    preloaderStart();
+                },
+                error:function(a,b,c){
+                    preloaderStop();
+                    gerarAlerta(a, 'Aviso', 'danger');
+                    console.error('a',a);
+                    console.error('b',b);
+                    console.error('c',c);
+                },
+                complete:function(){
+                    preloaderStop();
+                }
+            });
+        }
+    });
+
+    $(document).on('click','a[rel=btn-material-<?=str_replace('_','-',$prefix)?>-fracionar]', function(e){
+        const id = $(this).attr('data-id');
+        const qtd = $('input[id=qtde_fracionar]').val();
+        const peso_material = $(this).attr('data-peso').replace('.','').replace(',','.');
+        const peso = (parseFloat(peso_material) / parseInt(qtd)).toFixed(2).replace('.',',');
+
+        if (!qtd || qtd < 1) {
+            gerarAlerta('É necessário informar a quantidade de fracionamento para a unidade!', 'Aviso', 'danger');
+            $('input[id=qtde_fracionar]').focus()
+            return false;
+        }
+
+        if (id) {
+            $('h5[id=modalFracionamento][class=modal-title]').html('Material: '+$(this).attr('data-descricao'));
+
+            let campos = '';
+            for (let index = 1; index <= qtd; index++) {
+                campos+= '<div class="row mb-2">'+
+                            '<label for="fracao'+index+'" class="col-4 col-form-label">Fração '+index+'</label>'+
+                            '<div class="col">'+
+                                '<input type="text" class="form-control valor-decimal" maxlength="10" id="fracao'+index+'" name="fracao[]" value="'+peso+'">'+
+                            '</div>'+
+                        '</div>';
+            }
+
+            $('div[id=fracao-campos]').html(campos);
+            $(".valor-decimal").maskMoney({thousands:'.', decimal:',', allowZero: true, allowEmpty: true});
+            $('form[name=form-fracionamento] input[name=id_materiais]').val(id);
+            $('form[name=form-fracionamento] input[name=peso]').val(peso_material);
+
+            $('div[id=modal-fracionamento]').modal('show');
+        }
+
+
+    });
+
+    $(document).on('click','a[rel=btn-fracao-salvar]', function(e){
+        e.preventDefault();
+
+        const id_materiais = $('form[name=form-fracionamento] input[name=id_materiais]').val();
+        const peso_material = $('form[name=form-fracionamento] input[name=peso]').val();
+        let arr_quantidades = [];
+        let total_peso_fracao = 0;
+        $('form[name=form-fracionamento]').find('input[name^=fracao]').each(function(i, v){
+            if($(this).val() && $(this).val()!='') {
+                arr_quantidades.push($(this).val());
+                total_peso_fracao+= parseFloat($(this).val().replace(',','.'));
+            }
+        });
+
+        if(arr_quantidades.length < 1) {
+            gerarAlerta('Deve ser informado os valores das frações','Aviso', 'danger');
+            return false;
+        }
+
+        if(parseFloat(peso_material) < parseFloat(total_peso_fracao)) {
+            gerarAlerta('Os valores das frações passa o pesso do material ('+peso_material+')','Aviso', 'danger');
+            return false;
+        }
+
+        
+        if (id_materiais && arr_quantidades.length >= 1) {
+            
+            $.ajax({
+                url:'/fracionar-materiais',
+                type:'post',
+                dataType:'json',
+                data:{'id_materiais':id_materiais, arr_quantidades: arr_quantidades},
+                success:function(data){
+                    
+                    gerarAlerta(data.msg, (data.success?'Sucesso':'Erro'), data.type);
+                    
+                    if (data.success) {
+                        $('div[id=modal-fracionamento]').modal('hide');
+                        setTimeout(() => {
+                            window.location.reload();
+                        }, 2000);
+                    }
+                },
+                beforeSend:function(){
+                    preloaderStart();
+                },
+                error:function(a,b,c){
+                    preloaderStop();
+                    gerarAlerta(a, 'Aviso', 'danger');
+                    console.error('a',a);
+                    console.error('b',b);
+                    console.error('c',c);
+                },
+                complete:function(){
+                    preloaderStop();
+                }
+            });
+        }
+    });
 
 });
 </script>

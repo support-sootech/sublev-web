@@ -1,7 +1,7 @@
 <?php
 class UsuariosModel extends Connection {
     const TABLE = 'tb_usuarios';
-    private $conn = false;
+    private $conn;
     private $newModel = array();
 
     function __construct() {
@@ -14,6 +14,7 @@ class UsuariosModel extends Connection {
         'senha'=>array('type'=>'string', 'requered'=>false, 'max'=>'50', 'key'=>false, 'description'=>'Senha'),
         'status'=>array('type'=>'string', 'requered'=>false, 'max'=>'1', 'default'=>'A', 'key'=>false, 'description'=>'status'),
         'id_pessoas'=>array('type'=>'integer', 'requered'=>true, 'max'=>'10', 'key'=>false, 'description'=>'Código da pessoa'),
+        'id_setor'=>array('type'=>'integer', 'requered'=>true, 'max'=>'10', 'key'=>false, 'description'=>'Setor'),
     );
     
     private function setFields($arr) {
@@ -124,11 +125,14 @@ class UsuariosModel extends Connection {
                            e.nome as nm_empresa,
                            tp.id_tipos_pessoas,
                            tp.descricao as ds_tipos_pessoas,
-                           md5(concat(u.id_usuarios, now())) as hash_login
+                           md5(concat(u.id_usuarios, now())) as hash_login,
+                           s.id_setor,
+                           s.nome as nm_setor
                       from ".self::TABLE." u
                       inner join tb_pessoas ps on ps.id_pessoas = u.id_pessoas
                       inner join tb_empresas e on e.id_empresas = ps.id_empresas
                       inner join tb_tipos_pessoas tp on tp.id_tipos_pessoas = ps.id_tipos_pessoas
+                      left join tb_setor s on s.id_setor = u.id_setor
                      where u.senha = :SENHA
                        and ps.cpf_cnpj = :CPF_CNPJ";
             $res = $this->conn->select($sql, $arr);
@@ -213,11 +217,14 @@ class UsuariosModel extends Connection {
                            ps.cod_ibge,
                            ps.telefone,
                            e.id_empresas,
-                           e.nome as nm_empresa
+                           e.nome as nm_empresa,
+                           s.id_setor,
+                           s.nome as nm_setor
                       from ".self::TABLE." u
                       inner join tb_pessoas ps on ps.id_pessoas = u.id_pessoas
                       inner join tb_empresas e on e.id_empresas = ps.id_empresas
                       inner join tb_tipos_pessoas tp on tp.id_tipos_pessoas = ps.id_tipos_pessoas
+                      left join tb_setor s on s.id_setor = u.id_setor
                      where u.id_usuarios = :ID";
             $res = $this->conn->select($sql, $arr);
             
@@ -256,11 +263,14 @@ class UsuariosModel extends Connection {
                            ps.cod_ibge,
                            ps.telefone,
                            tp.id_tipos_pessoas,
-                           tp.descricao as ds_tipos_pessoas
+                           tp.descricao as ds_tipos_pessoas,
+                           s.id_setor,
+                           s.nome as nm_setor
                       from ".self::TABLE." u
                       inner join tb_pessoas ps on ps.id_pessoas = u.id_pessoas
                       inner join tb_empresas e on e.id_empresas = ps.id_empresas
                       inner join tb_tipos_pessoas tp on tp.id_tipos_pessoas = ps.id_tipos_pessoas
+                      left join tb_setor s on s.id_setor = u.id_setor
                      where 1 = 1 
                        ".$and."";
             $res = $this->conn->select($sql, $arr);
@@ -307,11 +317,14 @@ class UsuariosModel extends Connection {
                            ps.cod_ibge,
                            ps.telefone,
                            e.id_empresas,
-                           e.nome as nm_empresa
+                           e.nome as nm_empresa,
+                           s.id_setor,
+                           s.nome as nm_setor
                       from ".self::TABLE." u
                       inner join tb_pessoas ps on ps.id_pessoas = u.id_pessoas
                       inner join tb_empresas e on e.id_empresas = ps.id_empresas
                       inner join tb_tipos_pessoas tp on tp.id_tipos_pessoas = ps.id_tipos_pessoas
+                      left join tb_setor s on s.id_setor = u.id_setor
                      where md5(concat(u.id_usuarios,ps.email)) = :HASH";
             $res = $this->conn->select($sql, $arr);
             
@@ -351,11 +364,14 @@ class UsuariosModel extends Connection {
                            ps.cod_ibge,
                            ps.telefone,
                            e.id_empresas,
-                           e.nome as nm_empresa
+                           e.nome as nm_empresa,
+                           s.id_setor,
+                           s.nome as nm_setor
                       from ".self::TABLE." u
                       inner join tb_pessoas ps on ps.id_pessoas = u.id_pessoas
                       inner join tb_empresas e on e.id_empresas = ps.id_empresas
                       inner join tb_tipos_pessoas tp on tp.id_tipos_pessoas = ps.id_tipos_pessoas
+                      left join tb_setor s on s.id_setor = u.id_setor
                      where ps.email = :EMAIL";
             $res = $this->conn->select($sql, $arr);
             

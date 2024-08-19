@@ -608,33 +608,44 @@ function fracionarMateriais($id_materiais, $arr_qtd_fracionada=array()) {
 
 		$material = $class_materiais->loadId($id_materiais);
 		if ($material) {
-			
-			if (count($arr_qtd_fracionada) == 0) {
-				$arr_qtd_fracionada[] = numberformat($material['peso'], false);
-			}
 
-			foreach ($arr_qtd_fracionada as $key => $value) {
+			try {
+				if (!$arr_qtd_fracionada || count($arr_qtd_fracionada) == 0) {
+					$arr_qtd_fracionada[] = $material['peso'];
+				}
+	
+				foreach ($arr_qtd_fracionada as $key => $value) {
+					
+					$arr_materiais_fracionado = array(
+						'qtd_fracionada'=>$value,
+						'dt_vencimento'=>($material['dt_vencimento_aberto']),
+						'status'=>'A',
+						'motivo_descarte'=>'',
+						'id_materiais'=>$material['id_materiais'],
+						'id_embalagens'=>$material['id_embalagens'],
+						'id_unidades_medidas'=>$material['id_unidades_medidas'],
+						'id_usuarios'=>$_SESSION['usuario']['id_usuarios']
+					);
+					
+					$add = $class_materiais_fracionados->add($arr_materiais_fracionado);
+				}
 				
-				$arr_materiais_fracionado = array(
-					'qtd_fracionada'=>$value,
-					'dt_vencimento'=>dt_br($material['dt_vencimento_aberto']),
-					'status'=>'A',
-					'motivo_descarte'=>'',
-					'id_materiais'=>$material['id_materiais'],
-					'id_embalagens'=>$material['id_embalagens'],
-					'id_unidades_medidas'=>$material['id_unidades_medidas'],
-					'id_usuarios'=>$_SESSION['usuario']['id_usuarios']
+				$material['quantidade'] -= 1;
+				
+				$edit_material = $class_materiais->edit(
+					$material,
+					array('id_materiais'=>$material['id_materiais'])
 				);
 	
-				$add = $class_materiais_fracionados->add($arr_materiais_fracionado);
-			}
-
-			$edit_material = $class_materiais->edit(
-				array('quatidade'=>$material['quantidade'] - 1),
-				array('id_materiais'=>$material['id_materiais'])
-			);
-
-			$data = array('success'=>true, 'type'=>'success', 'msg'=>'Material fracionado com sucesso.');
+				$data = array(
+					'success'=>true, 
+					'type'=>'success', 
+					'msg'=>'Material fracionado com sucesso.',
+					'edit_material'=>$edit_material
+				);
+			} catch (Exception $e) {
+				$data = array('error'=>true, 'type'=>'danger', 'msg'=>$e->getMessage());
+			}			
 
 		} else {
 			$data = array('error'=>true, 'type'=>'danger', 'msg'=>'Material não localizado.');

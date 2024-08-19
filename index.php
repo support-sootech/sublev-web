@@ -73,6 +73,7 @@ include_once('controller/materiais-categorias-controller.php');
 include_once('controller/produtos-controller.php');
 include_once('controller/materiais-controller.php');
 include_once('controller/fracionar-material-controller.php');
+include_once('controller/setor-controller.php');
 
 $app->run();
 

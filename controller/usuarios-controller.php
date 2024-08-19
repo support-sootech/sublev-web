@@ -115,6 +115,7 @@ $app->post('/usuarios-save', function() use ($app){
                 $obj_pessoas['cidade'] = $app->request->post('usuarios_cidade');
                 $obj_pessoas['estado'] = $app->request->post('usuarios_estado');
                 $obj_pessoas['cod_ibge'] = $app->request->post('usuarios_cod_ibge');
+                
 
                 $id_pessoas = $obj_pessoas['id_pessoas'];
                 unset($obj_pessoas['id_pessoas']);
@@ -129,6 +130,7 @@ $app->post('/usuarios-save', function() use ($app){
                 $obj_usuarios['senha'] = $app->request->post('usuarios_senha');
                 $obj_usuarios['id_pessoas'] = (!empty($id_pessoas) ? $id_pessoas : '');
                 $obj_usuarios['status'] = $app->request->post('usuarios_status');
+                $obj_usuarios['id_setor'] = $app->request->post('usuarios_id_setor');
 
                 $id_usuarios = $obj_usuarios['id_usuarios'];
                 if (empty($id_usuarios)) {
