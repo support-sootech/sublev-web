@@ -1,7 +1,7 @@
 <?php
 class MateriaisFracionadosModel extends Connection {
     const TABLE = 'tb_materiais_fracionados';
-    private $conn;
+    private $conn = false;
     private $newModel = array();
 
     function __construct() {
@@ -19,7 +19,6 @@ class MateriaisFracionadosModel extends Connection {
         'id_embalagens'=>array('type'=>'integer', 'requered'=>false, 'max'=>'10', 'default'=>'null', 'key'=>false, 'description'=>'Selecionar uma embalagem'),
         'id_unidades_medidas'=>array('type'=>'integer', 'requered'=>true, 'max'=>'10', 'default'=>'null', 'key'=>false, 'description'=>'Faltou a unidade de medida'),
         'id_usuarios'=>array('type'=>'integer', 'requered'=>false, 'max'=>'10', 'default'=>'N', 'key'=>false, 'description'=>'Usuário'),
-        'id_setor'=>array('type'=>'integer', 'requered'=>false, 'max'=>'10', 'default'=>'N', 'key'=>false, 'description'=>'Setor'),
     );
     
     private function setFields($arr) {
