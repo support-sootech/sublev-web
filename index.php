@@ -75,6 +75,7 @@ include_once('controller/materiais-controller.php');
 include_once('controller/fracionar-material-controller.php');
 include_once('controller/setor-controller.php');
 include_once('controller/auto-fracionar-material-controller.php');
+include_once('controller/teste-controller.php');
 
 
 $app->run();
