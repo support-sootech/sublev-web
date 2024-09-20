@@ -238,13 +238,44 @@ class UsuariosModel extends Connection {
         }
     }
 
-    public function loadAll($id_tipos_perfil='', $status='') {
+    public function loadAll(
+        $id_tipos_perfil='', 
+        $status='', 
+        $id_empresas='', 
+        $id_setor='') {
+
         try {
             $arr = array();
-            $and = " and u.status not in('D')";
+            $and = '';
+
+            if (empty($status)) {
+                $and.= " and u.status not in('D')";
+            } else {
+                $and.= " and u.status = :STATUS";
+                $arr[':STATUS'] = $status;
+            }
+
+            if (!empty($id_tipos_perfil)) {
+                $and.= " and exists (select 1 
+                                       from tb_usuarios_perfil up 
+                                      where up.id_perfil = :ID_TIPOS_PERFIL
+                                        and up.id_usuarios = u.id_usuarios)";
+                $arr[':ID_TIPOS_PERFIL'] = $id_tipos_perfil;
+            }
+            
+            if (!empty($id_empresas)) {
+                $and.= " and ps.id_empresas = :ID_EMPRESAS";
+                $arr[':ID_EMPRESAS'] = $id_empresas;
+            }
+
+            if (!empty($id_setor)) {
+                $and.= " and u.id_setor = :ID_SETOR";
+                $arr[':ID_SETOR'] = $id_setor;
+            }
+
                         
             $sql = "select u.*,
-                           ps.nome as nm_pessoa, 
+                           upper(ps.nome) as nm_pessoa, 
                            ps.email, 
                            ps.dt_nascimento, 
                            ps.tp_juridico, 
@@ -273,6 +304,7 @@ class UsuariosModel extends Connection {
                       left join tb_setor s on s.id_setor = u.id_setor
                      where 1 = 1 
                        ".$and."";
+
             $res = $this->conn->select($sql, $arr);
             
             if (isset($res[0])) {

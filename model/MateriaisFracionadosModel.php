@@ -1,7 +1,7 @@
 <?php
 class MateriaisFracionadosModel extends Connection {
     const TABLE = 'tb_materiais_fracionados';
-    private $conn = false;
+    private $conn;
     private $newModel = array();
 
     function __construct() {
@@ -13,12 +13,14 @@ class MateriaisFracionadosModel extends Connection {
         'id_materiais_fracionados'=>array('type'=>'integer', 'requered'=>true, 'max'=>10, 'key'=>true, 'description'=>'ID'),
         'qtd_fracionada'=>array('type'=>'double', 'requered'=>true, 'max'=>'10', 'default'=>'', 'key'=>false, 'description'=>'Quantidade'),
         'dt_vencimento'=>array('type'=>'date', 'requered'=>false, 'max'=>'10', 'default'=>'', 'key'=>false, 'description'=>'Data de Vencimento'),
+        'dt_fracionamento'=>array('type'=>'date', 'requered'=>false, 'max'=>'10', 'default'=>'', 'key'=>false, 'description'=>'Data de Manipulação'),
         'status'=>array('type'=>'string', 'requered'=>false, 'max'=>'1', 'default'=>'A', 'key'=>false, 'description'=>'status'),
         'motivo_descarte'=>array('type'=>'string', 'requered'=>false, 'max'=>'1000', 'default'=>'', 'key'=>false, 'description'=>'Motivo do descarte'),
         'id_materiais'=>array('type'=>'integer', 'requered'=>true, 'max'=>10, 'key'=>false, 'description'=>'ID MATERIAL'),
         'id_embalagens'=>array('type'=>'integer', 'requered'=>false, 'max'=>'10', 'default'=>'null', 'key'=>false, 'description'=>'Selecionar uma embalagem'),
         'id_unidades_medidas'=>array('type'=>'integer', 'requered'=>true, 'max'=>'10', 'default'=>'null', 'key'=>false, 'description'=>'Faltou a unidade de medida'),
         'id_usuarios'=>array('type'=>'integer', 'requered'=>false, 'max'=>'10', 'default'=>'N', 'key'=>false, 'description'=>'Usuário'),
+        'id_setor'=>array('type'=>'integer', 'requered'=>false, 'max'=>'10', 'default'=>'null', 'key'=>false, 'description'=>'Setor do Usuário'),
     );
     
     private function setFields($arr) {
@@ -74,6 +76,10 @@ class MateriaisFracionadosModel extends Connection {
             $data['dt_vencimento'] = dt_br($data['dt_vencimento']);
         }
 
+        if (!empty($data['dt_fracionamento'])) {
+            $data['dt_fracionamento'] = dt_br($data['dt_fracionamento']);
+        }
+
         if (!empty($data['qtd_fracionada'])) {
             $data['qtd_fracionada_formatado'] = numberformat($data['qtd_fracionada'], false);
         }
@@ -123,22 +129,43 @@ class MateriaisFracionadosModel extends Connection {
         }
     }
 
-    public function load($id_empresas, $status='') {
+    public function load($id_empresas, $status='', $id_setor='', $id_usuarios='') {
         try {
             $and = '';
 
             $arr[':ID_EMPRESAS'] = $id_empresas;
 
             if(!empty($status)) {
-                $and = " and p.status = :STATUS";
+                $and.= " and x.status = :STATUS";
                 $arr[':STATUS'] = $status;
-            } else {
-                $and = " and p.status in('A','I')";
+            } /* else {
+                $and.= " and p.status in('A','I')";
+            } */
+
+            if(!empty($id_setor)) {
+                $and.= " and x.id_setor = :ID_SETOR";
+                $arr[':ID_SETOR'] = $id_setor;
+            }
+
+            if(!empty($id_usuarios)) {
+                $and.= " and x.id_usuarios = :ID_USUARIOS";
+                $arr[':ID_USUARIOS'] = $id_usuarios;
             }
             
-            $sql = "select p.*, m.descricao as ds_materiais
-                      from ".self::TABLE." p
-                      inner join tb_materiais m on m.id_materiais = p.id_materiais
+            $sql = "select x.*, 
+                           m.descricao as ds_materiais,
+                           (case when x.status = 'V' then 'VENDIDO'
+                                when x.status = 'C' then 'VENCIDO'
+                                when x.status = 'D' then 'DESCARTADO'
+                                else 'ATIVO'
+                            end) as ds_status,
+                            um.descricao as ds_unidade_medida,
+                            p.nome as nm_usuario
+                      from ".self::TABLE." x
+                      inner join tb_materiais m on m.id_materiais = x.id_materiais
+                      inner join tb_usuarios u on u.id_usuarios = x.id_usuarios
+                      inner join tb_pessoas p on p.id_pessoas = u.id_pessoas
+                      inner join tb_unidades_medidas um on um.id_unidades_medidas = x.id_unidades_medidas
                      where m.id_empresas = :ID_EMPRESAS ".$and;
             $res = $this->conn->select($sql, $arr);
             
@@ -173,7 +200,7 @@ class MateriaisFracionadosModel extends Connection {
     }
 
     public function edit(Array $arr, Array $where){
-        
+
         try {
             $this->setFields($arr);
             $values = $this->getFields();
@@ -182,16 +209,17 @@ class MateriaisFracionadosModel extends Connection {
             foreach ($where as $key => $value) {
                 $w[':'.mb_strtoupper($key).''] = $value;
             }
-
+    
             if(isset($values[':ID_MATERIAIS_FRACIONADOS'])) {
                 unset($values[':ID_MATERIAIS_FRACIONADOS']);
             }
-
+    
             $save = $this->conn->update(self::TABLE, $values, $w);
             return $save;
         } catch (Exception $e) {
             throw $e->getMessage();
         }
+        
     }
 
     public function del($id){

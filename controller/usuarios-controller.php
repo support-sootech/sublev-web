@@ -67,7 +67,13 @@ $app->post('/usuarios-json', function() use ($app){
 	$data['data'] = array();
     if (valida_logado()) {
         $class_usuarios = new UsuariosModel();
-        $data['data'] = $class_usuarios->loadAll(1);
+
+        $id_perfil = isset($_POST['id_perfil']) && !empty($_POST['id_perfil']) ? $_POST['id_perfil'] : 1;
+        $status_usuario = isset($_POST['status']) && !empty($_POST['status']) ? $_POST['status'] : '';
+        $id_empresas = isset($_POST['id_empresas']) && !empty($_POST['id_empresas']) ? $_POST['id_empresas'] : '';
+        $id_setor = isset($_POST['id_setor']) && !empty($_POST['id_setor']) ? $_POST['id_setor'] : '';
+
+        $data['data'] = $class_usuarios->loadAll($id_perfil, $status_usuario, $id_empresas, $id_setor);
     }
     $response = $app->response();
 	$response['Access-Control-Allow-Origin'] = '*';

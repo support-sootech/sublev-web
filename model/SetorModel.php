@@ -78,31 +78,32 @@ class SetorModel extends Connection {
         }
     }
 
-    public function loadAll($status='') {
+    public function loadAll($id_empresas='', $status='') {
         try {
             $arr = array();
             $and = '';
 
             if (empty($status)) {
-                $and = " and status != 'D'";
+                $and.= " and p.status != 'D'";
             } else {
-                $and = " and status = :STATUS";
+                $and.= " and p.status = :STATUS";
                 $arr[':STATUS'] = $status;
             }
+
+            $and.= " and p.id_empresas = :ID_EMPRESAS";
+            $arr[':ID_EMPRESAS'] = $id_empresas;
             
             $sql = "select p.*
                       from ".self::TABLE." p
                      where 1 = 1 
                        ".$and."";
+            
             $res = $this->conn->select($sql, $arr);
             
-            if (isset($res[0])) {
-                return $res;
-            } else {
-                return false;
-            }
+            return isset($res[0]) ? $res : false;
+
         } catch (Exception $e) {
-            return $e->getMessage();
+            throw $e->getMessage();
         }
     }
 
