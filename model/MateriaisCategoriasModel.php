@@ -1,7 +1,7 @@
 <?php
 class MateriaisCategoriasModel extends Connection {
     const TABLE = 'tb_materiais_categorias';
-    private $conn = false;
+    private $conn;
     private $newModel = array();
 
     function __construct() {
@@ -13,14 +13,14 @@ class MateriaisCategoriasModel extends Connection {
         'id_materiais_categorias'=>array('type'=>'integer', 'requered'=>true, 'max'=>10, 'key'=>true, 'description'=>'ID'),
         'descricao'=>array('type'=>'string', 'requered'=>false, 'max'=>'100', 'default'=>'', 'key'=>false, 'description'=>'Descrição'),
         'status'=>array('type'=>'string', 'requered'=>false, 'max'=>'1', 'default'=>'A', 'key'=>false, 'description'=>'status'),
-        'id_empresas'=>array('type'=>'interger', 'requered'=>true, 'max'=>'10', 'default'=>'', 'key'=>false, 'description'=>'Empresa'),
+        'id_empresas'=>array('type'=>'interger', 'requered'=>false, 'max'=>'10', 'default'=>'', 'key'=>false, 'description'=>'Empresa'),
     );
     
     private function setFields($arr) {
         if (count($arr) > 0) {
             foreach ($this->fields as $key => $value) {
                 $this->newModel[$key] = $value;
-                $this->newModel[$key]['value'] = (isset($arr[$key]) ? $arr[$key] : '');
+                $this->newModel[$key]['value'] = (isset($arr[$key]) && !empty($arr[$key]) ? $arr[$key] : null);
             }
 
         }
@@ -78,7 +78,7 @@ class MateriaisCategoriasModel extends Connection {
         }
     }
 
-    public function loadAll($id_empresas, $status='') {
+    public function loadAll($id_empresas='', $status='') {
         try {
             $arr = array();
             $and = '';
@@ -91,8 +91,11 @@ class MateriaisCategoriasModel extends Connection {
                 $and .= " and status != :STATUS";
             }
 
-            $arr[':ID_EMPRESAS'] = $id_empresas;
-            $and .= " and id_empresas = :ID_EMPRESAS";
+            if (!empty($id_empresas)) {
+                $arr[':ID_EMPRESAS'] = $id_empresas;
+                $and .= " and id_empresas = :ID_EMPRESAS";
+            }
+
             
             $sql = "select p.*
                       from ".self::TABLE." p

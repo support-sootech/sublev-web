@@ -85,7 +85,13 @@ $app->post('/fornecedores-fabricantes-json', function() use ($app){
 	$data['data'] = array();
     if (valida_logado()) {
         $class_fornecedores_fabricantes = new FornecedoresFabricantesModel();
-        $id_empresas = $_SESSION['usuario']['id_empresas'];
+
+        if (array_search('ROOT', array_column($_SESSION['usuario']['perfil'], 'ds_perfil')) !== false) {
+            $id_empresas = '';
+        } else {
+            $id_empresas = $_SESSION['usuario']['id_empresas'];
+        }
+
         $id_tipos_pessoas = $app->request->post('id_tipos_pessoas');
 
         $data['data'] = $class_fornecedores_fabricantes->loadAll($id_empresas, '', $id_tipos_pessoas);
@@ -121,8 +127,14 @@ $app->post('/fornecedores-fabricantes-save', function() use ($app){
                 $obj_pessoas['status'] = $app->request->post('fornecedores_fabricantes_status');
                 $obj_pessoas['email'] = $app->request->post('fornecedores_fabricantes_email');
                 $obj_pessoas['dt_nascimento'] = $app->request->post('fornecedores_fabricantes_dt_nascimento');
-                $obj_pessoas['id_empresas'] = $_SESSION['usuario']['id_empresas'];
                 $obj_pessoas['id_tipos_pessoas'] = $app->request->post('fornecedores_fabricantes_id_tipos_pessoas');
+
+                if ($obj_pessoas['id_tipos_pessoas']=='3') {
+                    $obj_pessoas['id_empresas'] = $_SESSION['usuario']['id_empresas'];
+                } else {
+                    $obj_pessoas['id_empresas'] = '';
+                }
+                
                 $obj_pessoas['telefone'] = $app->request->post('fornecedores_fabricantes_telefone');
                 $obj_pessoas['cep'] = $app->request->post('fornecedores_fabricantes_cep');
                 $obj_pessoas['logradouro'] = $app->request->post('fornecedores_fabricantes_logradouro');

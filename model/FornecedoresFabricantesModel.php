@@ -2,8 +2,8 @@
 class FornecedoresFabricantesModel extends Connection {   
     
     const TABLE = 'tb_pessoas';
-    private $conn = '';
-    private $class_pessoa_model = '';
+    private $conn;
+    private $class_pessoa_model;
 
     function __construct()
     {
@@ -41,7 +41,7 @@ class FornecedoresFabricantesModel extends Connection {
                            e.id_empresas,
                            e.nome as nm_empresa
                       from ".self::TABLE." ps
-                      inner join tb_empresas e on e.id_empresas = ps.id_empresas
+                      left join tb_empresas e on e.id_empresas = ps.id_empresas
                       inner join tb_tipos_pessoas tp on tp.id_tipos_pessoas = ps.id_tipos_pessoas
                      where ps.id_pessoas = :ID
                        and tp.id_tipos_pessoas in(2,3)";
@@ -73,7 +73,7 @@ class FornecedoresFabricantesModel extends Connection {
     }
 
     
-    public function loadAll($id_empresas, $status='', $id_tipos_pessoas='') {
+    public function loadAll($id_empresas='', $status='', $id_tipos_pessoas='') {
         try {
             $arr = array();
             $and = '';
@@ -92,8 +92,10 @@ class FornecedoresFabricantesModel extends Connection {
                 $and.= " and tp.id_tipos_pessoas in(2,3)";
             }
 
-            $and.= ' and e.id_empresas = :ID_EMPRESAS';
-            $arr[':ID_EMPRESAS'] = $id_empresas;
+            if (!empty($id_empresas)) {
+                $and.= ' and e.id_empresas = :ID_EMPRESAS';
+                $arr[':ID_EMPRESAS'] = $id_empresas;
+            }
                         
             $sql = "select ps.id_pessoas,
                            ps.nome as nm_pessoa, 
@@ -117,7 +119,7 @@ class FornecedoresFabricantesModel extends Connection {
                            tp.id_tipos_pessoas,
                            tp.descricao as ds_tipos_pessoas
                       from ".self::TABLE." ps
-                      inner join tb_empresas e on e.id_empresas = ps.id_empresas
+                      left join tb_empresas e on e.id_empresas = ps.id_empresas
                       inner join tb_tipos_pessoas tp on tp.id_tipos_pessoas = ps.id_tipos_pessoas
                      where 1 = 1 
                        ".$and."";

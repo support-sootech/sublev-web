@@ -198,13 +198,53 @@ class MateriaisModel extends Connection {
                 $and .= " and p.status != :STATUS";
             }
 
+            $sql = "select p.*,
+                           DATE_FORMAT(mf.dt_fracionamento,'%d/%m/%Y') as dt_fracionamento,
+                           DATE_FORMAT(p.dt_vencimento,'%d/%m/%Y') as dt_vencimento,
+                           DATE_FORMAT(p.dt_vencimento_aberto,'%d/%m/%Y') as dt_vencimento_aberto,
+                           ifnull(mm.descricao, '') as marca,
+                           ifnull(um.descricao, '') as ds_unidade_medida
+                      from ".self::TABLE." p
+                      left join tb_materiais_marcas mm on mm.id_materiais_marcas = p.id_materiais_marcas
+                      left join tb_unidades_medidas um on um.id_unidades_medidas = p.id_unidades_medidas
+                      inner join tb_materiais_fracionados mf on mf.id_materiais = p.id_materiais
+                     where p.id_materiais = :ID
+                     ".$and."";
+            
+            $res = $this->conn->select($sql, $arr);
+            
+            return isset($res[0]) ? $res[0] : false;
+            
+        } catch (Exception $e) {
+            return $e->getMessage();
+        }
+    }
+    
+    public function loadCodBarrasMaterialDetalhes($status,$cod_barras) {
+        
+        try {
+            $arr= array();
+
+            $arr[':COD_BARRAS'] = $cod_barras;
+            $arr[':STATUS'] = $status;
+
+            $and = '';
+
+            if (!empty($status)) {
+                $arr[':STATUS'] = $status;
+                $and .= " and p.status = :STATUS";
+            } else {
+                $arr[':STATUS'] = 'D';
+                $and .= " and p.status != :STATUS";
+            }
+
             $sql = "select p.*, 
                            ifnull(mm.descricao, '') as marca,
                            ifnull(um.descricao, '') as ds_unidade_medida
                       from ".self::TABLE." p
                       left join tb_materiais_marcas mm on mm.id_materiais_marcas = p.id_materiais_marcas
                       left join tb_unidades_medidas um on um.id_unidades_medidas = p.id_unidades_medidas
-                     where p.id_materiais = :ID
+                     where p.cod_barras = :COD_BARRAS
                      ".$and."";
             
             $res = $this->conn->select($sql, $arr);

@@ -74,9 +74,11 @@ class Connection extends PDO {
 
 	public function insert($tabela, $values){
 		$conn = $this->conn;
+		
 		try {
 			$sql 	= "INSERT INTO ".$tabela." (".str_replace(':', '', strtolower(implode(',', array_keys($values)))).")
 							    VALUES(".implode(',', array_keys($values)).")";
+			
 			$stmt 	= $conn->prepare($sql);
 			$this->setParams($stmt, $values);
 	        $conn->beginTransaction();

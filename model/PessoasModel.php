@@ -24,7 +24,7 @@ class PessoasModel extends Connection {
         'telefone'=>array('type'=>'integer', 'requered'=>false, 'max'=>'11', 'key'=>false, 'description'=>'Telefone'),
         'email'=>array('type'=>'string', 'requered'=>true, 'max'=>'100', 'key'=>false, 'description'=>'E-mail'),
         //'dh_cadastro'=>array('type'=>'date', 'requered'=>false, 'max'=>'8', 'key'=>false, 'description'=>'Data e Hora de Cadastro'),
-        'id_empresas'=>array('type'=>'integer', 'requered'=>true, 'max'=>'10', 'key'=>false, 'description'=>'Código da empresa'),
+        'id_empresas'=>array('type'=>'integer', 'requered'=>false, 'max'=>'10', 'key'=>false, 'description'=>'Código da empresa'),
         'id_tipos_pessoas'=>array('type'=>'integer', 'requered'=>true, 'max'=>'10', 'key'=>false, 'description'=>'Código tipo de pessoa'),
         'cep'=>array('type'=>'integer', 'requered'=>false, 'max'=>'8', 'key'=>false, 'description'=>'Endereço: CEP'),
         'logradouro'=>array('type'=>'string', 'requered'=>false, 'max'=>'200', 'key'=>false, 'description'=>'Endereço: Logradouro'),
@@ -66,7 +66,7 @@ class PessoasModel extends Connection {
             
             foreach ($this->fields as $key => $value) {
                 $this->newModel[$key] = $value;
-                $this->newModel[$key]['value'] = (isset($arr[$key]) ? $arr[$key] : '');
+                $this->newModel[$key]['value'] = (isset($arr[$key]) && !empty($arr[$key]) ? $arr[$key] : null);
             }
         }
     }
