@@ -1,6 +1,6 @@
 <?php
-class ProdutosModel extends Connection {
-    const TABLE = 'tb_produtos';
+class ModoConservacaoModel extends Connection {
+    const TABLE = 'tb_modo_conservacao';
     private $conn;
     private $newModel = array();
 
@@ -10,19 +10,9 @@ class ProdutosModel extends Connection {
 
     //MODELAGEM DO BANCO
     private $fields = array(
-        'id_produtos'=>array('type'=>'integer', 'requered'=>true, 'max'=>10, 'key'=>true, 'description'=>'ID'),
-        'descricao'=>array('type'=>'string', 'requered'=>true, 'max'=>'100', 'default'=>'', 'key'=>false, 'description'=>'Descrição'),
-        'codigo_barras'=>array('type'=>'string', 'requered'=>true, 'max'=>'50', 'default'=>'', 'key'=>false, 'description'=>'Código de Barras'),
-        'dias_vencimento'=>array('type'=>'integer', 'requered'=>true, 'max'=>'2', 'default'=>'', 'key'=>false, 'description'=>'Qtd. de dias de vencimento'),
-        'dias_vencimento_aberto'=>array('type'=>'integer', 'requered'=>true, 'max'=>'2', 'default'=>'', 'key'=>false, 'description'=>'Qtd. de dias de vencimento após aberto'),
+        'id'=>array('type'=>'integer', 'requered'=>true, 'max'=>10, 'key'=>true, 'description'=>'ID'),
+        'descricao'=>array('type'=>'string', 'requered'=>false, 'max'=>'100', 'default'=>'', 'key'=>false, 'description'=>'Descrição'),
         'status'=>array('type'=>'string', 'requered'=>false, 'max'=>'1', 'default'=>'A', 'key'=>false, 'description'=>'status'),
-        'peso'=>array('type'=>'double', 'requered'=>true, 'max'=>'10', 'default'=>'', 'key'=>false, 'description'=>'Peso'),
-        'id_pessoas_fabricante'=>array('type'=>'integer', 'fk'=>true, 'requered'=>false, 'max'=>'10', 'default'=>null, 'key'=>false, 'description'=>'Informar o fabricante'),
-        'id_materiais_marcas'=>array('type'=>'integer', 'fk'=>true, 'requered'=>false, 'max'=>'10', 'default'=>'', 'key'=>false, 'description'=>'Selecionar uma marca'),
-        'id_materiais_tipos'=>array('type'=>'integer', 'fk'=>true, 'requered'=>false, 'max'=>'10', 'default'=>'N', 'key'=>false, 'description'=>'Selecionar um tipo'),
-        'id_unidades_medidas'=>array('type'=>'integer', 'fk'=>true, 'requered'=>false, 'max'=>'10', 'default'=>'N', 'key'=>false, 'description'=>'Selecionar uma unidade de medida'),
-        'id_materiais_categorias'=>array('type'=>'integer', 'fk'=>true, 'requered'=>false, 'max'=>'10', 'default'=>'', 'key'=>false, 'description'=>'Selecionar uma categoria'),
-        'id_modo_conservacao'=>array('type'=>'integer', 'requered'=>false, 'max'=>'10', 'default'=>'', 'key'=>false, 'description'=>'Modo de conservação'),
     );
     
     private function setFields($arr) {
@@ -31,6 +21,7 @@ class ProdutosModel extends Connection {
                 $this->newModel[$key] = $value;
                 $this->newModel[$key]['value'] = (isset($arr[$key]) && !empty($arr[$key]) ? $arr[$key] : null);
             }
+
         }
     }
 
@@ -54,10 +45,6 @@ class ProdutosModel extends Connection {
                     unset($this->newModel[$key]);
                 }
 
-                if ($value['type']=='double' && !empty($value['value'])) {
-                    $value['value'] = numberFormatBanco($value['value']);
-                }
-
                 $arr[':'.mb_strtoupper($key).''] = $value['value'];
             }
         }
@@ -71,7 +58,7 @@ class ProdutosModel extends Connection {
             
             $sql = "select p.*
                       from ".self::TABLE." p
-                     where p.id_produtos = :ID";
+                     where p.id = :ID";
             $res = $this->conn->select($sql, $arr);
             
             if (isset($res[0])) {
@@ -84,34 +71,19 @@ class ProdutosModel extends Connection {
         }
     }
 
-    public function loadCodigoBarras($codigo_barras) {
-        try {
-            $arr[':CODIGO_BARRAS'] = $codigo_barras;
-            
-            $sql = "select p.*
-                      from ".self::TABLE." p
-                     where p.codigo_barras = :CODIGO_BARRAS";
-            $res = $this->conn->select($sql, $arr);
-            
-            return isset($res[0]) ? $res[0] : false;
-        } catch (Exception $e) {
-            return $e->getMessage();
-        }
-    }
-
     public function loadAll($status='') {
         try {
             $arr = array();
             $and = '';
 
             if (!empty($status)) {
+                $and.= " and p.status = :STATUS";
                 $arr[':STATUS'] = $status;
-                $and .= " and status = :STATUS";
             } else {
+                $and.= " and p.status != :STATUS";
                 $arr[':STATUS'] = 'D';
-                $and .= " and status != :STATUS";
             }
-            
+
             $sql = "select p.*
                       from ".self::TABLE." p
                      where 1 = 1 
@@ -129,17 +101,13 @@ class ProdutosModel extends Connection {
     }
 
     public function add($arr) {
-        try {
-            $this->setFields($arr);
-            $values = $this->getFields();
-            if (isset($values[':ID_PRODUTOS'])) {
-                unset($values[':ID_PRODUTOS']);
-            }
-            $save = $this->conn->insert(self::TABLE, $values);
-            return $save;
-        } catch (Exception $e) {
-            return $e->getMessage();
+        $this->setFields($arr);
+        $values = $this->getFields();
+        if (isset($values[':ID'])) {
+            unset($values[':ID']);
         }
+        $save = $this->conn->insert(self::TABLE, $values);
+        return $save;
     }
 
     public function edit(Array $arr, Array $where){
@@ -153,14 +121,14 @@ class ProdutosModel extends Connection {
                 $w[':'.mb_strtoupper($key).''] = $value;
             }
 
-            if(isset($values[':ID_PRODUTOS'])) {
-                unset($values[':ID_PRODUTOS']);
+            if(isset($values[':ID'])) {
+                unset($values[':ID']);
             }
 
             $save = $this->conn->update(self::TABLE, $values, $w);
             return $save;
         } catch (Exception $e) {
-            return $e->getMessage();
+            throw $e->getMessage();
         }
     }
 
@@ -168,11 +136,11 @@ class ProdutosModel extends Connection {
         try {
             $save = $this->conn->update(
                 self::TABLE, 
-                array(':STATUS'=>'D'), array(':ID_PRODUTOS'=>$id)
+                array(':STATUS'=>'D'), array(':ID'=>$id)
             );
             return $save;
         } catch (Exception $e) {
-            return $e->getMessage();
+            throw $e->getMessage();
         }
     }
 }

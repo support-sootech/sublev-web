@@ -213,6 +213,7 @@ $app->post('/materiais-save', function() use ($app){
                 if (!empty($id_materiais)) {
                     $data = $class_materiais->edit($post, array('id_materiais'=>$id_materiais));
                 } else {
+                    $post['id_usuarios'] = $_SESSION['usuario']['id_usuarios'];
                     $data = $class_materiais->add($post);
                 }
                 
@@ -227,6 +228,13 @@ $app->post('/materiais-save', function() use ($app){
                                 'codigo_barras'=>$post['cod_barras'],
                                 'dias_vencimento'=>$post['dias_vencimento'],
                                 'dias_vencimento_aberto'=>$post['dias_vencimento_aberto'],
+                                'peso'=>$post['peso'],
+                                'id_unidades_medidas'=>$post['id_unidades_medidas'],
+                                'id_materiais_marcas'=>$post['id_materiais_marcas'],
+                                'id_materiais_tipos'=>$post['id_materiais_tipos'],
+                                'id_materiais_categorias'=>$post['id_materiais_categorias'],
+                                'id_pessoas_fabricante'=>$post['id_pessoas_fabricante'],
+                                'id_modo_conservacao'=>$post['id_modo_conservacao'],
                                 'status'=>'A'
                             )
                         );

@@ -7,6 +7,11 @@ if (isset($_SESSION['usuario']['endpoints'][returnPage()])) {
     $arr_permissoes = $_SESSION['usuario']['endpoints'][returnPage()];
 }
 ?>
+<style>
+    table tr td {
+        font-size: 14px;
+    }
+</style>
 <!-- Page Wrapper -->
 <div id="wrapper">
 
@@ -202,12 +207,12 @@ if (isset($_SESSION['usuario']['endpoints'][returnPage()])) {
                                 </div>
                             </div>
 
-                            <div class="col">
+                            <!-- <div class="col">
                                 <div class="form-group">
                                     <label for="<?=$prefix?>_dt_vencimento_aberto">Data de Venc. Aberto</label>
                                     <input type="text" class="form-control mask-data requered" id="<?=$prefix?>_dt_vencimento_aberto" name="<?=$prefix?>_dt_vencimento_aberto" maxlength="10" placeholder="Ex.: 99/99/9999">
                                 </div>
-                            </div>
+                            </div> -->
 
                         </div>
 
@@ -226,12 +231,12 @@ if (isset($_SESSION['usuario']['endpoints'][returnPage()])) {
                                 </div>
                             </div>
 
-                            <div class="col">
+                            <!-- <div class="col">
                                 <div class="form-group">
                                     <label for="<?=$prefix?>_preco">Preço</label>
                                     <input type="text" class="form-control moeda_real requered" id="<?=$prefix?>_preco" name="<?=$prefix?>_preco" maxlength="10" placeholder="Ex.: 3,00">
                                 </div>
-                            </div>
+                            </div> -->
 
                             <div class="col">
                                 <div class="form-group">
@@ -240,9 +245,46 @@ if (isset($_SESSION['usuario']['endpoints'][returnPage()])) {
                                 </div>
                             </div>
 
+                            <div class="col">
+                                <div class="form-group">
+                                    <label for="<?=$prefix?>_nro_nota">Nota Fiscal</label>
+                                    <input type="text" class="form-control" id="<?=$prefix?>_nro_nota" name="<?=$prefix?>_nro_nota" maxlength="10" placeholder="Ex.: 123456789">
+                                </div>
+                            </div>
+
                         </div>
 
                         <div class="row">
+                            <div class="col">
+                                <div class="form-group">
+                                    <label for="<?=$prefix?>_temperatura">Temperatura</label>
+                                    <input type="text" class="form-control somente_numeros" id="<?=$prefix?>_temperatura" name="<?=$prefix?>_temperatura" maxlength="10" placeholder="Ex.: 10">
+                                </div>
+                            </div>
+
+                            <div class="col">
+                                <div class="form-group">
+                                    <label for="<?=$prefix?>_sif">SIF</label>
+                                    <input type="text" class="form-control somente_numeros" id="<?=$prefix?>_sif" name="<?=$prefix?>_sif" maxlength="2" placeholder="Ex.: 11">
+                                </div>
+                            </div>
+
+                            <div class="col">
+                                <div class="form-group">
+                                    <label for="<?=$prefix?>_id_embalagem_condicoes">Condição da embalagem</label>
+                                    <select class="form-select" id="<?=$prefix?>_id_embalagem_condicoes" name="<?=$prefix?>_id_embalagem_condicoes"></select>
+                                </div>
+                            </div>
+
+                        </div>
+
+                        <div class="row">
+                            <div class="col-sm-12 col-md-12 col-lg-4 col-xl-4 col-xxl-3">                                
+                                <div class="form-group">
+                                    <label for="<?=$prefix?>_id_modo_conservacao">Modo de Conservação</label>
+                                    <select class="form-select" id="<?=$prefix?>_id_modo_conservacao" name="<?=$prefix?>_id_modo_conservacao"></select>
+                                </div>
+                            </div>
                             <div class="col-sm-12 col-md-12 col-lg-3 col-xl-3 col-xxl-3">
                                 <div class="form-group">
                                     <label for="<?=$prefix?>_status">Status</label>
@@ -293,7 +335,10 @@ function carrega_lista(){
                                 }
                     },
                     { "data": function ( data, type, row ) {
-                                    return data.descricao;
+                                    let campo = data.descricao;
+                                    campo+= '<br><small><strong>Qtd.: '+(data.quantidade ? data.quantidade : 0)+'</strong></small>';
+                                    if(data.marca) campo+= '<br><small><strong>'+data.marca+'</strong></small>';
+                                    return campo;
                                 }
                     },
                     { "data": function ( data, type, row ) {
@@ -391,6 +436,14 @@ function busca_produto_codigo_barra(cod_barra='') {
                     $('input[name=<?=$prefix?>_dt_vencimento]').val(data.data.dt_vencimento);
                     $('input[name=<?=$prefix?>_dt_vencimento_aberto]').val(data.data.dt_vencimento_aberto);
                     $('input[name=<?=$prefix?>_dt_fabricacao]').val('<?=date('d/m/Y')?>');
+                    $('input[name=<?=$prefix?>_peso]').val(data.data.peso);
+
+                    comboCategorias(data.data.id_materiais_categorias);
+                    comboTipos(data.data.id_materiais_tipos);
+                    comboFornecedoresFabricantes(data.data.id_pessoas_fabricante,2);
+                    comboMarcas(data.data.id_materiais_marcas);
+                    comboUnidadesMedidas(data.data.id_unidades_medidas);
+                    comboModoConservacao(data.data.id_modo_conservacao)
                 }
 
                 //$('input[name=<?=$prefix?>_cod_barras]').prop('readonly', false);
@@ -492,7 +545,7 @@ function comboCategorias(id_materiais_categorias=''){
     });
 }
 
-//COMBO DE CATEGORIAS
+//COMBO DE TIPOS
 function comboTipos(id_materiais_tipos=''){
     const el = $('select[name=<?=$prefix?>_id_materiais_tipos]')
     let opt = '';
@@ -549,6 +602,10 @@ function comboFornecedoresFabricantes(id='', id_tipos_pessoas=''){
                 });                
             }
             el.html(opt);
+            /* 
+            if (id_tipos_pessoas==2) {
+                el.prop('disabled', true);
+            } */
         },
         beforeSend:function(){
             opt = '<option>Carregando...</option>';
@@ -597,7 +654,7 @@ function comboMarcas(id_materiais_marcas=''){
     });
 }
 
-//COMBO DE MARCAS
+//COMBO DE UNIDADES DE MEDIDA
 function comboUnidadesMedidas(id_unidades_medidas=''){
     const el = $('select[name=<?=$prefix?>_id_unidades_medidas]')
     let opt = '';
@@ -630,6 +687,72 @@ function comboUnidadesMedidas(id_unidades_medidas=''){
     });
 }
 
+//COMBO DE EMBALAGEM CONDICOES
+function comboEmbalagemCondicoes(id_embalagem_condicoes=''){
+    const el = $('select[name=<?=$prefix?>_id_embalagem_condicoes]')
+    let opt = '';
+    $.ajax({
+        url:'/embalagem-condicoes-json',
+        type:'post',
+        dataType:'json',
+        data:{},
+        success:function(data) {
+            
+            if (data.data.length > 0) {
+                opt = '<option value="">--Selecione--</option>';
+                $.each(data.data, function(i,v){
+                    opt+= '<option value="'+v.id+'" '+(v.id==id_embalagem_condicoes?'selected':'')+' >'+v.descricao+'</option>'
+                });                
+            }
+            el.html(opt);
+        },
+        beforeSend:function(){
+            opt = '<option>Carregando...</option>';
+        },
+        complete:function(){
+
+        },
+        error:function(a,b,c){
+            console.log('a',a);
+            console.log('b',b);
+            console.log('c',c);
+        }
+    });
+}
+
+//COMBO DE MODO DE CONSERVACAO
+function comboModoConservacao(id_modo_conservacao=''){
+    const el = $('select[name=<?=$prefix?>_id_modo_conservacao]')
+    let opt = '';
+    $.ajax({
+        url:'/modo-conservacao-json',
+        type:'post',
+        dataType:'json',
+        data:{status:'A'},
+        success:function(data) {
+            
+            if (data.data.length > 0) {
+                opt = '<option value="">--Selecione--</option>';
+                $.each(data.data, function(i,v){
+                    opt+= '<option value="'+v.id+'" '+(v.id==id_modo_conservacao?'selected':'')+' >'+v.descricao+'</option>'
+                });                
+            }
+            el.html(opt);
+        },
+        beforeSend:function(){
+            opt = '<option>Carregando...</option>';
+        },
+        complete:function(){
+
+        },
+        error:function(a,b,c){
+            console.log('a',a);
+            console.log('b',b);
+            console.log('c',c);
+        }
+    });
+}
+
 $(document).ready(function(){
 
     formFieldsRequered();
@@ -644,8 +767,11 @@ $(document).ready(function(){
         comboFornecedoresFabricantes('',3);
         comboMarcas();
         comboUnidadesMedidas();
-        $('div#modal-<?=str_replace('_','-',$prefix)?>').modal('show');
+        comboEmbalagemCondicoes();
+        comboModoConservacao()
         $('select[name=<?=$prefix?>_status]').val('A').prop('disabled', true);
+        $('input[name=<?=$prefix?>_quantidade]').prop('readonly', false);
+        $('div#modal-<?=str_replace('_','-',$prefix)?>').modal('show');
     });
 
     $('div#modal-<?=str_replace('_','-',$prefix)?>').on('hidden.bs.modal', function (e) {
@@ -673,7 +799,7 @@ $(document).ready(function(){
                             $('form[name=form-<?=str_replace('_','-',$prefix)?>] #<?=$prefix?>_'+i+'').val(v);
                         });
 
-                        console.log('material', data);
+                        console.log('MATERIAL:', data);
 
                         comboCategorias(data.data.id_materiais_categorias);
                         comboTipos(data.data.id_materiais_tipos);
@@ -681,11 +807,14 @@ $(document).ready(function(){
                         comboFornecedoresFabricantes(data.data.id_pessoas_fornecedor,3);
                         comboMarcas(data.data.id_materiais_marcas);
                         comboUnidadesMedidas(data.data.id_unidades_medidas);
+                        comboEmbalagemCondicoes(data.data.id_embalagem_condicoes)
+                        comboModoConservacao(data.data.id_modo_conservacao)
 
                         $('input[name=<?=$prefix?>_cod_barras]').prop('readonly', true);
                         $('input[name=<?=$prefix?>_dias_vencimento]').prop('readonly', true);
                         $('input[name=<?=$prefix?>_dias_vencimento_aberto]').prop('readonly', true);
-                        $('select[name=<?=$prefix?>_status]').prop('disabled', false);                        
+                        $('select[name=<?=$prefix?>_status]').prop('disabled', false);
+                        $('input[name=<?=$prefix?>_quantidade]').prop('readonly', true);
 
                         $('div#modal-<?=str_replace('_','-',$prefix)?>').modal('show');
                     } else {

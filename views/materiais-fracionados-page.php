@@ -1,7 +1,7 @@
 <?php
 require_once('header.php');
-$titulo = 'Materiais Francionados';
-$prefix = 'material_francionados';
+$titulo = 'Materiais Fracionados';
+$prefix = 'material_fracionados';
 $arr_permissoes = array();
 if (isset($_SESSION['usuario']['endpoints'][returnPage()])) {
     $arr_permissoes = $_SESSION['usuario']['endpoints'][returnPage()];
@@ -41,13 +41,7 @@ if (isset($_SESSION['usuario']['endpoints'][returnPage()])) {
                                 <div class="col">
                                     <h6 class="m-0 font-weight-bold text-primary"><?=$titulo?></h6>
                                 </div>
-                                <div class="col text-right">
-                                    <?php if(in_array('CADASTRAR', $arr_permissoes)):?>
-                                        <a href="#" rel="btn-<?=str_replace('_','-',$prefix)?>-novo" class="btn btn-primary btn-sm">
-                                            <i class="fa fa-plus"></i> Novo
-                                        </a>
-                                    <?php endif;?>
-                                </div>
+                                <div class="col text-right"></div>
                             </div>
                         </div>
                         <div class="card-body">
@@ -57,7 +51,7 @@ if (isset($_SESSION['usuario']['endpoints'][returnPage()])) {
                                         <tr>
                                             <th >ID</th>
                                             <th >Material</th>
-                                            <th >Peso</th>
+                                            <th >Quantidade Fracionada</th>
                                             <th >Validade</th>
                                             <th >Status</th>
                                             <th >Ações</th>

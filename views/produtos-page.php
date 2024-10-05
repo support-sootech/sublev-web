@@ -134,13 +134,64 @@ if (isset($_SESSION['usuario']['endpoints'][returnPage()])) {
                             </div>
                         </div>
 
-                        <div class="form-group">
-                            <label for="<?=$prefix?>_status">Status</label>
-                            <select class="form-select requered" id="<?=$prefix?>_status" name="<?=$prefix?>_status">
-                                <option value="A">Ativo</option>
-                                <option value="I">Inativo</option>
-                            </select>
+                        <div class="row">
+                            <div class="col">
+                                <div class="form-group">
+                                    <label for="<?=$prefix?>_peso">Peso</label>
+                                    <input type="text" class="form-control valor-decimal requered" id="<?=$prefix?>_peso" name="<?=$prefix?>_peso" maxlength="10" placeholder="Ex.: 10,5">
+                                </div>
+                            </div>
+                            <div class="col">
+                                <div class="form-group">
+                                    <label for="<?=$prefix?>_status">Status</label>
+                                    <select class="form-select requered" id="<?=$prefix?>_status" name="<?=$prefix?>_status">
+                                        <option value="A">Ativo</option>
+                                        <option value="I">Inativo</option>
+                                    </select>
+                                </div>
+                            </div>
                         </div>
+                        
+                        <div class="row">
+                            <div class="col">
+                                <div class="form-group">
+                                    <label for="<?=$prefix?>_id_pessoas_fabricante">Fabricantes</label>
+                                    <select class="form-select" id="<?=$prefix?>_id_pessoas_fabricante" name="<?=$prefix?>_id_pessoas_fabricante"></select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col">
+                                <div class="form-group">
+                                    <label for="<?=$prefix?>_id_materiais_categorias">Categoria</label>
+                                    <select class="form-select requered" id="<?=$prefix?>_id_materiais_categorias" name="<?=$prefix?>_id_materiais_categorias"></select>
+                                </div>
+                            </div>
+                            <div class="col">
+                                <div class="form-group">
+                                    <label for="<?=$prefix?>_id_materiais_marcas">Marcas</label>
+                                    <select class="form-select" id="<?=$prefix?>_id_materiais_categorias" name="<?=$prefix?>_id_materiais_marcas"></select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col">
+                                <div class="form-group">
+                                    <label for="<?=$prefix?>_id_unidades_medidas">Unidades de Medida</label>
+                                    <select class="form-select requered" id="<?=$prefix?>_id_unidades_medidas" name="<?=$prefix?>_id_unidades_medidas"></select>
+                                </div>
+                            </div>
+                            <div class="col">
+                                <div class="form-group">
+                                    <label for="<?=$prefix?>_id_modo_conservacao">Modo de Conservação</label>
+                                    <select class="form-select" id="<?=$prefix?>_id_modo_conservacao" name="<?=$prefix?>_id_modo_conservacao"></select>
+                                </div>
+                            </div>
+                        </div>
+
+
                     </form>
                 </div>
                 <div class="modal-footer">
@@ -258,6 +309,247 @@ function deletaRegistro(id){
     });
 }
 
+//COMBO DE CATEGORIAS
+function comboCategorias(id_materiais_categorias=''){
+    const el = $('select[name=<?=$prefix?>_id_materiais_categorias]')
+    let opt = '';
+    $.ajax({
+        url:'/materiais-categorias-json',
+        type:'post',
+        dataType:'json',
+        data:{status:'A'},
+        success:function(data) {
+            console.log('data', data);
+            if (data.data.length > 0) {
+                opt = '<option value="">--Selecione--</option>';
+                $.each(data.data, function(i,v){
+                    opt+= '<option value="'+v.id_materiais_categorias+'" '+(v.id_materiais_categorias==id_materiais_categorias?'selected':'')+' >'+v.descricao+'</option>'
+                });                
+            }
+            el.html(opt);
+        },
+        beforeSend:function(){
+            opt = '<option>Carregando...</option>';
+        },
+        complete:function(){
+
+        },
+        error:function(a,b,c){
+            console.log('a',a);
+            console.log('b',b);
+            console.log('c',c);
+        }
+    });
+}
+
+//COMBO DE TIPOS
+function comboTipos(id_materiais_tipos=''){
+    const el = $('select[name=<?=$prefix?>_id_materiais_tipos]')
+    let opt = '';
+    $.ajax({
+        url:'/materiais-tipos-json',
+        type:'post',
+        dataType:'json',
+        data:{status:'A'},
+        success:function(data) {
+            console.log('data', data);
+            if (data.data.length > 0) {
+                opt = '<option value="">--Selecione--</option>';
+                $.each(data.data, function(i,v){
+                    opt+= '<option value="'+v.id_materiais_tipos+'" '+(v.id_materiais_tipos==id_materiais_tipos?'selected':'')+' >'+v.descricao+'</option>'
+                });                
+            }
+            el.html(opt);
+        },
+        beforeSend:function(){
+            opt = '<option>Carregando...</option>';
+        },
+        complete:function(){
+
+        },
+        error:function(a,b,c){
+            console.log('a',a);
+            console.log('b',b);
+            console.log('c',c);
+        }
+    });
+}
+
+//COMBO DE FORNECEDORES E FABRICANTES
+function comboFornecedoresFabricantes(id='', id_tipos_pessoas=''){
+    let el = '';
+    if (id_tipos_pessoas==2) {
+        el = $('select[name=<?=$prefix?>_id_pessoas_fabricante]')
+    } else {
+        el = $('select[name=<?=$prefix?>_id_pessoas_fornecedor]')
+    }
+    
+    let opt = '';
+    $.ajax({
+        url:'/fornecedores-fabricantes-json',
+        type:'post',
+        dataType:'json',
+        data:{status:'A', id_tipos_pessoas:id_tipos_pessoas},
+        success:function(data) {
+            console.log('data', data);
+            if (data.data.length > 0) {
+                opt = '<option value="">--Selecione--</option>';
+                $.each(data.data, function(i,v){
+                    opt+= '<option value="'+v.id_pessoas+'" '+(v.id_pessoas==id?'selected':'')+' >'+v.nm_pessoa+'</option>'
+                });                
+            }
+            el.html(opt);
+            /* 
+            if (id_tipos_pessoas==2) {
+                el.prop('disabled', true);
+            } */
+        },
+        beforeSend:function(){
+            opt = '<option>Carregando...</option>';
+        },
+        complete:function(){
+
+        },
+        error:function(a,b,c){
+            console.log('a',a);
+            console.log('b',b);
+            console.log('c',c);
+        }
+    });
+}
+
+//COMBO DE MARCAS
+function comboMarcas(id_materiais_marcas=''){
+    const el = $('select[name=<?=$prefix?>_id_materiais_marcas]')
+    let opt = '';
+    $.ajax({
+        url:'/materiais-marcas-json',
+        type:'post',
+        dataType:'json',
+        data:{status:'A'},
+        success:function(data) {
+            console.log('data', data);
+            if (data.data.length > 0) {
+                opt = '<option value="">--Selecione--</option>';
+                $.each(data.data, function(i,v){
+                    opt+= '<option value="'+v.id_materiais_marcas+'" '+(v.id_materiais_marcas==id_materiais_marcas?'selected':'')+' >'+v.descricao+'</option>'
+                });                
+            }
+            el.html(opt);
+        },
+        beforeSend:function(){
+            opt = '<option>Carregando...</option>';
+        },
+        complete:function(){
+
+        },
+        error:function(a,b,c){
+            console.log('a',a);
+            console.log('b',b);
+            console.log('c',c);
+        }
+    });
+}
+
+//COMBO DE UNIDADES DE MEDIDA
+function comboUnidadesMedidas(id_unidades_medidas=''){
+    const el = $('select[name=<?=$prefix?>_id_unidades_medidas]')
+    let opt = '';
+    $.ajax({
+        url:'/unidades-medidas-json',
+        type:'post',
+        dataType:'json',
+        data:{status:'A'},
+        success:function(data) {
+            console.log('data', data);
+            if (data.data.length > 0) {
+                opt = '<option value="">--Selecione--</option>';
+                $.each(data.data, function(i,v){
+                    opt+= '<option value="'+v.id_unidades_medidas+'" '+(v.id_unidades_medidas==id_unidades_medidas?'selected':'')+' >'+v.descricao+'</option>'
+                });                
+            }
+            el.html(opt);
+        },
+        beforeSend:function(){
+            opt = '<option>Carregando...</option>';
+        },
+        complete:function(){
+
+        },
+        error:function(a,b,c){
+            console.log('a',a);
+            console.log('b',b);
+            console.log('c',c);
+        }
+    });
+}
+
+//COMBO DE EMBALAGEM CONDICOES
+function comboEmbalagemCondicoes(id_embalagem_condicoes=''){
+    const el = $('select[name=<?=$prefix?>_id_embalagem_condicoes]')
+    let opt = '';
+    $.ajax({
+        url:'/embalagem-condicoes-json',
+        type:'post',
+        dataType:'json',
+        data:{},
+        success:function(data) {
+            
+            if (data.data.length > 0) {
+                opt = '<option value="">--Selecione--</option>';
+                $.each(data.data, function(i,v){
+                    opt+= '<option value="'+v.id+'" '+(v.id==id_embalagem_condicoes?'selected':'')+' >'+v.descricao+'</option>'
+                });                
+            }
+            el.html(opt);
+        },
+        beforeSend:function(){
+            opt = '<option>Carregando...</option>';
+        },
+        complete:function(){
+
+        },
+        error:function(a,b,c){
+            console.log('a',a);
+            console.log('b',b);
+            console.log('c',c);
+        }
+    });
+}
+
+//COMBO DE MODO DE CONSERVACAO
+function comboModoConservacao(id_modo_conservacao=''){
+    const el = $('select[name=<?=$prefix?>_id_modo_conservacao]')
+    let opt = '';
+    $.ajax({
+        url:'/modo-conservacao-json',
+        type:'post',
+        dataType:'json',
+        data:{status:'A'},
+        success:function(data) {
+            
+            if (data.data.length > 0) {
+                opt = '<option value="">--Selecione--</option>';
+                $.each(data.data, function(i,v){
+                    opt+= '<option value="'+v.id+'" '+(v.id==id_modo_conservacao?'selected':'')+' >'+v.descricao+'</option>'
+                });                
+            }
+            el.html(opt);
+        },
+        beforeSend:function(){
+            opt = '<option>Carregando...</option>';
+        },
+        complete:function(){
+
+        },
+        error:function(a,b,c){
+            console.log('a',a);
+            console.log('b',b);
+            console.log('c',c);
+        }
+    });
+}
+
 $(document).ready(function(){
 
     formFieldsRequered();
@@ -266,6 +558,14 @@ $(document).ready(function(){
 
     $(document).on('click', 'a[rel=btn-<?=str_replace('_','-',$prefix)?>-novo]', function(e){
         e.preventDefault();
+
+        comboCategorias();
+        comboTipos();
+        comboFornecedoresFabricantes('',2);
+        comboMarcas();
+        comboUnidadesMedidas();
+        comboModoConservacao();
+
         $('div#modal-<?=str_replace('_','-',$prefix)?>').modal('show');
     });
 
@@ -290,6 +590,14 @@ $(document).ready(function(){
                             
                             $('form[name=form-<?=str_replace('_','-',$prefix)?>] #<?=$prefix?>_'+i+'').val(v);
                         });
+
+                        comboCategorias(data.data.id_materiais_categorias);
+                        comboTipos(data.data.id_materiais_tipos);
+                        comboFornecedoresFabricantes(data.data.id_pessoas_fabricante,2);
+                        comboMarcas(data.data.id_materiais_marcas);
+                        comboUnidadesMedidas(data.data.id_unidades_medidas);
+                        comboModoConservacao(data.data.id_modo_conservacao);
+
                         $('div#modal-<?=str_replace('_','-',$prefix)?>').modal('show');
                     } else {
                         gerarAlerta(data.msg, 'Aviso', data.type);

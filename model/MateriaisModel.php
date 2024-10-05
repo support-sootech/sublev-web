@@ -1,7 +1,7 @@
 <?php
 class MateriaisModel extends Connection {
     const TABLE = 'tb_materiais';
-    private $conn = false;
+    private $conn;
     private $newModel = array();
 
     function __construct() {
@@ -34,15 +34,21 @@ class MateriaisModel extends Connection {
         'cod_barras'=>array('type'=>'string', 'requered'=>false, 'max'=>'50', 'default'=>'N', 'key'=>false, 'description'=>'Código barras'),
         'dias_vencimento'=>array('type'=>'integer', 'requered'=>false, 'max'=>'2', 'default'=>'', 'key'=>false, 'description'=>'Qtd dias vencimento'),
         'dias_vencimento_aberto'=>array('type'=>'integer', 'requered'=>false, 'max'=>'2', 'default'=>'', 'key'=>false, 'description'=>'Qtd dias vencimento aberto'),
+        'temperatura'=>array('type'=>'integer', 'requered'=>false, 'max'=>'3', 'default'=>'', 'key'=>false, 'description'=>'Temperatura'),
+        'sif'=>array('type'=>'integer', 'requered'=>false, 'max'=>'3', 'default'=>'', 'key'=>false, 'description'=>'SIF'),
+        'nro_nota'=>array('type'=>'string', 'requered'=>false, 'max'=>'100', 'default'=>'', 'key'=>false, 'description'=>'Número da nota fiscal'),
+        'id_embalagem_condicoes'=>array('type'=>'integer', 'requered'=>false, 'max'=>'10', 'default'=>'', 'key'=>false, 'description'=>'Embalagem condições'),
+        'id_modo_conservacao'=>array('type'=>'integer', 'requered'=>false, 'max'=>'10', 'default'=>'', 'key'=>false, 'description'=>'Modo de conservação'),
+        'id_usuarios'=>array('type'=>'integer', 'requered'=>false, 'max'=>'10', 'default'=>'', 'key'=>false, 'description'=>'Usuário'),
+
     );
     
     private function setFields($arr) {
         if (count($arr) > 0) {
             foreach ($this->fields as $key => $value) {
                 $this->newModel[$key] = $value;
-                $this->newModel[$key]['value'] = (isset($arr[$key]) ? $arr[$key] : '');
+                $this->newModel[$key]['value'] = (isset($arr[$key]) && !empty($arr[$key]) ? $arr[$key] : null);
             }
-
         }
     }
 
@@ -71,7 +77,6 @@ class MateriaisModel extends Connection {
                     } else if(!is_int($value['value']) && (isset($value['fk']) && !$value['fk'])) {
                         throw new Exception('O campo '.$campo.' deve ser do tipo numérico!');
                     }
-
                 }
 
                 if ($value['type']=='date' && !empty($value['value'])) {
@@ -269,10 +274,11 @@ class MateriaisModel extends Connection {
                 $and .= " and p.status != :STATUS";
             }
             
-            $sql = "select p.*, p1.nome as nm_fabricante, p2.nome as nm_fornecedor 
+            $sql = "select p.*, p1.nome as nm_fabricante, p2.nome as nm_fornecedor, mm.descricao as marca
                       from ".self::TABLE." p
                       left join tb_pessoas p1 on p1.id_pessoas = p.id_pessoas_fabricante
                       left join tb_pessoas p2 on p2.id_pessoas = p.id_pessoas_fornecedor
+                      left join tb_materiais_marcas mm on mm.id_materiais_marcas = p.id_materiais_marcas
                      where 1 = 1 
                        ".$and."";
             $res = $this->conn->select($sql, $arr);
@@ -282,6 +288,50 @@ class MateriaisModel extends Connection {
             } else {
                 return false;
             }
+        } catch (Exception $e) {
+            return $e->getMessage();
+        }
+    }
+
+    public function loadRelatorioMateriaisRecebimento($id_empresas="", $dt_ini, $dt_fim, $status='') {
+        try {
+            $arr = array();
+            $and = '';
+
+            if (!empty($status)) {
+                $arr[':STATUS'] = $status;
+                $and .= " and m.status = :STATUS";
+            } else {
+                $arr[':STATUS'] = 'D';
+                $and .= " and m.status != :STATUS";
+            }
+
+            if (!empty($id_empresas)) {
+                $and.= " and m.id_empresas = :ID_EMPRESAS";
+                $arr[':ID_EMPRESAS'] = $id_empresas;
+            }
+
+            $and.= " and cast(m.dh_cadastro as date) between :DT_INI and :DT_FIM";
+            $arr[':DT_INI'] = dt_banco($dt_ini);
+            $arr[':DT_FIM'] = dt_banco($dt_fim);
+
+            
+            $sql = "select m.dh_cadastro, m.descricao, m.dt_vencimento, m.quantidade, m.temperatura, m.sif, m.lote, m.nro_nota,
+                            p.nome as nm_fornecedor,
+                            ec.descricao as ds_embalagem_condicoes,
+                            p1.nome as nm_responsavel
+                    from tb_materiais m
+                    left join tb_pessoas p on p.id_pessoas = m.id_pessoas_fornecedor and p.id_tipos_pessoas = 3
+                    left join tb_embalagem_condicoes ec on ec.id = m.id_embalagem_condicoes
+                    left join tb_usuarios u on u.id_usuarios = m.id_usuarios
+                    left join tb_pessoas p1 on p1.id_pessoas = u.id_pessoas
+                    where 1 = 1                        
+                       ".$and."
+                    order by m.dh_cadastro";
+            $res = $this->conn->select($sql, $arr);
+            
+            return isset($res[0]) ? $res : false;
+
         } catch (Exception $e) {
             return $e->getMessage();
         }

@@ -78,6 +78,11 @@ $app->post('/produtos-json', function() use ($app){
             $arr = $class_produtos->loadAll($status);
             if ($arr) {
                 foreach ($arr as $key => $value) {
+
+                    if (!empty($value['peso'])) {
+                        $value['peso'] = numberformat($value['peso'], false);
+                    }
+
                     $data['data'][] = $value;
                 }
             }
@@ -172,6 +177,9 @@ $app->get('/produtos-busca-codigo-barras/:codigo_barras', function($codigo_barra
 
                 $arr['dt_vencimento'] = dt_br(somar_dias(date('Y-m-d'), $arr['dias_vencimento']));
                 $arr['dt_vencimento_aberto'] = dt_br(somar_dias(date('Y-m-d'), $arr['dias_vencimento_aberto']));
+                if (!empty($arr['peso'])) {
+                    $arr['peso'] = numberformat($arr['peso'], false);
+                }
 
                 $data = array('success'=>true, 'type'=>'success', 'msg'=>'Produto já cadastrado!', 'data'=>$arr);
             } else {
