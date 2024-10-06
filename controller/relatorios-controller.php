@@ -57,9 +57,10 @@ $app->post('/relatorio-materiais-recebimento', function() use ($app){
     if ($tipo=='pdf') {
         
         if (isset($data['data']) && count($data['data']) > 0) {
-            $table = '<h3 style="text-align:center">Relatório de recebimento de materiais </h3>';
-            $table.= '<h5 style="text-align:center">gerado: '.date('d/m/Y H:i:s').'</h5>';
-            $table.= '<br><br>';
+            $table = '<h4 style="text-align:center">PLANILHA DE CONTROLE DE RECEBIMENTO DE PRODUTOS PERECÍVEIS (CONGELADOS / RESFRIADOS)</h4>';
+            $table.= '<h5 style="text-align:center">ESTABELECIMENTO: '.$_SESSION['usuario']['nm_empresa'].' - RESPONSÁVEL: '.$_SESSION['usuario']['nm_pessoa'].' - PERÍODO '.$dt_ini.' até '.$dt_fim.' </h5>';
+            $table.= '<h6 style="text-align:center">gerado: '.date('d/m/Y H:i:s').'</h6>';
+            //$table.= '<br><br>';
 
             $table.= '<table style="width:100%;border: 1px solid black;border-collapse: collapse; font-size:12px">';
                 $table.= '<thead>';
@@ -84,9 +85,9 @@ $app->post('/relatorio-materiais-recebimento', function() use ($app){
                             $table.= '<td style="border:1px solid">'.$value['descricao'].'</td>';
                             $table.= '<td style="border:1px solid">'.$value['nm_fornecedor'].'</td>';
                             $table.= '<td style="border:1px solid">'.$value['dt_vencimento'].'</td>';
-                            $table.= '<td style="border:1px solid">'.$value['quantidade'].'</td>';
-                            $table.= '<td style="border:1px solid">'.$value['temperatura'].'</td>';
-                            $table.= '<td style="border:1px solid">'.$value['sif'].'</td>';
+                            $table.= '<td style="border:1px solid; text-align:center">'.$value['quantidade'].'</td>';
+                            $table.= '<td style="border:1px solid; text-align:center">'.(!empty($value['temperatura']) ?$value['temperatura'].'ºC' : '').'</td>';
+                            $table.= '<td style="border:1px solid; text-align:center">'.$value['sif'].'</td>';
                             $table.= '<td style="border:1px solid">'.$value['lote'].'</td>';
                             $table.= '<td style="border:1px solid">'.$value['nro_nota'].'</td>';
                             $table.= '<td style="border:1px solid">'.$value['ds_embalagem_condicoes'].'</td>';
@@ -102,7 +103,8 @@ $app->post('/relatorio-materiais-recebimento', function() use ($app){
                 'mode' => 'utf-8',
                 'format' => 'A4-L',
                 'orientation' => 'L',
-                'tempDir' =>'/tmp'
+                'tempDir' =>'/tmp',
+                'default_font' => 'arial'
             ]);
 
             if(is_array($table)){
