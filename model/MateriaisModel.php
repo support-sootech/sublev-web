@@ -149,6 +149,27 @@ class MateriaisModel extends Connection {
         }
     }
 
+    public function loadIdMaterialDtVencimento($id , $dt_vencimento) {
+        try {
+            $arr[':ID'] = $id;
+            $arr[':DT_VENCIMENTO'] = dt_banco($dt_vencimento);
+            
+            $sql = "select p.*
+                      from ".self::TABLE." p
+                     where p.id_materiais = :ID
+                           and p.dt_vencimento = :DT_VENCIMENTO";
+            $res = $this->conn->select($sql, $arr);
+            
+            if (isset($res[0])) {
+                return $this->getFieldsView($res[0]);
+            } else {
+                return false;
+            }
+        } catch (Exception $e) {
+            return $e->getMessage();
+        }
+    }
+
     public function loadIdMaterialCategoria($status,$id) {
         
         try {
@@ -204,9 +225,9 @@ class MateriaisModel extends Connection {
             }
 
             $sql = "select p.*,
+                           mf.id_materiais_fracionados as id_materiais_fracionados,
                            DATE_FORMAT(mf.dt_fracionamento,'%d/%m/%Y') as dt_fracionamento,
-                           DATE_FORMAT(p.dt_vencimento,'%d/%m/%Y') as dt_vencimento,
-                           DATE_FORMAT(p.dt_vencimento_aberto,'%d/%m/%Y') as dt_vencimento_aberto,
+                           DATE_FORMAT(mf.dt_vencimento,'%d/%m/%Y') as dt_vencimento,
                            ifnull(mm.descricao, '') as marca,
                            ifnull(um.descricao, '') as ds_unidade_medida
                       from ".self::TABLE." p

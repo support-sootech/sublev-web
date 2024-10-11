@@ -160,12 +160,17 @@ class MateriaisFracionadosModel extends Connection {
                                 else 'ATIVO'
                             end) as ds_status,
                             um.descricao as ds_unidade_medida,
-                            p.nome as nm_usuario
+                            p.nome as nm_usuario,
+                            s.nome as nm_setor
                       from ".self::TABLE." x
                       inner join tb_materiais m on m.id_materiais = x.id_materiais
-                      inner join tb_usuarios u on u.id_usuarios = x.id_usuarios
-                      inner join tb_pessoas p on p.id_pessoas = u.id_pessoas
+                      left join (select l.id_materiais_fracionados, l.id_usuarios 
+                                   from tb_materiais_fracionados_log l 
+                                  where l.acao = 'CADASTRO') as ul on ul.id_materiais_fracionados = x.id_materiais_fracionados
+                      left join tb_usuarios u on u.id_usuarios = ifnull(ul.id_usuarios, x.id_usuarios)
+                      left join tb_pessoas p on p.id_pessoas = u.id_pessoas
                       inner join tb_unidades_medidas um on um.id_unidades_medidas = x.id_unidades_medidas
+                      inner join tb_setor s on s.id_setor = x.id_setor
                      where m.id_empresas = :ID_EMPRESAS ".$and;
             $res = $this->conn->select($sql, $arr);
             

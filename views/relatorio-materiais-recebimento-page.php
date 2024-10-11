@@ -59,7 +59,7 @@ if (isset($_SESSION['usuario']['endpoints'][returnPage()])) {
                                     </div>
                                     <div class="col-sm-12 col-md-12 col-lg-3 col-xl-3 col-xxl-3">
                                         <div class="form-group">
-                                        <label for="fil_dt_fim">Data ínicio</label>
+                                        <label for="fil_dt_fim">Data final</label>
                                             <input type="text" class="form-control mask-data" id="fil_dt_fim" name="fil_dt_fim" value="<?=date('d/m/Y')?>" placeholder="99/99/9999">
                                         </div>
                                     </div>

@@ -138,7 +138,7 @@ if (isset($_SESSION['usuario']['endpoints'][returnPage()])) {
                             <div class="col">
                                 <div class="form-group">
                                     <label for="<?=$prefix?>_dias_vencimento_aberto">Qtd. dias venc. aberto</label>
-                                    <input type="text" class="form-control requered" id="<?=$prefix?>_dias_vencimento_aberto" name="<?=$prefix?>_dias_vencimento_aberto" maxlength="2" placeholder="Ex.: 30">
+                                    <input type="text" class="form-control" id="<?=$prefix?>_dias_vencimento_aberto" name="<?=$prefix?>_dias_vencimento_aberto" maxlength="2" placeholder="Ex.: 30">
                                 </div>
                             </div>
                             

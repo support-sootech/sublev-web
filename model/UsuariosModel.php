@@ -296,7 +296,12 @@ class UsuariosModel extends Connection {
                            tp.id_tipos_pessoas,
                            tp.descricao as ds_tipos_pessoas,
                            s.id_setor,
-                           s.nome as nm_setor
+                           s.nome as nm_setor,
+                           ifnull((select group_concat(p.descricao,' ')
+                                    from tb_usuarios_perfil up
+                                    inner join tb_perfil p on p.id_perfil = up.id_perfil
+                                    where up.id_usuarios = u.id_usuarios
+                                    group by up.id_usuarios),'') as ds_perfil
                       from ".self::TABLE." u
                       inner join tb_pessoas ps on ps.id_pessoas = u.id_pessoas
                       inner join tb_empresas e on e.id_empresas = ps.id_empresas

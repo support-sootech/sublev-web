@@ -220,6 +220,7 @@ $app->post('/materiais-save', function() use ($app){
                 if ($data) {
 
                     $class_produtos = new ProdutosModel();
+                    $add_produto = false;
                     $fg_produto = $class_produtos->loadCodigoBarras($post['cod_barras']);
                     if (!$fg_produto) {
                         $class_produtos->add(
@@ -231,7 +232,7 @@ $app->post('/materiais-save', function() use ($app){
                                 'peso'=>$post['peso'],
                                 'id_unidades_medidas'=>$post['id_unidades_medidas'],
                                 'id_materiais_marcas'=>$post['id_materiais_marcas'],
-                                'id_materiais_tipos'=>$post['id_materiais_tipos'],
+                                'id_materiais_tipos'=>(isset($post['id_materiais_tipos']) ? $post['id_materiais_tipos'] : ''),
                                 'id_materiais_categorias'=>$post['id_materiais_categorias'],
                                 'id_pessoas_fabricante'=>$post['id_pessoas_fabricante'],
                                 'id_modo_conservacao'=>$post['id_modo_conservacao'],
@@ -245,7 +246,8 @@ $app->post('/materiais-save', function() use ($app){
                         'success'=>true, 
                         'type'=>'success', 
                         'msg'=>messagesDefault(!empty($id_materiais) ? 'update' : 'register'),
-                        'data'=>$data
+                        'data'=>$data,
+                        'produto'=>$add_produto
                     );
                 } else {
                     $retorno = array('success'=>false, 'type'=>'danger', 'msg'=>$data);    

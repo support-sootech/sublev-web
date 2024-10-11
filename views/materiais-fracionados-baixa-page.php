@@ -6,6 +6,9 @@ $arr_permissoes = array();
 if (isset($_SESSION['usuario']['endpoints'][returnPage()])) {
     $arr_permissoes = $_SESSION['usuario']['endpoints'][returnPage()];
 }
+
+$arr_perfil = array_column($_SESSION['usuario']['perfil'], 'ds_perfil');
+
 ?>
 <style>
     table tbody {
@@ -58,7 +61,7 @@ if (isset($_SESSION['usuario']['endpoints'][returnPage()])) {
                                     <form name="form-filtros" method="post" action="#">
                                         <div class="row">
                                             
-                                            <?php if(in_array('ADMINISTRADOR',array_column($_SESSION['usuario']['perfil'], 'ds_perfil'))): ?>
+                                            <?php if(in_array('ADMINISTRADOR', $arr_perfil) || in_array('ROOT', $arr_perfil)): ?>
                                                 <div class="col-sm-12 col-md-12 col-lg-3 col-xl-3 col-xxl-3">
                                                     <div class="form-group">
                                                         <label for="fil_setor">Setores</label>
@@ -119,6 +122,7 @@ if (isset($_SESSION['usuario']['endpoints'][returnPage()])) {
                                                     <th >ID</th>
                                                     <th>Fracionado</th>
                                                     <th >Material</th>
+                                                    <th>Setor</th>
                                                     <th >Peso</th>
                                                     <th >Validade</th>
                                                     <th >Status</th>
@@ -213,7 +217,7 @@ if (isset($_SESSION['usuario']['endpoints'][returnPage()])) {
                                         <th>#</th>
                                         <th>Log</th>
                                         <th>Ação</th>
-                                        <th>Material</th>
+                                        <th>Material</th>                                        
                                         <th>Qtd.</th>
                                         <th>Vencimento</th>
                                         <th>Fracionamento</th>
@@ -289,6 +293,10 @@ function carrega_lista(){
                     },
                     { "data": function ( data, type, row ) {
                                     return data.ds_materiais;
+                                }
+                    },
+                    { "data": function ( data, type, row ) {
+                                    return data.nm_setor;
                                 }
                     },
                     { "data": function ( data, type, row ) {
@@ -638,6 +646,11 @@ $(document).ready(function(){
         form.append('<input type="hidden" name="id_usuarios" value="'+id_usuarios+'" />');
         form.append('<input type="hidden" name="status" value="'+status+'" />');
         form.submit();
+    });
+
+    $(document).on('click','a[rel=btn-form-filtro]', function(e){
+        e.preventDefault();
+        carrega_lista();
     });
     
 

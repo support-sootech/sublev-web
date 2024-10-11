@@ -60,6 +60,8 @@ if (isset($_SESSION['usuario']['endpoints'][returnPage()])) {
                                         <tr>
                                             <th>ID</th>
                                             <th>Nome</th>
+                                            <th>Setor</th>
+                                            <th>Perfil</th>
                                             <th>CPF / CNPJ</th>
                                             <th>Status</th>
                                             <th>Ações</th>
@@ -309,6 +311,14 @@ function carrega_lista(){
                                 }
                     },
                     { "data": function ( data, type, row ) {
+                                    return data.nm_setor;
+                                }
+                    },
+                    { "data": function ( data, type, row ) {
+                                    return data.ds_perfil;
+                                }
+                    },
+                    { "data": function ( data, type, row ) {
                                     return data.cpf_cnpj;
                                 }
                     },
@@ -334,11 +344,13 @@ function carrega_lista(){
                                     var campo = '';
 
                                     let color_send = 'primary';
+                                    let title = 'E-mail enviado e senha de usuário definida';
                                     if(data.senha == '') {
                                         color_send = 'warning';
+                                        title = 'Senha de usuário não definida';
                                     }
 
-                                    campo+= '<a href="#" title="E-mail de cadastramento de senha" id="'+data.id_usuarios+'" rel="btn-<?=$prefix?>-register-password" role="button" class="btn btn-'+color_send+' btn-sm" style="margin: 1px 2px">'+
+                                    campo+= '<a href="#" title="'+title+'" id="'+data.id_usuarios+'" rel="btn-<?=$prefix?>-register-password" role="button" class="btn btn-'+color_send+' btn-sm" style="margin: 1px 2px">'+
                                                     '<i class="fas fa-envelope"></i>'+
                                                 '</a>';
 
