@@ -52,7 +52,10 @@
     <script src="//cdnjs.cloudflare.com/ajax/libs/jquery-jgrowl/1.4.8/jquery.jgrowl.min.js"></script>
     <!-- <script src="<?=site_url()?>/layout/js/sweetalert2.min.js?v=<?=date('YmdHis')?>"></script> -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.js"></script>
+    
     <script src="//cdnjs.cloudflare.com/ajax/libs/jquery.maskedinput/1.4.1/jquery.maskedinput.min.js"></script>
+    <script type='text/javascript' src="https://rawgit.com/RobinHerbots/jquery.inputmask/3.x/dist/jquery.inputmask.bundle.js"></script>
+
     <script src="<?=site_url()?>/layout/js/scripts.js?v=<?=date('YmdHis')?>"></script>
 
     <!-- Page level custom scripts -->

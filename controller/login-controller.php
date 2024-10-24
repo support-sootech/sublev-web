@@ -89,12 +89,14 @@ $app->post('/register-password', function() use ($app){
 
             if ($data) {
                 try {
-                    $arr['senha'] = $senha;
-                    $arr['id_usuarios'] = $data['id_usuarios'];
-                    $arr['status'] = $data['status'];
-                    $arr['id_pessoas'] = $data['id_pessoas'];
+                    //$arr['senha'] = $senha;
+                    //$arr['id_usuarios'] = $data['id_usuarios'];
+                    //$arr['status'] = $data['status'];
+                    //$arr['id_pessoas'] = $data['id_pessoas'];
 
-                    $edit = $class_usuarios->edit($arr, array('id_usuarios'=>$data['id_usuarios']));
+                    $data['senha'] = $senha;
+
+                    $edit = $class_usuarios->edit($data, array('id_usuarios'=>$data['id_usuarios']));
                     if ($edit) {
                         $status = 200;
                         $retorno = array(

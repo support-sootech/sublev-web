@@ -1,7 +1,7 @@
 <?php
 class MenuPermissaoPerfilModel extends Connection {
     const TABLE = 'tb_menu_permissao_perfil';
-    private $conn = false;
+    private $conn;
     private $newModel = array();
 
     function __construct() {
@@ -158,6 +158,7 @@ class MenuPermissaoPerfilModel extends Connection {
 
     public function del($id_perfil){
         try {
+            $save = false;
             $arr = $this->loadAllIdPerfil($id_perfil);
             if ($arr) {
                 foreach ($arr as $key => $value) {

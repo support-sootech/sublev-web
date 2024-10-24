@@ -162,21 +162,30 @@ $(document).ready(function(){
     });
     */
     //Mask
+
+    $(".mask-cep").inputmask("99999-999");
+    $(".mask-data").inputmask("99/99/9999");
+    $(".mask-cnpj").inputmask("99.999.999/9999-99");
+    $(".mask-cpf").inputmask("999.999.999-99");
+    $(".mask-telefone").inputmask("(99) 9999-9999");
+
+
+
     $(".mask-linha-digitavel").mask("99999.99999 99999.999999 99999.999999 9 99999999999999");
     $(".mask-periodo").mask("99/9999");
-    $(".mask-data").mask("99/99/9999");
+    //$(".mask-data").mask("99/99/9999");
     $(".mask-hora").mask("99:99:99");
     $(".mask-data-hora").mask("99/99/9999 99:99:99");
     $(".mask-placa").mask("aaa-9999");
-    $(".mask-cep").mask("99999-999");
+    //$(".mask-cep").mask("99999-999");
     $(".mask-cartao").mask("9999.9999.9999.9999");
     $(".mask-venc-cartao").mask("99/9999");
         $(".mask-venc-cartao-1").mask("99/99");
 
-    $(".mask-cnpj").mask("99.999.999/9999-99");
-    $(".mask-cpf").mask("999.999.999-99");
+    //$(".mask-cnpj").mask("99.999.999/9999-99");
+    //$(".mask-cpf").mask("999.999.999-99");
 
-    $(".mask-telefone").mask("(99) 9999-9999");
+    //$(".mask-telefone").mask("(99) 9999-9999");
     $(".mask-celular")
             .mask("(99) 9999-9999?9")
             .focusout(function (event) {
