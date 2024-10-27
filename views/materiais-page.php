@@ -98,7 +98,7 @@ if (isset($_SESSION['usuario']['endpoints'][returnPage()])) {
     </a>
 
     <!-- Logout Modal-->
-    <div class="modal fade" id="modal-<?=str_replace('_','-',$prefix)?>" tabindex="-1" role="dialog" aria-labelledby="modal<?=$prefix?>" aria-hidden="true">
+    <div class="modal fade" id="modal-<?=str_replace('_','-',$prefix)?>" role="dialog" aria-labelledby="modal<?=$prefix?>" aria-hidden="true">
         <div class="modal-dialog modal-lg" role="document">
             <div class="modal-content">
                 <div class="modal-header">
@@ -128,21 +128,21 @@ if (isset($_SESSION['usuario']['endpoints'][returnPage()])) {
                         </div>
 
                         <div class="row">
-                            <div class="col">
+                            <div class="col-sm-12 col-md-12	col-lg-4 col-xl-4 col-xxl-4">
                                 <div class="form-group">
                                     <label for="<?=$prefix?>_dias_vencimento">Qtd. dias vencimento</label>
                                     <input type="text" class="form-control requered" id="<?=$prefix?>_dias_vencimento" name="<?=$prefix?>_dias_vencimento" maxlength="2" placeholder="Ex.: 30">
                                 </div>
                             </div>
 
-                            <div class="col">
+                            <div class="col-sm-12 col-md-12	col-lg-4 col-xl-4 col-xxl-4">
                                 <div class="form-group">
                                     <label for="<?=$prefix?>_dias_vencimento_aberto">Qtd. dias venc. aberto</label>
                                     <input type="text" class="form-control" id="<?=$prefix?>_dias_vencimento_aberto" name="<?=$prefix?>_dias_vencimento_aberto" maxlength="2" placeholder="Ex.: 30">
                                 </div>
                             </div>
                             
-                            <div class="col">
+                            <div class="col-sm-12 col-md-12	col-lg-4 col-xl-4 col-xxl-4">
                                 <div class="form-group">
                                     <label for="<?=$prefix?>_id_materiais_categorias">Categoria</label>
                                     <select class="form-select requered" id="<?=$prefix?>_id_materiais_categorias" name="<?=$prefix?>_id_materiais_categorias"></select>
@@ -161,13 +161,13 @@ if (isset($_SESSION['usuario']['endpoints'][returnPage()])) {
                         </div>
 
                         <div class="row">
-                            <div class="col">
+                            <div class="col-sm-12 col-md-12	col-lg-6 col-xl-6 col-xxl-6">
                                 <div class="form-group">
                                     <label for="<?=$prefix?>_id_pessoas_fornecedor">Fornecedores</label>
                                     <select class="form-select" id="<?=$prefix?>_id_pessoas_fornecedor" name="<?=$prefix?>_id_pessoas_fornecedor"></select>
                                 </div>
                             </div>
-                            <div class="col">
+                            <div class="col-sm-12 col-md-12	col-lg-6 col-xl-6 col-xxl-6">
                                 <div class="form-group">
                                     <label for="<?=$prefix?>_id_pessoas_fabricante">Fabricantes</label>
                                     <select class="form-select" id="<?=$prefix?>_id_pessoas_fabricante" name="<?=$prefix?>_id_pessoas_fabricante"></select>
@@ -176,14 +176,14 @@ if (isset($_SESSION['usuario']['endpoints'][returnPage()])) {
                         </div>
 
                         <div class="row">
-                            <div class="col">
+                            <div class="col-sm-12 col-md-12	col-lg-6 col-xl-6 col-xxl-6">
                                 <div class="form-group">
                                     <label for="<?=$prefix?>_id_materiais_marcas">Marcas</label>
                                     <select class="form-select" id="<?=$prefix?>_id_materiais_categorias" name="<?=$prefix?>_id_materiais_marcas"></select>
                                 </div>
                             </div>
 
-                            <div class="col">
+                            <div class="col-sm-12 col-md-12	col-lg-6 col-xl-6 col-xxl-6">
                                 <div class="form-group">
                                     <label for="<?=$prefix?>_id_unidades_medidas">Unidades de Medida</label>
                                     <select class="form-select requered" id="<?=$prefix?>_id_unidades_medidas" name="<?=$prefix?>_id_unidades_medidas"></select>
@@ -193,38 +193,38 @@ if (isset($_SESSION['usuario']['endpoints'][returnPage()])) {
 
                         <div class="row">
 
-                            <div class="col">
+                            <div class="col-sm-12 col-md-12	col-lg-6 col-xl-6 col-xxl-6">
                                 <div class="form-group">
                                     <label for="<?=$prefix?>_dt_fabricacao">Data de Fabricação</label>
-                                    <input type="text" class="form-control mask-data requered" id="<?=$prefix?>_dt_fabricacao" name="<?=$prefix?>_dt_fabricacao" maxlength="10" placeholder="Ex.: 99/99/9999">
+                                    <input type="text" class="form-control mask-data requered" autoComplete="off" id="<?=$prefix?>_dt_fabricacao" name="<?=$prefix?>_dt_fabricacao" maxlength="10" placeholder="Ex.: 99/99/9999">
                                 </div>
                             </div>
 
-                            <div class="col">
+                            <div class="col-sm-12 col-md-12	col-lg-6 col-xl-6 col-xxl-6">
                                 <div class="form-group">
                                     <label for="<?=$prefix?>_dt_vencimento">Data de Vencimento</label>
-                                    <input type="text" class="form-control mask-data requered" id="<?=$prefix?>_dt_vencimento" name="<?=$prefix?>_dt_vencimento" maxlength="10" placeholder="Ex.: 99/99/9999">
+                                    <input type="text" class="form-control mask-data requered" autoComplete="off" id="<?=$prefix?>_dt_vencimento" name="<?=$prefix?>_dt_vencimento" maxlength="10" placeholder="Ex.: 99/99/9999">
                                 </div>
                             </div>
 
                             <!-- <div class="col">
                                 <div class="form-group">
                                     <label for="<?=$prefix?>_dt_vencimento_aberto">Data de Venc. Aberto</label>
-                                    <input type="text" class="form-control mask-data requered" id="<?=$prefix?>_dt_vencimento_aberto" name="<?=$prefix?>_dt_vencimento_aberto" maxlength="10" placeholder="Ex.: 99/99/9999">
+                                    <input type="text" class="form-control mask-data requered" autoComplete="off" id="<?=$prefix?>_dt_vencimento_aberto" name="<?=$prefix?>_dt_vencimento_aberto" maxlength="10" placeholder="Ex.: 99/99/9999">
                                 </div>
                             </div> -->
 
                         </div>
 
                         <div class="row">
-                            <div class="col">
+                            <div class="col-sm-12 col-md-12	col-lg-3 col-xl-3 col-xxl-3">
                                 <div class="form-group">
                                     <label for="<?=$prefix?>_peso">Peso</label>
                                     <input type="text" class="form-control valor-decimal requered" id="<?=$prefix?>_peso" name="<?=$prefix?>_peso" maxlength="10" placeholder="Ex.: 3,00">
                                 </div>
                             </div>
 
-                            <div class="col">
+                            <div class="col-sm-12 col-md-12	col-lg-3 col-xl-3 col-xxl-3">
                                 <div class="form-group">
                                     <label for="<?=$prefix?>_quantidade">Quantidade</label>
                                     <input type="text" class="form-control somente_numeros requered" id="<?=$prefix?>_quantidade" name="<?=$prefix?>_quantidade" maxlength="2" placeholder="Ex.: 11">
@@ -238,14 +238,14 @@ if (isset($_SESSION['usuario']['endpoints'][returnPage()])) {
                                 </div>
                             </div> -->
 
-                            <div class="col">
+                            <div class="col-sm-12 col-md-12	col-lg-3 col-xl-3 col-xxl-3">
                                 <div class="form-group">
                                     <label for="<?=$prefix?>_lote">Lote</label>
                                     <input type="text" class="form-control requered" id="<?=$prefix?>_lote" name="<?=$prefix?>_lote" maxlength="50" placeholder="">
                                 </div>
                             </div>
 
-                            <div class="col">
+                            <div class="col-sm-12 col-md-12	col-lg-3 col-xl-3 col-xxl-3">
                                 <div class="form-group">
                                     <label for="<?=$prefix?>_nro_nota">Nota Fiscal</label>
                                     <input type="text" class="form-control" id="<?=$prefix?>_nro_nota" name="<?=$prefix?>_nro_nota" maxlength="10" placeholder="Ex.: 123456789">
@@ -255,21 +255,21 @@ if (isset($_SESSION['usuario']['endpoints'][returnPage()])) {
                         </div>
 
                         <div class="row">
-                            <div class="col">
+                            <div class="col-sm-12 col-md-12	col-lg-4 col-xl-4 col-xxl-4">
                                 <div class="form-group">
                                     <label for="<?=$prefix?>_temperatura">Temperatura</label>
                                     <input type="text" class="form-control somente_numeros" id="<?=$prefix?>_temperatura" name="<?=$prefix?>_temperatura" maxlength="10" placeholder="Ex.: 10">
                                 </div>
                             </div>
 
-                            <div class="col">
+                            <div class="col-sm-12 col-md-12	col-lg-4 col-xl-4 col-xxl-4">
                                 <div class="form-group">
                                     <label for="<?=$prefix?>_sif">SIF</label>
                                     <input type="text" class="form-control somente_numeros" id="<?=$prefix?>_sif" name="<?=$prefix?>_sif" maxlength="2" placeholder="Ex.: 11">
                                 </div>
                             </div>
 
-                            <div class="col">
+                            <div class="col-sm-12 col-md-12	col-lg-4 col-xl-4 col-xxl-4">
                                 <div class="form-group">
                                     <label for="<?=$prefix?>_id_embalagem_condicoes">Condição da embalagem</label>
                                     <select class="form-select" id="<?=$prefix?>_id_embalagem_condicoes" name="<?=$prefix?>_id_embalagem_condicoes"></select>
