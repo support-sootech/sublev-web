@@ -223,7 +223,7 @@ if (isset($_SESSION['usuario']['endpoints'][returnPage()])) {
                             <div class="col">
                                 <div class="form-group">
                                     <label for="<?=$prefix?>_preco">Preço</label>
-                                    <input type="text" class="form-control moeda_real requered" id="<?=$prefix?>_preco" name="<?=$prefix?>_preco" maxlength="10" placeholder="Ex.: 3,00">
+                                    <input type="text" class="form-control valor-decimal requered" id="<?=$prefix?>_preco" name="<?=$prefix?>_preco" maxlength="10" placeholder="Ex.: 3,00">
                                 </div>
                             </div>
 

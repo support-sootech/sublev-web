@@ -141,8 +141,8 @@ async function consultaViaCep(numeroCep=''){
 $(document).ready(function(){
 
     $('.somente_numeros').bind('keydown',soNums);
-    $(".moeda_real").maskMoney({symbol:'R$ ', showSymbol:true, thousands:'.', decimal:',', symbolStay: true, allowZero: true, allowEmpty: true});
-	$(".valor-decimal").maskMoney({thousands:'.', decimal:',', allowZero: true, allowEmpty: true});
+    //$(".moeda_real").maskMoney({symbol:'R$ ', showSymbol:true, thousands:'.', decimal:',', symbolStay: true, allowZero: true, allowEmpty: true});
+	//$(".valor-decimal").maskMoney({thousands:'.', decimal:',', allowZero: true, allowEmpty: true});
 
     //MASCARAS
     $("#date").mask("99/99/9999",{completed:function(){alert("completed!");}});
@@ -180,7 +180,8 @@ $(document).ready(function(){
     $(".mask-cep").mask("99999-999");
     $(".mask-cartao").mask("9999.9999.9999.9999");
     $(".mask-venc-cartao").mask("99/9999");
-        $(".mask-venc-cartao-1").mask("99/99");
+    $(".mask-venc-cartao-1").mask("99/99");
+    $('.valor-decimal').mask('#.##0,00', {reverse: true});
 
     $(".mask-cnpj").mask("99.999.999/9999-99");
     $(".mask-cpf").mask("999.999.999-99");

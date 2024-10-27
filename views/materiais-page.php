@@ -220,7 +220,7 @@ if (isset($_SESSION['usuario']['endpoints'][returnPage()])) {
                             <div class="col-sm-12 col-md-12	col-lg-3 col-xl-3 col-xxl-3">
                                 <div class="form-group">
                                     <label for="<?=$prefix?>_peso">Peso</label>
-                                    <input type="text" class="form-control valor-decimal requered" id="<?=$prefix?>_peso" name="<?=$prefix?>_peso" maxlength="10" placeholder="Ex.: 3,00">
+                                    <input type="text" class="form-control valor-decimal requered" autocomplete="off" id="<?=$prefix?>_peso" name="<?=$prefix?>_peso" maxlength="10" placeholder="Ex.: 3,00">
                                 </div>
                             </div>
 
@@ -234,7 +234,7 @@ if (isset($_SESSION['usuario']['endpoints'][returnPage()])) {
                             <!-- <div class="col">
                                 <div class="form-group">
                                     <label for="<?=$prefix?>_preco">Preço</label>
-                                    <input type="text" class="form-control moeda_real requered" id="<?=$prefix?>_preco" name="<?=$prefix?>_preco" maxlength="10" placeholder="Ex.: 3,00">
+                                    <input type="text" class="form-control valor-decimal requered" id="<?=$prefix?>_preco" name="<?=$prefix?>_preco" maxlength="10" placeholder="Ex.: 3,00">
                                 </div>
                             </div> -->
 
