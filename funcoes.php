@@ -1,7 +1,9 @@
 <?php
 function site_url(){
 
-	if(!empty($_SERVER["HTTPS"])){
+	if ($_SERVER['SERVER_NAME']=='localhost') {
+		return 'http://'.$_SERVER['HTTP_HOST'];
+	} else if(!empty($_SERVER["HTTPS"])){
 		if($_SERVER["HTTPS"]!=="off"){
 	    	return 'https://'.$_SERVER['SERVER_NAME'];
 		}
