@@ -1,5 +1,6 @@
 <?php
 require_once('header.php');
+
 $titulo = 'Fracionar Material';
 $prefix='auto-fracionamento';
 $arr_permissoes = array();
@@ -35,24 +36,29 @@ if (isset($_SESSION['usuario']['endpoints'][returnPage()])) {
                 <h1 class="h3 mb-2 text-gray-800"><?=$titulo?></h1>
 
                 <!-- DataTales Example -->
-                <div class="card shadow mb-4">
-                    <div class="card-header py-3">
-                        <div class="row">
-                            <div class="col text-left" id="div_btn_voltar">
-                                
-                            </div>
-                        </div>
-                        <div class="row">
-                            <div class="col text-center">
-                                <h6 class="m-0 font-weight-bold text-primary" id="div_titulo_auto_fracionamento">Passe o Material no Leitor</h6>
-                            </div>
-                        </div>
+                <div class="card text-center" >
+                    <div class="card-header">
+                        <h6 class="m-0 font-weight-bold text-primary" id="div_titulo_auto_fracionamento">Passe o Material no Leitor</h6>
                     </div>
-                    <div class="card-body" >
-                        <div class="row" id="material" class="col-2">
-                            <input type="text" class="form-control" aria-label="Large" id="cod_barras_material" aria-describedby="inputGroup-sizing-sm">
-                        </div>
+                    <div class="card-body">
+                        
+                        <h5 class="card-title">Código de Barras</h5> 
+                        <p class="card-text"><input type="text" class="form-control" aria-label="Large" id="cod_barras_material" aria-describedby="inputGroup-sizing-sm"></p>
+                        
                     </div>
+                    <div class="card-body" id="div_dt_vencimento">
+                        
+                        <h5 class="card-title">Data de Vencimento</h5> 
+                        <p class="card-text"><input type="text" class="form-control mask-data requered" maxlength="10" placeholder="Ex.: 99/99/9999" cursor-center class="form-control" aria-label="Large" id="dt_vencimento_material" aria-describedby="inputGroup-sizing-sm"></p>
+
+                        <a class="btn btn-success" rel="btn-fracionar-material">Fracionar</a>
+                        
+                    </div>
+                    <div class="card-body" id="div_material">
+
+                    </div>
+                    
+                    
                 </div>
 
             </div>
@@ -73,40 +79,113 @@ if (isset($_SESSION['usuario']['endpoints'][returnPage()])) {
     </div>
     <!-- End of Page Wrapper -->
 
-    <!-- Scroll to Top Button-->
-    <a class="scroll-to-top rounded" href="#page-top">
-        <i class="fas fa-angle-up"></i>
-    </a>
-
-    <!-- Logout Modal-->
-    <div class="modal fade" id="modal-fracionamento" tabindex="-1" role="dialog" aria-labelledby="modalFracionamento" aria-hidden="true">
-        <div class="modal-dialog modal-sm" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="modalFracionamento"></h5>
-                    <button class="close" type="button" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">×</span>
-                    </button>
-                </div>
-                <div class="modal-body">
-                    <form name="form-fracionamento" class="formValidate">
-                        <input type="hidden" class="" id="id_materiais" name="id_materiais" value="">
-                        <input type="hidden" class="" id="peso" name="peso" value="">
-                        <div id="fracao-campos"></div>
-                    </form>
-                </div>
-                <div class="modal-footer">
-                    <button class="btn btn-secondary" type="button" data-dismiss="modal">
-                        <i class="fa fa-xmark"></i> Fechar
-                    </button>
-                    <a class="btn btn-primary" href="#" rel="btn-fracao-salvar">
-                        <i class="fa fa-save"></i> Salvar
-                    </a>
-                </div>
-            </div>
-        </div>
-    </div>
-
 <?php
 require_once('footer.php');
 ?>
+<script>
+    function validaData (valor) {
+        // Verifica se a entrada é uma string
+        if (typeof valor !== 'string') {
+            return false
+        }
+
+        // Verifica formado da data
+        if (!/^\d{2}\/\d{2}\/\d{4}$/.test(valor)) {
+            return false
+        }
+
+        // Divide a data para o objeto "data"
+        const partesData = valor.split('/')
+        const data = { 
+            dia: partesData[0], 
+            mes: partesData[1], 
+            ano: partesData[2] 
+        }
+        
+        // Converte strings em número
+        const dia = parseInt(data.dia)
+        const mes = parseInt(data.mes)
+        const ano = parseInt(data.ano)
+        
+        // Dias de cada mês, incluindo ajuste para ano bissexto
+        const diasNoMes = [ 0, 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 ]
+
+        // Atualiza os dias do mês de fevereiro para ano bisexto
+        if (ano % 400 === 0 || ano % 4 === 0 && ano % 100 !== 0) {
+            diasNoMes[2] = 29
+        }
+        
+        // Regras de validação:
+        // Mês deve estar entre 1 e 12, e o dia deve ser maior que zero
+        if (mes < 1 || mes > 12 || dia < 1) {
+            return false
+        }
+        // Valida número de dias do mês
+        else if (dia > diasNoMes[mes]) {
+            return false
+        }
+        
+        // Passou nas validações
+        return true
+    }
+
+    $(document).ready(function(){
+        $("#div_dt_vencimento").hide();
+        
+        $( "#cod_barras_material" ).on( "blur", function() {
+            //e.preventDefault();
+            const cod_barras = $('input[id=cod_barras_material]').val();
+            id_material = '';
+            if (cod_barras) {
+                $.ajax({
+                    url:'/buscar-material-cod-barras',
+                    type:'post',
+                    dataType:'json',
+                    data:{'cod_barras':cod_barras},
+                    success:function(data){
+                        console.log(data);
+                        
+                        if (data.id_materiais) {
+                            gerarAlerta('Informe a Data de Vencimento do Material', 'Alerta', 'alert');
+                            $("#div_dt_vencimento").show();
+                            $("#div_material").html("<input type='hidden' id='id_material' value='"+data.id_materiais+"'/>");
+                           
+                        }else{
+                            $("#div_dt_vencimento").hide();
+                            gerarAlerta('Material não encontrado!', 'Alerta', 'danger');
+                        }
+                        
+                    },
+                    beforeSend:function(){
+                        preloaderStart();
+                    },
+                    error:function(a,b,c){
+                        preloaderStop();
+                        gerarAlerta(a, 'Aviso', 'danger');
+                        console.error('a',a);
+                        console.error('b',b);
+                        console.error('c',c);
+                    },
+                    complete:function(){
+                        preloaderStop();
+                    }
+                });
+                
+            }else{
+                gerarAlerta('O código de barras deve ser informado','Aviso', 'danger');
+                return false;
+            }
+        }); 
+
+        $(document).on('click','a[rel=btn-fracionar-material]', function(e){
+            if (($("#dt_vencimento_material").val() != '') && (validaData($("#dt_vencimento_material").val()))){
+                window.open('https://ootech.com.br/fracionar-imprimir-material?id='+$("#id_material").val()+'&dt_venc='+$("#dt_vencimento_material").val());
+                setTimeout(() => {
+                    window.location.reload();
+                }, 4000);
+            }else{
+                gerarAlerta('Data de Vencimento Inválida!', 'Alerta', 'danger');
+            }
+        });
+    });
+</script>

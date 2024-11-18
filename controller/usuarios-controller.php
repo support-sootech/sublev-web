@@ -68,7 +68,7 @@ $app->post('/usuarios-json', function() use ($app){
     if (valida_logado()) {
         $class_usuarios = new UsuariosModel();
 
-        $id_perfil = isset($_POST['id_perfil']) && !empty($_POST['id_perfil']) ? $_POST['id_perfil'] : 1;
+        $id_perfil = isset($_POST['id_perfil']) && !empty($_POST['id_perfil']) ? $_POST['id_perfil'] : '';
         $status_usuario = isset($_POST['status']) && !empty($_POST['status']) ? $_POST['status'] : '';
         $id_empresas = isset($_POST['id_empresas']) && !empty($_POST['id_empresas']) ? $_POST['id_empresas'] : '';
         $id_setor = isset($_POST['id_setor']) && !empty($_POST['id_setor']) ? $_POST['id_setor'] : '';

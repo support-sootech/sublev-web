@@ -1,9 +1,7 @@
 <?php
 function site_url(){
 
-	if ($_SERVER['SERVER_NAME']=='localhost') {
-		return 'http://'.$_SERVER['HTTP_HOST'];
-	} else if(!empty($_SERVER["HTTPS"])){
+	if(!empty($_SERVER["HTTPS"])){
 		if($_SERVER["HTTPS"]!=="off"){
 	    	return 'https://'.$_SERVER['SERVER_NAME'];
 		}
@@ -602,25 +600,38 @@ function buscaProdutosCodigoBarras($codigo_barras = '') {
 
 }
 
-function fracionarMateriais($id_materiais, $arr_qtd_fracionada=array()) {
+function fracionarMateriais($id_materiais, $dt_vencimento_material, $arr_qtd_fracionada=array()) {
 	$data = array();
 	try {
 		$class_materiais = new MateriaisModel();
 		$class_materiais_fracionados = new MateriaisFracionadosModel();
 
-		$material = $class_materiais->loadId($id_materiais);
+		$material = $class_materiais->loadIdMaterialDtVencimento($id_materiais, $dt_vencimento_material);
+		
 		if ($material) {
 
 			try {
 				if (!$arr_qtd_fracionada || count($arr_qtd_fracionada) == 0) {
-					$arr_qtd_fracionada[] = $material['peso'];
+					$arr_qtd_fracionada[] = 1;
 				}
-	
+				
+				$data_fracionamento = date("Y-m-d");
+				$dt_vencimento = dt_banco($material['dt_vencimento']);
+
+				$data_vencimento_aberto = somar_dias($data_fracionamento,$material['dias_vencimento_aberto']);
+				
+				if (strtotime($data_vencimento_aberto) > strtotime($material['dt_vencimento']))
+					$data_vencimento_aberto = $dt_vencimento;
+				
+				$data_fracionamento = dt_br($data_fracionamento);
+				$data_vencimento_aberto = dt_br($data_vencimento_aberto);
+				
 				foreach ($arr_qtd_fracionada as $key => $value) {
 					
 					$arr_materiais_fracionado = array(
 						'qtd_fracionada'=>$value,
-						'dt_vencimento'=>($material['dt_vencimento_aberto']),
+						'dt_vencimento'=>$data_vencimento_aberto,
+						'dt_fracionamento'=>$data_fracionamento,
 						'status'=>'A',
 						'motivo_descarte'=>'',
 						'id_materiais'=>$material['id_materiais'],
@@ -632,8 +643,14 @@ function fracionarMateriais($id_materiais, $arr_qtd_fracionada=array()) {
 					$add = $class_materiais_fracionados->add($arr_materiais_fracionado);
 				}
 				
-				$material['quantidade'] -= 1;
-				
+				if ($material['quantidade'] > 0){
+					try {
+						$material['quantidade'] -= 1;
+					} catch (Exception $e) {
+						$data = array('error'=>true, 'type'=>'danger', 'msg'=>'Material sem quantidade no estoque!');
+					}			
+				}
+					
 				$edit_material = $class_materiais->edit(
 					$material,
 					array('id_materiais'=>$material['id_materiais'])
@@ -646,7 +663,7 @@ function fracionarMateriais($id_materiais, $arr_qtd_fracionada=array()) {
 					'edit_material'=>$edit_material
 				);
 			} catch (Exception $e) {
-				$data = array('error'=>true, 'type'=>'danger', 'msg'=>$e->getMessage());
+				$data = array('error'=>true, 'type'=>'danger', 'msg'=>'1');
 			}			
 
 		} else {
@@ -655,7 +672,7 @@ function fracionarMateriais($id_materiais, $arr_qtd_fracionada=array()) {
 		
 
 	} catch (Exception $e) {
-		$data = array('error'=>true, 'type'=>'danger', 'msg'=>$e->getMessage());
+		$data = array('error'=>true, 'type'=>'danger', 'msg'=>'3');
 	}
 
 	return $data;

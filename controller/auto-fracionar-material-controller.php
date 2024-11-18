@@ -1,4 +1,12 @@
 <?php
+use Endroid\QrCode\Builder\Builder;
+use Endroid\QrCode\Encoding\Encoding;
+use Endroid\QrCode\ErrorCorrectionLevel;
+use Endroid\QrCode\Label\LabelAlignment;
+use Endroid\QrCode\Label\Font\NotoSans;
+use Endroid\QrCode\RoundBlockSizeMode;
+use Endroid\QrCode\Writer\PngWriter;
+
 $app->get('/auto-fracionar-material', function() use ($app){
     if (valida_logado(true)) {
         $app->render('/auto-fracionar-material-page.php');
@@ -32,21 +40,26 @@ $app->post('/buscar-material-cod-barras', function() use ($app){
 
 $app->get('/fracionar-imprimir-material', function() use ($app){
 
+
     $response = $app->response();
 	$response['Access-Control-Allow-Origin'] = '*';
 	$response['Access-Control-Allow-Methods'] = 'GET';
 	$response['Content-Type'] = 'application/pdf';
     $id_materiais = $_GET['id'];
+    $dt_vencimento_material = $_GET['dt_venc'];
 
-    $url = "https://ootech.com.br";
-    $qr = '<barcode code="'.$url.'" type="QR" class="barcode" size="0.8" error="M" disableborder="1" />';
-
+    /*$qrCode = new QrCode('https://ootech.com.br/');  
+    $qrCode->setSize(100);
+    $qrCode->setWriterByName('png');
+    echo '<img src="'.$qrCode->writeDataUri().'">';*/
+    
+   
     $data = array();
 
     if (!empty($id_materiais)) {
         
         $arr_qtd_fracionada = array();
-        $data = fracionarMateriais($id_materiais,$arr_qtd_fracionada);
+        $data = fracionarMateriais($id_materiais, $dt_vencimento_material, $arr_qtd_fracionada);
         $status = isset($data['success']) ? 200 : 400;
         
     } else {
@@ -58,25 +71,57 @@ $app->get('/fracionar-imprimir-material', function() use ($app){
     if ($arr) {
         $data = $arr;
     }
-    
-    $html  = "<table align='center' style='page-break-inside:avoid; alignpadding: 0mm; width: 100mm;height: 30mm;border: 0.5mm solid black;'>";
-    $html .= "<tr><td><h5>Material: ".$data['descricao']."</h5></td></tr>";
-    $html .= "<tr><td><h5>Marca: ".$data['marca']."</h5></td></tr>";
-    $html .= "<tr><td><h5>Data de Manipulação: ".$data['dt_fracionamento']."</h5></td></tr>";
-    $html .= "<tr><td><h5>Data de Vencimento: ".$data['dt_vencimento']."</h5></td></tr>";
-    $html .= "<tr><td><h5>Data de Venc. após aberto: ".$data['dt_vencimento_aberto']."</h5></td></tr>";
-    $html .= "<tr><td><h5>Manipulado por: Victor Carvalho</h5></td></tr></table>";
 
+    try {
+        
+        $class_etiquetas = new EtiquetasModel();
+        $data_etiqueta = array();
+        $id_etiquetas = '';
+        $data_etiqueta['id_etiquetas'] = '';
+        $data_etiqueta['descricao'] = 'Etiqueta '.$arr['descricao'].' - '.dt_br(date("Ymd"));
+        $data_etiqueta['codigo'] = $arr['cod_barras'];
+        $data_etiqueta['id_materiais_fracionados'] = $arr['id_materiais_fracionados'];
+        $data_etiqueta['id_materiais'] = $arr['id_materiais'];
+        $data_etiqueta['status'] = 'A';
+        $status_data_etiqueta = $class_etiquetas->add($data_etiqueta);
+        
+        if ($status_data_etiqueta) {
+            $status = 200;
+            $retorno = array(
+                'success'=>true, 
+                'type'=>'success', 
+                'msg'=>messagesDefault(!empty($id_etiquetas) ? 'update' : 'register'),
+                'data'=>$status_data_etiqueta
+            );
+        } else {
+            $retorno = array('success'=>false, 'type'=>'danger', 'msg'=>$data);    
+        }   
+    } catch (Exception $e) {
+        $retorno = array('success'=>false, 'type'=>'danger', 'msg'=>$e->getMessage());
+    }
+    
+    $client = new GuzzleHttp\Client();
+    $res = $client->request('GET', 'https://arodevsistemas.com.br/qrcode3/'.$status_data_etiqueta);
+    $data_qrcode = json_decode($res->getBody(), true);
+
+    $html  = "<table align='center' style='page-break-inside:avoid; alignpadding: 0mm; width: 100mm;height: 50mm;border: 0.5mm solid black;'>";
+    $html .= "<tr><td><h4>Material: ".$data['descricao']."</h4><br>";
+    $html .= "<h4>Marca: ".$data['marca']."</h4><br>";
+    $html .= "<h4>Data de Manipulação: ".$data['dt_fracionamento']."</h4><br>";
+    $html .= "<h4>Data de Vencimento: ".$data['dt_vencimento']."</h4><br>";
+    $html .= "<h4>Manipulado por: Victor Carvalho</h4></td><br>";
+    $html .= "<td><img height='140' width='140' src='".$data_qrcode['img']."'></td></tr></table>";
+    
     $mpdf = new \Mpdf\Mpdf(
         [
             'mode' => 'utf-8', 
             'format' => [100, 50],
             'margin_left' => 3,
             'margin_right' => 3,
-            'margin_top' => 3,
-            'margin_bottom' => 3,
-            'margin_header' => 3,
-            'margin_footer' => 3
+            'margin_top' => 5,
+            'margin_bottom' => 5,
+            'margin_header' => 5,
+            'margin_footer' => 5
 
         ]
     );

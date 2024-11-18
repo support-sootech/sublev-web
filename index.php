@@ -2,7 +2,6 @@
 session_start();
 ini_set('display_errors', 'On');
 ini_set('memory_limit', '256M');
-error_reporting(E_ALL ^ E_DEPRECATED);
 require_once("vendor/autoload.php");
 require_once("config.php");
 require_once("funcoes.php");
@@ -81,6 +80,7 @@ include_once('controller/materiais-fracionados-log-controller.php');
 include_once('controller/embalagem-condicoes-controller.php');
 include_once('controller/modo-conservacao-controller.php');
 include_once('controller/relatorios-controller.php');
+include_once('controller/etiqueta-detalhes-controller.php');
 
 
 $app->run();

@@ -47,7 +47,7 @@ class MateriaisModel extends Connection {
         if (count($arr) > 0) {
             foreach ($this->fields as $key => $value) {
                 $this->newModel[$key] = $value;
-                $this->newModel[$key]['value'] = (isset($arr[$key]) && !empty($arr[$key]) ? $arr[$key] : null);
+                $this->newModel[$key]['value'] = (isset($arr[$key]) && (!empty($arr[$key]) || $arr[$key]==0) ? $arr[$key] : null);
             }
         }
     }
