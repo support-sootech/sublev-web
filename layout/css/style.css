@@ -12,7 +12,7 @@
 
 @media (min-width: 768px) {
     .sidebar {
-        width: 22rem !important;
+        width: 18rem !important;
     }
 
     .sidebar .nav-item .nav-link {
