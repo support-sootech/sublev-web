@@ -41,29 +41,43 @@ if (isset($_SESSION['usuario']['endpoints'][returnPage()])) {
                         <h6 class="m-0 font-weight-bold text-primary" id="div_titulo_auto_fracionamento">Passe o Material no Leitor</h6>
                     </div>
                     <div class="card-body">
-                        
-                        <h5 class="card-title">Código de Barras</h5> 
-                        <p class="card-text"><input type="text" class="form-control" aria-label="Large" id="cod_barras_material" aria-describedby="inputGroup-sizing-sm"></p>
-                        
-                    </div>
-                    <div class="card-body" id="div_dt_vencimento">
-                        
-                        <h5 class="card-title">Data de Vencimento</h5> 
-                        <p class="card-text"><input type="text" class="form-control mask-data requered" maxlength="10" placeholder="Ex.: 99/99/9999" cursor-center class="form-control" aria-label="Large" id="dt_vencimento_material" aria-describedby="inputGroup-sizing-sm"></p>
 
-                        <a class="btn btn-success" rel="btn-fracionar-material">Fracionar</a>
+                        <div class="row">
+                            
+                            <?php if(isset($arr_computadores) && count($arr_computadores) > 0):?>
+                                
+                                <?php if(count($arr_computadores) > 1):?>
+                                    <div class="col-sm-12 col-md-12 col-lg-4 col-xl-4 col-xxl-4">
+                                        <h5 class="card-title">Impressoras</h5> 
+                                        <select class="form-select" id="arr_computadores" name="arr_computadores">
+                                            <?php foreach ($arr_computadores as $key => $value):?>
+                                                <option value="<?=$value['chave']?>"><?=$value['descricao']?></option>
+                                            <?php endforeach;?>
+                                        </select>
+                                    </div>
+                                <?php else:?>
+                                    <div class="col-lg-4 col-xl-4 col-xxl-4">
+                                        <input type="hidden" class="form-control" id="arr_computadores" name="arr_computadores" value="<?=$arr_computadores[0]['chave']?>">
+                                    </div>                                        
+                                <?php endif;?>
+                                
+                            <?php else:?>
+                                <div class="col-lg-4 col-xl-4 col-xxl-4"></div>
+                            <?php endif;?>
+                            <div class="col-sm-12 col-md-12 col-lg-4 col-xl-4 col-xxl-4">
+                                <h5 class="card-title">Código de Barras</h5> 
+                                <input type="text" class="form-control text-center" aria-label="Large" id="cod_barras_material" aria-describedby="inputGroup-sizing-sm">
+                            </div>
+                            <div class="col-lg-4 col-xl-4 col-xxl-4"></div>
+                        </div>
+                        <br>
+                        <hr>
+                        <div class="row" id="div_material"></div>
                         
                     </div>
-                    <div class="card-body" id="div_material">
-
-                    </div>
-                    
-                    
                 </div>
-
             </div>
             <!-- /.container-fluid -->
-
         </div>
         <!-- End of Main Content -->
 
@@ -129,8 +143,28 @@ require_once('footer.php');
         return true
     }
 
-    $(document).ready(function(){
-        $("#div_dt_vencimento").hide();
+    function card_materiais(material){
+        let html = '<div class="col-xl-3 col-md-6 mb-4">';
+                html+= '<a href="#" data-material="'+material.id_materiais+'" data-vencimento="'+material.dt_vencimento+'" rel="btn-fracionar-material" style="text-decoration: none;">';
+                    html+= '<div class="card border-left-'+material.color_dt_vencimento+' shadow h-100 py-2">';
+                        html+= '<div class="card-body">';
+                            html+= '<div class="row no-gutters align-items-center">';
+                                html+= '<div class="col mr-2">';
+                                    html+= '<div class="h6 font-weight-bold text-uppercase mb-1">'+material.descricao+'</div>';
+                                    html+= '<div class="text-xs font-weight-bold text-uppercase mb-1">Vencimento: '+material.dt_vencimento+'</div>';
+                                    if (material.marca != '') {
+                                        html+= '<div class="text-xs font-weight-bold text-uppercase mb-1">'+material.marca+'</div>';
+                                    }
+                                html+= '</div>';
+                            html+= '</div>';
+                        html+= '</div>';
+                    html+= '</div>';
+                html+= '</a>';
+            html+= '</div>';
+        return html;
+    }
+
+    $(document).ready(function(){        
         
         $( "#cod_barras_material" ).on( "blur", function() {
             //e.preventDefault();
@@ -143,16 +177,15 @@ require_once('footer.php');
                     dataType:'json',
                     data:{'cod_barras':cod_barras},
                     success:function(data){
-                        console.log(data);
-                        
-                        if (data.id_materiais) {
-                            gerarAlerta('Informe a Data de Vencimento do Material', 'Alerta', 'alert');
-                            $("#div_dt_vencimento").show();
-                            $("#div_material").html("<input type='hidden' id='id_material' value='"+data.id_materiais+"'/>");
-                           
-                        }else{
-                            $("#div_dt_vencimento").hide();
-                            gerarAlerta('Material não encontrado!', 'Alerta', 'danger');
+                        if (data.length > 0) {
+                            let arr_materiais = '';
+                            $.each(data, function (i, v) { 
+                                arr_materiais+= card_materiais(v);
+                            });
+
+                            $("#div_material").html(arr_materiais);
+                        } else {
+                            gerarAlerta('Nenhum material não encontrado!', 'Alerta', 'danger');
                         }
                         
                     },
@@ -177,14 +210,54 @@ require_once('footer.php');
             }
         }); 
 
+        function imprimir(etiqueta, computador) {
+            $.ajax({
+                url:'http://localhost:3000/imprimir',
+                type:'post',
+                dataType:'json',
+                processData: false,
+                contentType: 'application/json',
+                data: JSON.stringify({
+                    computador:computador,
+                    etiqueta:etiqueta
+                }),
+                success:function(data){
+                    console.log('IMPRIMIR', data);
+                    if (data.success) {
+                        gerarAlerta('Etiqueta impressa com sucesso', 'Aviso', 'success');
+                    } else {
+                        gerarAlerta(data.msg, 'Aviso', data.type);
+                    }
+                },
+                beforeSend: () => {
+                    preloaderStart();
+                },
+                complete:()=>{
+                    preloaderStop();
+                },
+                error:(a,b,c)=>{
+                    console.log('ERROR A', a);
+                    console.log('ERROR B', b);
+                    console.log('ERROR C', c);
+                }
+            });
+        }
+
         $(document).on('click','a[rel=btn-fracionar-material]', function(e){
-            if (($("#dt_vencimento_material").val() != '') && (validaData($("#dt_vencimento_material").val()))){
-                window.open('https://ootech.com.br/fracionar-imprimir-material?id='+$("#id_material").val()+'&dt_venc='+$("#dt_vencimento_material").val());
+            e.preventDefault();
+            const id_materiais = $(this).attr('data-material');
+            const dt_vencimento = $(this).attr('data-vencimento');
+            const computador = $('#arr_computadores').val();
+            const etiqueta = 'https://ootech.com.br/fracionar-imprimir-material?id='+id_materiais+'&dt_venc='+dt_vencimento+'';
+
+            if (computador!='') {
+                console.log('imprimir');
+                imprimir(etiqueta, computador);
+            } else {
+                window.open(etiqueta);
                 setTimeout(() => {
                     window.location.reload();
                 }, 4000);
-            }else{
-                gerarAlerta('Data de Vencimento Inválida!', 'Alerta', 'danger');
             }
         });
     });

@@ -266,16 +266,28 @@ class MateriaisModel extends Connection {
 
             $sql = "select p.*, 
                            ifnull(mm.descricao, '') as marca,
-                           ifnull(um.descricao, '') as ds_unidade_medida
+                           ifnull(um.descricao, '') as ds_unidade_medida,
+                           (case when datediff(p.dt_vencimento, current_date()) <= 1 then 'danger'
+                                when datediff(p.dt_vencimento, current_date()) > 1 and datediff(p.dt_vencimento, current_date()) < 5 then 'primary'
+                                else 'success'
+                            end) as color_dt_vencimento
                       from ".self::TABLE." p
                       left join tb_materiais_marcas mm on mm.id_materiais_marcas = p.id_materiais_marcas
                       left join tb_unidades_medidas um on um.id_unidades_medidas = p.id_unidades_medidas
                      where p.cod_barras = :COD_BARRAS
-                     ".$and."";
+                     ".$and."
+                     order by p.dt_vencimento";
             
             $res = $this->conn->select($sql, $arr);
             
-            return isset($res[0]) ? $res[0] : false;
+            $arr = false;
+            if (isset($res[0])) {
+                foreach ($res as $key => $value) {
+                    $arr[] = $this->getFieldsView($value);
+                }
+            }
+
+            return $arr;
             
         } catch (Exception $e) {
             return $e->getMessage();
