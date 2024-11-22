@@ -7,6 +7,7 @@ $arr_permissoes = array();
 if (isset($_SESSION['usuario']['endpoints'][returnPage()])) {
     $arr_permissoes = $_SESSION['usuario']['endpoints'][returnPage()];
 }
+
 ?>
 <!-- Page Wrapper -->
 <div id="wrapper">
@@ -213,7 +214,7 @@ require_once('footer.php');
 
         function imprimir(etiqueta, computador) {
             $.ajax({
-                url:'http://localhost:3000/imprimir',
+                url:'http://92.112.177.153:3000/imprimir',
                 type:'post',
                 dataType:'json',
                 processData: false,
