@@ -44,11 +44,6 @@ $app->post('/buscar-material-cod-barras', function() use ($app){
 
 $app->get('/fracionar-imprimir-material', function() use ($app){
 
-
-    $response = $app->response();
-	$response['Access-Control-Allow-Origin'] = '*';
-	$response['Access-Control-Allow-Methods'] = 'GET';
-	$response['Content-Type'] = 'application/pdf';
     $id_materiais = $_GET['id'];
     $dt_vencimento_material = $_GET['dt_venc'];
 
@@ -104,35 +99,49 @@ $app->get('/fracionar-imprimir-material', function() use ($app){
         $retorno = array('success'=>false, 'type'=>'danger', 'msg'=>$e->getMessage());
     }
     
-    $client = new GuzzleHttp\Client();
-    $res = $client->request('GET', 'https://arodevsistemas.com.br/qrcode3/'.$status_data_etiqueta);
-    $data_qrcode = json_decode($res->getBody(), true);
-
-    $html  = "<table align='center' style='page-break-inside:avoid; alignpadding: 0mm; width: 100mm;height: 50mm;border: 0.5mm solid black;'>";
-    $html .= "<tr><td><h4>Material: ".$data['descricao']."</h4><br>";
-    $html .= "<h4>Marca: ".$data['marca']."</h4><br>";
-    $html .= "<h4>Data de Manipulação: ".$data['dt_fracionamento']."</h4><br>";
-    $html .= "<h4>Data de Vencimento: ".$data['dt_vencimento']."</h4><br>";
-    $html .= "<h4>Manipulado por: Victor Carvalho</h4></td><br>";
-    $html .= "<td><img height='140' width='140' src='".$data_qrcode['img']."'></td></tr></table>";
+    if ($status_data_etiqueta) {
+        $client = new GuzzleHttp\Client();
+        $res = $client->request('GET', 'https://arodevsistemas.com.br/qrcode3/'.$status_data_etiqueta);
+        $data_qrcode = json_decode($res->getBody(), true);
     
-    $mpdf = new \Mpdf\Mpdf(
-        [
-            'mode' => 'utf-8', 
-            'format' => [100, 50],
-            'margin_left' => 3,
-            'margin_right' => 3,
-            'margin_top' => 5,
-            'margin_bottom' => 5,
-            'margin_header' => 5,
-            'margin_footer' => 5
+        $html  = "<table align='center' style='page-break-inside:avoid; alignpadding: 0mm; width: 100mm;height: 50mm;border: 0.5mm solid black;'>";
+        $html .= "<tr><td><h4>Material: ".$data['descricao']."</h4><br>";
+        $html .= "<h4>Marca: ".$data['marca']."</h4><br>";
+        $html .= "<h4>Data de Manipulação: ".$data['dt_fracionamento']."</h4><br>";
+        $html .= "<h4>Data de Vencimento: ".$data['dt_vencimento']."</h4><br>";
+        $html .= "<h4>Manipulado por: Victor Carvalho</h4></td><br>";
+        $html .= "<td><img height='140' width='140' src='".$data_qrcode['img']."'></td></tr></table>";
+        
+        $mpdf = new \Mpdf\Mpdf(
+            [
+                'mode' => 'utf-8', 
+                'format' => [100, 50],
+                'margin_left' => 3,
+                'margin_right' => 3,
+                'margin_top' => 5,
+                'margin_bottom' => 5,
+                'margin_header' => 5,
+                'margin_footer' => 5
+    
+            ]
+        );
 
-        ]
-    );
-
-    $mpdf->WriteHTML($html);
-    $mpdf->Output();
-
+        $response = $app->response();
+        $response['Access-Control-Allow-Origin'] = '*';
+        $response['Access-Control-Allow-Methods'] = 'GET';
+        $response['Content-Type'] = 'application/pdf';
+    
+        $mpdf->WriteHTML($html);
+        $mpdf->Output();
+    } else {
+        $response = $app->response();
+        $response['Access-Control-Allow-Origin'] = '*';
+        $response['Access-Control-Allow-Methods'] = 'GET';
+        $response['Content-Type'] = 'application/json';
+        
+        $response->status(400);
+        $response->body(json_encode($retorno));
+    }
 });
 
 ?>

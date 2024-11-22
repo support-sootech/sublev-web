@@ -44,7 +44,7 @@ if (isset($_SESSION['usuario']['endpoints'][returnPage()])) {
 
                         <div class="row">
                             
-                            <?php if(isset($arr_computadores) && count($arr_computadores) > 0):?>
+                            <?php if($arr_computadores && isset($arr_computadores) && count($arr_computadores) > 0):?>
                                 
                                 <?php if(count($arr_computadores) > 1):?>
                                     <div class="col-sm-12 col-md-12 col-lg-4 col-xl-4 col-xxl-4">
@@ -171,6 +171,7 @@ require_once('footer.php');
             const cod_barras = $('input[id=cod_barras_material]').val();
             id_material = '';
             if (cod_barras) {
+                $("#div_material").html('');
                 $.ajax({
                     url:'/buscar-material-cod-barras',
                     type:'post',
@@ -248,9 +249,10 @@ require_once('footer.php');
             const id_materiais = $(this).attr('data-material');
             const dt_vencimento = $(this).attr('data-vencimento');
             const computador = $('#arr_computadores').val();
+            console.log('computador', computador);
             const etiqueta = 'https://ootech.com.br/fracionar-imprimir-material?id='+id_materiais+'&dt_venc='+dt_vencimento+'';
 
-            if (computador!='') {
+            if (computador) {
                 console.log('imprimir');
                 imprimir(etiqueta, computador);
             } else {
