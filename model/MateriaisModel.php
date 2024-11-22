@@ -275,6 +275,7 @@ class MateriaisModel extends Connection {
                       left join tb_materiais_marcas mm on mm.id_materiais_marcas = p.id_materiais_marcas
                       left join tb_unidades_medidas um on um.id_unidades_medidas = p.id_unidades_medidas
                      where p.cod_barras = :COD_BARRAS
+                       and p.quantidade >= 1
                      ".$and."
                      order by p.dt_vencimento";
             
