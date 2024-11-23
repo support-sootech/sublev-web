@@ -233,7 +233,7 @@ class MateriaisModel extends Connection {
                       from ".self::TABLE." p
                       left join tb_materiais_marcas mm on mm.id_materiais_marcas = p.id_materiais_marcas
                       left join tb_unidades_medidas um on um.id_unidades_medidas = p.id_unidades_medidas
-                      inner join tb_materiais_fracionados mf on mf.id_materiais = p.id_materiais
+                      left join tb_materiais_fracionados mf on mf.id_materiais = p.id_materiais
                      where p.id_materiais = :ID
                      ".$and."";
             

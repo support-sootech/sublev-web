@@ -197,9 +197,9 @@ require_once('footer.php');
                     error:function(a,b,c){
                         preloaderStop();
                         gerarAlerta(a, 'Aviso', 'danger');
-                        console.error('a',a);
-                        console.error('b',b);
-                        console.error('c',c);
+                        console.log('a',a);
+                        console.log('b',b);
+                        console.log('c',c);
                     },
                     complete:function(){
                         preloaderStop();
@@ -250,18 +250,45 @@ require_once('footer.php');
             const id_materiais = $(this).attr('data-material');
             const dt_vencimento = $(this).attr('data-vencimento');
             const computador = $('#arr_computadores').val();
-            console.log('computador', computador);
-            const etiqueta = 'https://ootech.com.br/fracionar-imprimir-material?id='+id_materiais+'&dt_venc='+dt_vencimento+'';
+            const etiqueta = '<?=site_url()?>/fracionar-imprimir-material?id='+id_materiais+'&dt_venc='+dt_vencimento+'';
+            //const etiqueta = 'http://<?=siteHost()?>/fracionar-imprimir-material/'+id_materiais+'';
+            
+            $.ajax({
+                url:'/auto-fracionar-material',
+                type:'post',
+                dataType:'json',                
+                data: {
+                    id_materiais:id_materiais,
+                    dt_vencimento:dt_vencimento
+                },
+                success:function(data){
+                    gerarAlerta(data.msg, 'Aviso', data.type);
+                    if (data.success) {
+                        $("#div_material").html('');
+                        $('input[id=cod_barras_material]').val('');
 
-            if (computador) {
-                console.log('imprimir');
-                imprimir(etiqueta, computador);
-            } else {
-                window.open(etiqueta);
-                setTimeout(() => {
-                    window.location.reload();
-                }, 4000);
-            }
+                        if (computador) {
+                            imprimir(etiqueta, computador);
+                        } else {
+                            window.open(etiqueta);
+                            setTimeout(() => {
+                                window.location.reload();
+                            }, 4000);
+                        }
+                    }
+                },
+                beforeSend: () => {
+                    preloaderStart();
+                },
+                complete:()=>{
+                    preloaderStop();
+                },
+                error:(a,b,c)=>{
+                    console.log('ERROR A', a);
+                    console.log('ERROR B', b);
+                    console.log('ERROR C', c);
+                }
+            });
         });
     });
 </script>
