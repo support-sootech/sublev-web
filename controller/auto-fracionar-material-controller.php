@@ -95,7 +95,7 @@ $app->get('/fracionar-imprimir-material/:id_materiais', function($id_materiais='
             $arr_etiqueta['id_materiais_fracionados'] = $data['id_materiais_fracionados'];
             $arr_etiqueta['id_materiais'] = $data['id_materiais'];
             $arr_etiqueta['status'] = 'A';
-            $arr_etiqueta['id_usuarios'] = $_SESSION['usuario']['id_usuarios'];
+            //$arr_etiqueta['id_usuarios'] = $_SESSION['usuario']['id_usuarios'];
             $data_etiqueta = $class_etiquetas->add($arr_etiqueta);
 
             if ($data_etiqueta) {
@@ -108,7 +108,7 @@ $app->get('/fracionar-imprimir-material/:id_materiais', function($id_materiais='
                 $html .= "<h4>Marca: ".$data['marca']."</h4><br>";
                 $html .= "<h4>Data de Manipulação: ".$data['dt_fracionamento']."</h4><br>";
                 $html .= "<h4>Data de Vencimento: ".$data['dt_vencimento']."</h4><br>";
-                $html .= "<h4>Manipulado por: ".$_SESSION['usuario']['nm_pessoa']."</h4></td><br>";
+                //$html .= "<h4>Manipulado por: ".$_SESSION['usuario']['nm_pessoa']."</h4></td><br>";
                 $html .= "<td><img height='140' width='140' src='".$data_qrcode['img']."'></td></tr></table>";
                 
                 $mpdf = new \Mpdf\Mpdf(
@@ -136,7 +136,7 @@ $app->get('/fracionar-imprimir-material/:id_materiais', function($id_materiais='
                 $response = $app->response();
                 $response['Access-Control-Allow-Origin'] = '*';
                 $response['Access-Control-Allow-Methods'] = 'GET';
-                $response['Content-Type'] = 'application/pdf';
+                $response['Content-Type'] = 'application/json';
                 
                 $response->status(400);
                 $response->body(json_encode(array('ERRO AO GERAR A ETIQUETA')));
@@ -145,7 +145,7 @@ $app->get('/fracionar-imprimir-material/:id_materiais', function($id_materiais='
             $response = $app->response();
             $response['Access-Control-Allow-Origin'] = '*';
             $response['Access-Control-Allow-Methods'] = 'GET';
-            $response['Content-Type'] = 'application/pdf';
+            $response['Content-Type'] = 'application/json';
             
             $response->status(400);
             $response->body(json_encode(array('ERRO AO GERAR A ETIQUETA ('.$e->getMessage().')')));
