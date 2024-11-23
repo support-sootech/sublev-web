@@ -682,4 +682,15 @@ function fracionarMateriais($id_materiais, $dt_vencimento_material, $arr_qtd_fra
 
 }
 
+function toUpperCase($str) {
+	
+	if (PHP_VERSION_ID < 80300) {
+		$str = strtoupper($str);
+	} else {
+		$str = mb_strtoupper($str);
+	}
+
+	return $str;
+}
+
 ?>
