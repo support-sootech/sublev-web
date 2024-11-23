@@ -100,7 +100,7 @@ $app->get('/fracionar-imprimir-material/:id_materiais', function($id_materiais='
 
             if ($data_etiqueta) {
                 $client = new GuzzleHttp\Client();
-                $res = $client->request('GET', 'https://arodevsistemas.com.br/qrcode3/'.$data_etiqueta);
+                $res = $client->request('GET', 'http://arodevsistemas.com.br/qrcode3/'.$data_etiqueta);
                 $data_qrcode = json_decode($res->getBody(), true);
             
                 $html  = "<table align='center' style='page-break-inside:avoid; alignpadding: 0mm; width: 100mm;height: 50mm;border: 0.5mm solid black;'>";
