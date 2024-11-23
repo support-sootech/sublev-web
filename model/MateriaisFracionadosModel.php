@@ -60,8 +60,9 @@ class MateriaisFracionadosModel extends Connection {
                 if (isset($value['key'])==true && $fgRemoveKey==true) {
                     unset($this->newModel[$key]);
                 }
-
-                $arr[':'.strtoupper($key).''] = !empty($value['value']) ? $value['value'] : null;
+                if (isset($key) && !empty($key)) {
+                    $arr[':'.mb_strtoupper($key).''] = !empty($value['value']) ? $value['value'] : null;
+                }
                 
 
             }
@@ -212,7 +213,7 @@ class MateriaisFracionadosModel extends Connection {
             
             $w = array();
             foreach ($where as $key => $value) {
-                $w[':'.strtoupper($key).''] = $value;
+                $w[':'.mb_strtoupper($key).''] = $value;
             }
     
             if(isset($values[':ID_MATERIAIS_FRACIONADOS'])) {
