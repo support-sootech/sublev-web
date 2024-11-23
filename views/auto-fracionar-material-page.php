@@ -228,7 +228,9 @@ require_once('footer.php');
                     if (data.success) {
                         gerarAlerta('Etiqueta impressa com sucesso', 'Aviso', 'success');
                     } else {
+                        window.open(etiqueta);
                         gerarAlerta(data.msg, 'Aviso', data.type);
+                        
                     }
                 },
                 beforeSend: () => {
