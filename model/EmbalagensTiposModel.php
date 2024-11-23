@@ -1,7 +1,7 @@
 <?php
 class EmbalagensTiposModel extends Connection {
     const TABLE = 'tb_embalagens_tipos';
-    private $conn = false;
+    private $conn;
     private $newModel = array();
 
     function __construct() {
@@ -52,7 +52,7 @@ class EmbalagensTiposModel extends Connection {
                     unset($this->newModel[$key]);
                 }
 
-                $arr[':'.mb_strtoupper($key).''] = $value['value'];
+                $arr[':'.toUpperCase($key).''] = $value['value'];
             }
         }
 
@@ -132,7 +132,7 @@ class EmbalagensTiposModel extends Connection {
             
             $w = array();
             foreach ($where as $key => $value) {
-                $w[':'.mb_strtoupper($key).''] = $value;
+                $w[':'.toUpperCase($key).''] = $value;
             }
 
             if(isset($values[':ID_EMBALAGENS_TIPOS'])) {

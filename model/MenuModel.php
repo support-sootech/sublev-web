@@ -1,7 +1,7 @@
 <?php
 class MenuModel extends Connection {
     const TABLE = 'tb_menu';
-    private $conn = false;
+    private $conn;
     private $newModel = array();
 
     function __construct() {
@@ -70,7 +70,7 @@ class MenuModel extends Connection {
                     unset($this->newModel[$key]);
                 }
 
-                $arr[':'.mb_strtoupper($key).''] = $value['value'];
+                $arr[':'.toUpperCase($key).''] = $value['value'];
             }
         }
 

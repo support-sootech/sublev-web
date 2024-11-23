@@ -92,9 +92,9 @@ class MateriaisModel extends Connection {
                 }
 
                 if ($value['type']=='integer') {
-                    $arr[':'.mb_strtoupper($key).''] = is_int($value['value']) ? $value['value'] : null;
+                    $arr[':'.toUpperCase($key).''] = is_int($value['value']) ? $value['value'] : null;
                 } else {
-                    $arr[':'.mb_strtoupper($key).''] = !empty($value['value']) ? $value['value'] : null;
+                    $arr[':'.toUpperCase($key).''] = !empty($value['value']) ? $value['value'] : null;
                 }
             }
         }
@@ -389,7 +389,7 @@ class MateriaisModel extends Connection {
         
         $w = array();
         foreach ($where as $key => $value) {
-            $w[':'.mb_strtoupper($key).''] = $value;
+            $w[':'.toUpperCase($key).''] = $value;
         }
 
         if(isset($values[':ID_MATERIAIS'])) {

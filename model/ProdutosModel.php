@@ -58,7 +58,7 @@ class ProdutosModel extends Connection {
                     $value['value'] = numberFormatBanco($value['value']);
                 }
 
-                $arr[':'.mb_strtoupper($key).''] = $value['value'];
+                $arr[':'.toUpperCase($key).''] = $value['value'];
             }
         }
 
@@ -150,7 +150,7 @@ class ProdutosModel extends Connection {
             
             $w = array();
             foreach ($where as $key => $value) {
-                $w[':'.mb_strtoupper($key).''] = $value;
+                $w[':'.toUpperCase($key).''] = $value;
             }
 
             if(isset($values[':ID_PRODUTOS'])) {

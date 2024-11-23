@@ -1,7 +1,7 @@
 <?php
 class EmpresasModel extends Connection {
     const TABLE = 'tb_empresas';
-    private $conn = false;
+    private $conn;
     private $newModel = array();
 
     function __construct() {
@@ -55,7 +55,7 @@ class EmpresasModel extends Connection {
                     unset($this->newModel[$key]);
                 }
 
-                $arr[':'.mb_strtoupper($key).''] = $value['value'];
+                $arr[':'.toUpperCase($key).''] = $value['value'];
             }
         }
 

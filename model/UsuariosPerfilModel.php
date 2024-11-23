@@ -1,7 +1,7 @@
 <?php
 class UsuariosPerfilModel extends Connection {
     const TABLE = 'tb_usuarios_perfil';
-    private $conn = false;
+    private $conn;
     private $newModel = array();
 
     function __construct() {
@@ -36,7 +36,7 @@ class UsuariosPerfilModel extends Connection {
                     throw new Exception('O campo '.$campo.' não pode ser vazio!');
                 }
 
-                $arr[':'.mb_strtoupper($key).''] = $value['value'];
+                $arr[':'.toUpperCase($key).''] = $value['value'];
             }
         }
 

@@ -97,7 +97,7 @@ class PessoasModel extends Connection {
                     unset($this->newModel[$key]);
                 }
 
-                $arr[':'.mb_strtoupper($key).''] = $value['value'];
+                $arr[':'.toUpperCase($key).''] = $value['value'];
             }
         }
 

@@ -1,7 +1,7 @@
 <?php
 class TiposPessoasModel extends Connection {
     const TABLE = 'tb_tipos_pessoas';
-    private $conn = false;
+    private $conn;
     private $newModel = array();
 
     function __construct() {
@@ -50,7 +50,7 @@ class TiposPessoasModel extends Connection {
                     unset($this->newModel[$key]);
                 }
 
-                $arr[':'.mb_strtoupper($key).''] = $value['value'];
+                $arr[':'.toUpperCase($key).''] = $value['value'];
             }
         }
 
