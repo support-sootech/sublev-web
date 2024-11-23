@@ -54,7 +54,7 @@ $app->get('/info', function() use ($app){
 
 $app->get('/texte_mb', function() use ($app){
 	$str = 'anderson';
-	verMatriz(mb_strtoupper($str));
+	verMatriz(strtoupper($str));
 });
 
 $app->notFound(function () use ($app) {
