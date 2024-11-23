@@ -123,7 +123,8 @@ $app->get('/fracionar-imprimir-material/:id_materiais', function($id_materiais='
                         'margin_bottom' => 5,
                         'margin_header' => 5,
                         'margin_footer' => 5,
-                        'tempDir'=> sys_get_temp_dir().DIRECTORY_SEPARATOR.'mpdf'
+                        //'tempDir'=> sys_get_temp_dir().DIRECTORY_SEPARATOR.'mpdf'
+                        'tempDir'=> '/temp'
                     ]
                 );
 
