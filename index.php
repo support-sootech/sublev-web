@@ -55,6 +55,11 @@ $app->get('/info', function() use ($app){
 $app->get('/texte_mb', function() use ($app){
 	$str = 'anderson';
 	verMatriz(strtoupper($str));
+	verMatriz(phpversion());
+
+	verMatriz(PHP_VERSION);
+	verMatriz(PHP_VERSION_ID);
+	verMatriz(PHP_RELEASE_VERSION);
 });
 
 $app->notFound(function () use ($app) {
