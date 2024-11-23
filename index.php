@@ -52,6 +52,11 @@ $app->get('/info', function() use ($app){
 	echo phpinfo();
 });
 
+$app->get('/texte_mb', function() use ($app){
+	$str = 'anderson';
+	verMatriz(mb_strtoupper($str));
+});
+
 $app->notFound(function () use ($app) {
     $app->render('/404.php');
 });

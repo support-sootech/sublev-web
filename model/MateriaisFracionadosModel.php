@@ -62,9 +62,10 @@ class MateriaisFracionadosModel extends Connection {
                 }
 
                 verMatriz('KEY: '.$key);
-                if (isset($key) && !empty($key)) {
-                    $arr[':'.mb_strtoupper($key).''] = !empty($value['value']) ? $value['value'] : null;
-                }
+                //$k = 
+                
+                $arr[':'.mb_strtoupper($key).''] = !empty($value['value']) ? $value['value'] : null;
+                
                 
 
             }
