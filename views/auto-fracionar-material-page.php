@@ -253,7 +253,7 @@ require_once('footer.php');
             const id_materiais = $(this).attr('data-material');
             const dt_vencimento = $(this).attr('data-vencimento');
             const computador = $('#arr_computadores').val();
-            const etiqueta = 'https://ootech.com.br/fracionar-imprimir-material/'+id_materiais+'';
+            
             //const etiqueta = 'http://<?=siteHost()?>/fracionar-imprimir-material/'+id_materiais+'';
             
             $.ajax({
@@ -269,6 +269,8 @@ require_once('footer.php');
                     if (data.success) {
                         $("#div_material").html('');
                         $('input[id=cod_barras_material]').val('');
+
+                        const etiqueta = 'https://ootech.com.br/fracionar-imprimir-material/'+data.id_etiquetas+'';
 
                         if (computador) {
                             imprimir(etiqueta, computador);

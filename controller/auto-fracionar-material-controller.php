@@ -59,7 +59,20 @@ $app->post('/auto-fracionar-material', function() use ($app){
 
                 if ($fg_fracionado['success']) {
                     $response_status = 200;
-                    $data = array('success'=>true, 'type'=>'success', 'msg'=>'Fracionamento efetuado com sucesso!');
+
+                    $class_etiquetas = new EtiquetasModel();
+                    $arr_etiqueta = array();
+                    $id_etiquetas = '';
+                    $arr_etiqueta['id_etiquetas'] = '';
+                    $arr_etiqueta['descricao'] = 'Etiqueta '.$material['descricao'].' - '.dt_br(date("Ymd"));
+                    $arr_etiqueta['codigo'] = $material['cod_barras'];
+                    $arr_etiqueta['id_materiais_fracionados'] = $material['id_materiais_fracionados'];
+                    $arr_etiqueta['id_materiais'] = $material['id_materiais'];
+                    $arr_etiqueta['status'] = 'A';
+                    $arr_etiqueta['id_usuarios'] = $_SESSION['usuario']['id_usuarios'];
+                    $data_etiqueta = $class_etiquetas->add($arr_etiqueta);
+
+                    $data = array('success'=>true, 'type'=>'success', 'msg'=>'Fracionamento efetuado com sucesso!', 'id_etiquetas'=>$data_etiqueta);
                 } else {
                     $data = array('error'=>true, 'type'=>'danger', 'msg'=>$fg_fracionado['msg']);
                 }
@@ -78,37 +91,32 @@ $app->post('/auto-fracionar-material', function() use ($app){
 	$response->body(json_encode($data));
 });
 
-$app->get('/fracionar-imprimir-material/:id_materiais', function($id_materiais='') use ($app){
+$app->get('/fracionar-imprimir-material/:id_etiquetas', function($id_etiquetas='') use ($app){
 
-    if (!empty($id_materiais)) {
-        $class_materiais = new MateriaisModel();
-        $data = $class_materiais->loadIdMaterialDetalhes('A',$id_materiais);
-
-        try {
+    if (!empty($id_etiquetas)) {        
         
-            $class_etiquetas = new EtiquetasModel();
-            $arr_etiqueta = array();
-            $id_etiquetas = '';
-            $arr_etiqueta['id_etiquetas'] = '';
-            $arr_etiqueta['descricao'] = 'Etiqueta '.$data['descricao'].' - '.dt_br(date("Ymd"));
-            $arr_etiqueta['codigo'] = $data['cod_barras'];
-            $arr_etiqueta['id_materiais_fracionados'] = $data['id_materiais_fracionados'];
-            $arr_etiqueta['id_materiais'] = $data['id_materiais'];
-            $arr_etiqueta['status'] = 'A';
-            //$arr_etiqueta['id_usuarios'] = $_SESSION['usuario']['id_usuarios'];
-            $data_etiqueta = $class_etiquetas->add($arr_etiqueta);
+        try {
 
-            if ($data_etiqueta) {
+            $class_etiquetas = new EtiquetasModel();
+            $etiqueta = $class_etiquetas->loadId($id_etiquetas);
+    
+            $class_usuarios = new UsuariosModel();
+            $usuario = $class_usuarios->loadId($etiqueta['id_usuarios']);
+    
+            $class_materiais = new MateriaisModel();
+            $material = $class_materiais->loadIdMaterialDetalhes('A',$etiqueta['id_materiais']);
+
+            if ($etiqueta) {
                 $client = new GuzzleHttp\Client();
-                $res = $client->request('GET', 'https://arodevsistemas.com.br/qrcode3/'.$data_etiqueta);
+                $res = $client->request('GET', 'https://arodevsistemas.com.br/qrcode3/'.$etiqueta['id_etiquetas']);
                 $data_qrcode = json_decode($res->getBody(), true);
             
                 $html  = "<table align='center' style='page-break-inside:avoid; alignpadding: 0mm; width: 100mm;height: 50mm;border: 0.5mm solid black;'>";
-                $html .= "<tr><td><h4>Material: ".$data['descricao']."</h4><br>";
-                $html .= "<h4>Marca: ".$data['marca']."</h4><br>";
-                $html .= "<h4>Data de Manipulação: ".$data['dt_fracionamento']."</h4><br>";
-                $html .= "<h4>Data de Vencimento: ".$data['dt_vencimento']."</h4><br>";
-                //$html .= "<h4>Manipulado por: ".$_SESSION['usuario']['nm_pessoa']."</h4></td><br>";
+                $html .= "<tr><td><h4>Material: ".$material['descricao']."</h4><br>";
+                $html .= "<h4>Marca: ".$material['marca']."</h4><br>";
+                $html .= "<h4>Data de Manipulação: ".$material['dt_fracionamento']."</h4><br>";
+                $html .= "<h4>Data de Vencimento: ".$material['dt_vencimento']."</h4><br>";
+                $html .= "<h4>Manipulado por: ".$usuario['nm_pessoa']."</h4></td><br>";
                 $html .= "<td><img height='140' width='140' src='".$data_qrcode['img']."' /></td></tr></table>";
 
                 $mpdf = new \Mpdf\Mpdf(
