@@ -35,7 +35,7 @@ class MateriaisFracionadosModel extends Connection {
 
     private function getFields($fgRemoveKey=true) {
         $arr = array();
-        verMatriz($this->newModel);die();
+        
         if (count($this->newModel) > 0) {
             foreach ($this->newModel as $key => $value) {
 
@@ -60,6 +60,8 @@ class MateriaisFracionadosModel extends Connection {
                 if (isset($value['key'])==true && $fgRemoveKey==true) {
                     unset($this->newModel[$key]);
                 }
+
+                verMatriz('KEY: '.$key);
                 if (isset($key) && !empty($key)) {
                     $arr[':'.mb_strtoupper($key).''] = !empty($value['value']) ? $value['value'] : null;
                 }
