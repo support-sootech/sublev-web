@@ -61,10 +61,7 @@ class MateriaisFracionadosModel extends Connection {
                     unset($this->newModel[$key]);
                 }
 
-                verMatriz('KEY: '.$key);
-                //$k = 
-                
-                $arr[':'.mb_strtoupper($key).''] = !empty($value['value']) ? $value['value'] : null;
+                $arr[':'.toUpperCase($key).''] = !empty($value['value']) ? $value['value'] : null;
                 
                 
 
@@ -216,7 +213,7 @@ class MateriaisFracionadosModel extends Connection {
             
             $w = array();
             foreach ($where as $key => $value) {
-                $w[':'.mb_strtoupper($key).''] = $value;
+                $w[':'.toUpperCase($key).''] = $value;
             }
     
             if(isset($values[':ID_MATERIAIS_FRACIONADOS'])) {

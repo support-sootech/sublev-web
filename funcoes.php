@@ -643,7 +643,6 @@ function fracionarMateriais($id_materiais, $dt_vencimento_material, $arr_qtd_fra
 						'id_usuarios'=>$_SESSION['usuario']['id_usuarios']
 					);
 					$add = $class_materiais_fracionados->add($arr_materiais_fracionado);
-					verMatriz($add);die();
 				}
 				
 				if ($material['quantidade'] > 0){
