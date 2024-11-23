@@ -110,6 +110,8 @@ $app->get('/fracionar-imprimir-material/:id_materiais', function($id_materiais='
                 $html .= "<h4>Data de Vencimento: ".$data['dt_vencimento']."</h4><br>";
                 //$html .= "<h4>Manipulado por: ".$_SESSION['usuario']['nm_pessoa']."</h4></td><br>";
                 $html .= "<td><img height='140' width='140' src='".$data_qrcode['img']."'></td></tr></table>";
+
+                echo $html;die();
                 
                 $mpdf = new \Mpdf\Mpdf(
                     [
