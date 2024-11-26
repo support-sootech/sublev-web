@@ -15,7 +15,7 @@ require_once('header.php');
                         <div class="col">
                             <div class="p-5">
                                 <div class="text-center">
-                                    <h1 class="h4 text-gray-900 mb-4">Acesso ao Sistema</h1>
+                                    <h1 class="h4 text-gray-900 mb-4"><img src="./layout/img/logo.png" width="200" height="auto"></h1>
                                 </div>
                                 <form name="form-login" class="">
                                     <div class="form-group">
