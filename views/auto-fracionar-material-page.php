@@ -212,9 +212,19 @@ require_once('footer.php');
             }
         }); 
 
-        function imprimir(etiqueta, computador) {
+        function imprimir(num_etiqueta, computador) {
+
+            console.log('IMPRIMIR');
+            console.log('siteHost', '<?=siteHost()?>');
+            console.log('site_url', '<?=site_url()?>');
+
+            let etiqueta = 'http://<?=siteHost()?>/fracionar-imprimir-material/'+num_etiqueta;
+
+            let url = 'http://92.112.177.153:3000/imprimir';
+            //let url = 'http://localhost:3000/imprimir';
+
             $.ajax({
-                url:'http://92.112.177.153:3000/imprimir',
+                url:url,
                 type:'post',
                 dataType:'json',
                 processData: false,
@@ -244,6 +254,7 @@ require_once('footer.php');
                     console.log('ERROR A', a);
                     console.log('ERROR B', b);
                     console.log('ERROR C', c);
+                    window.open(etiqueta);
                 }
             });
         }
@@ -269,11 +280,10 @@ require_once('footer.php');
                     if (data.success) {
                         $("#div_material").html('');
                         $('input[id=cod_barras_material]').val('');
-
-                        const etiqueta = 'https://ootech.com.br/fracionar-imprimir-material/'+data.id_etiquetas+'';
+                        //const etiqueta = 'https://ootech.com.br/fracionar-imprimir-material/'+data.id_etiquetas+'';
 
                         if (computador) {
-                            imprimir(etiqueta, computador);
+                            imprimir(data.id_etiquetas, computador);
                         } else {
                             window.open(etiqueta);
                             setTimeout(() => {
