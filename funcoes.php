@@ -14,6 +14,8 @@ function site_url(){
 		} else{
 			return 'http://'.$_SERVER['SERVER_NAME'];
 		}
+	} else {
+		return 'http://'.$_SERVER['SERVER_NAME'];
 	}
 }
 
