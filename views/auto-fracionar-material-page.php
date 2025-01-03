@@ -223,7 +223,7 @@ require_once('footer.php');
                 host_etiqueta = '<?=site_url()?>:8000';
             }
 
-            let etiqueta = 'http://'+host_etiqueta+'/fracionar-imprimir-material/'+num_etiqueta;
+            let etiqueta = host_etiqueta+'/fracionar-imprimir-material/'+num_etiqueta;
 
             let url = '<?=site_url()?>:3000/imprimir';
             //let url = 'http://localhost:3000/imprimir';
