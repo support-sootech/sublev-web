@@ -129,6 +129,7 @@ $app->get('/fracionar-imprimir-material/:id_etiquetas', function($id_etiquetas='
                         'margin_bottom' => 5,
                         'margin_header' => 5,
                         'margin_footer' => 5,
+                        'tempDir' => './tmp'
                     ]
                 );
 
