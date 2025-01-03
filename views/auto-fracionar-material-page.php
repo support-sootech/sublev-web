@@ -218,9 +218,14 @@ require_once('footer.php');
             console.log('siteHost', '<?=siteHost()?>');
             console.log('site_url', '<?=site_url()?>');
 
-            let etiqueta = 'http://<?=siteHost()?>/fracionar-imprimir-material/'+num_etiqueta;
+            let host_etiqueta = '<?=site_url()?>';
+            if ('<?=$_SERVER['SERVER_NAME']?>'=='localhost') {
+                host_etiqueta = '<?=site_url()?>:8000';
+            }
 
-            let url = 'http://92.112.177.153:3000/imprimir';
+            let etiqueta = 'http://'+host_etiqueta+'/fracionar-imprimir-material/'+num_etiqueta;
+
+            let url = '<?=site_url()?>:3000/imprimir';
             //let url = 'http://localhost:3000/imprimir';
 
             $.ajax({
