@@ -117,7 +117,7 @@ $app->get('/fracionar-imprimir-material/:id_etiquetas', function($id_etiquetas='
                 $html .= "<h4>Data de Manipulação: ".$material['dt_fracionamento']."</h4><br>";
                 $html .= "<h4>Data de Vencimento: ".$material['dt_vencimento']."</h4><br>";
                 $html .= "<h4>Manipulado por: ".$usuario['nm_pessoa']."</h4></td><br>";
-                $html .= '<td><img style="" src="'.$data_qrcode['img'].'" /></td></tr></table>';
+                $html .= '<td><img src="'.$data_qrcode['img'].'" /></td></tr></table>';
 
                 $mpdf = new \Mpdf\Mpdf(
                     [
