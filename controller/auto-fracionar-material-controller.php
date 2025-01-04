@@ -111,24 +111,24 @@ $app->get('/fracionar-imprimir-material/:id_etiquetas', function($id_etiquetas='
                 $res = $client->request('GET', 'https://arodevsistemas.com.br/qrcode3/'.$etiqueta['id_etiquetas']);
                 $data_qrcode = json_decode($res->getBody(), true);
             
-                $html  = "<table align='center' style='page-break-inside:avoid; alignpadding: 0mm; width: 100mm;height: 50mm;border: 0.5mm solid black;'>";
+                $html  = "<table align='center' style='page-break-inside:avoid; alignpadding: 0mm; width: 100%;height: 29mm;border: 0.5mm solid black;'>";
                 $html .= "<tr><td><h4>Material: ".$material['descricao']."</h4><br>";
                 $html .= "<h4>Marca: ".$material['marca']."</h4><br>";
                 $html .= "<h4>Data de Manipulação: ".$material['dt_fracionamento']."</h4><br>";
                 $html .= "<h4>Data de Vencimento: ".$material['dt_vencimento']."</h4><br>";
                 $html .= "<h4>Manipulado por: ".$usuario['nm_pessoa']."</h4></td><br>";
-                $html .= "<td><img height='140' width='140' src='".$data_qrcode['img']."' /></td></tr></table>";
+                $html .= '<td><img style="" src="'.$data_qrcode['img'].'" /></td></tr></table>';
 
                 $mpdf = new \Mpdf\Mpdf(
                     [
-                        'mode' => 'utf-8', 
-                        'format' => [29, 100],
-                        //'margin_left' => 2,
-                        //'margin_right' => 2,
-                        //'margin_top' => 2,
-                        //'margin_bottom' => 2,
-                        //'margin_header' => 2,
-                        //'margin_footer' => 2,
+                        //'mode' => 'utf-8', 
+                        'format' => [160, 50],
+                        'margin_left' => 4,
+                        'margin_right' => 4,
+                        'margin_top' => 2,
+                        'margin_bottom' => 2,
+                        'margin_header' => 1,
+                        'margin_footer' => 1,
                         //'orientation' => 'L',
                         'tempDir' => './temp'
                     ]
