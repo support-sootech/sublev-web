@@ -122,7 +122,7 @@ $app->get('/fracionar-imprimir-material/:id_etiquetas', function($id_etiquetas='
                 $mpdf = new \Mpdf\Mpdf(
                     [
                         'mode' => 'utf-8', 
-                        'format' => [29, 90],
+                        'format' => [120, 90],
                         'margin_left' => 2,
                         'margin_right' => 2,
                         'margin_top' => 2,
