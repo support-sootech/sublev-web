@@ -129,7 +129,7 @@ $app->get('/fracionar-imprimir-material/:id_etiquetas', function($id_etiquetas='
                         //'margin_bottom' => 2,
                         //'margin_header' => 2,
                         //'margin_footer' => 2,
-                        'orientation' => 'L',
+                        //'orientation' => 'L',
                         'tempDir' => './temp'
                     ]
                 );
