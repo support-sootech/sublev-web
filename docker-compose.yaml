@@ -1,0 +1,12 @@
+version: '3'
+
+services:
+  myapp:
+    build: .
+    container_name: ootech
+    ports:
+      - 8000:80
+    volumes:
+      - ./:/var/www/html
+    restart: always
+    
