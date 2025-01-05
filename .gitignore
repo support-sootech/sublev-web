@@ -3,13 +3,13 @@
 .ini
 /model/Connection.php
 vendor/
-//.gitignore
+.gitignore
 apache-conf
 docker-compose.yaml
 Dockerfile
 php.ini
 info/
-.ftp.*
+.ftp-*
 /node/node_modules
 /node/client.js
 /node/client1.js
