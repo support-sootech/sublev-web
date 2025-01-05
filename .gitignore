@@ -1,0 +1,15 @@
+.vscode
+/controller/custom
+.ini
+/model/Connection.php
+vendor/
+//.gitignore
+apache-conf
+docker-compose.yaml
+Dockerfile
+php.ini
+info/
+.ftp.*
+/node/node_modules
+/node/client.js
+/node/client1.js
