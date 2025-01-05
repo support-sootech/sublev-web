@@ -19,7 +19,7 @@ require_once('header.php');
                                 </div>
                                 <form name="form-login" class="">
                                     <div class="form-group">
-                                        <input type="cpf" class="form-control form-control-user mask-cpf-cnpj" autoComplete="off" id="cpf" name="cpf" aria-describedby="cpf" placeholder="Digite o CPF">
+                                        <input type="cpf" class="form-control form-control-user mask-cpf-cnpj" autoComplete="off" id="cpf" name="cpf" aria-describedby="cpf" placeholder="Digite seu CPF">
                                     </div>
                                     <div class="form-group">
                                         <input type="password" class="form-control form-control-user" id="senha" name="senha" placeholder="Senha">
