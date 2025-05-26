@@ -187,7 +187,7 @@ require_once('footer.php');
 
                             $("#div_material").html(arr_materiais);
                         } else {
-                            gerarAlerta('Nenhum material não encontrado!', 'Alerta', 'danger');
+                            gerarAlerta('Nenhum material encontrado!', 'Alerta', 'danger');
                         }
                         
                     },
@@ -265,10 +265,11 @@ require_once('footer.php');
         }
 
         $(document).on('click','a[rel=btn-fracionar-material]', function(e){
+            
             e.preventDefault();
             const id_materiais = $(this).attr('data-material');
             const dt_vencimento = $(this).attr('data-vencimento');
-            const computador = $('#arr_computadores').val();
+            const computador = false;//$('#arr_computadores').val()'';
             
             //const etiqueta = 'http://<?=siteHost()?>/fracionar-imprimir-material/'+id_materiais+'';
             
@@ -281,12 +282,13 @@ require_once('footer.php');
                     dt_vencimento:dt_vencimento
                 },
                 success:function(data){
+                   
                     gerarAlerta(data.msg, 'Aviso', data.type);
                     if (data.success) {
                         $("#div_material").html('');
                         $('input[id=cod_barras_material]').val('');
-                        //const etiqueta = 'https://ootech.com.br/fracionar-imprimir-material/'+data.id_etiquetas+'';
-
+                        const etiqueta = 'https://ootech.com.br/fracionar-imprimir-material/'+data.id_etiquetas+'';
+                       
                         if (computador) {
                             imprimir(data.id_etiquetas, computador);
                         } else {

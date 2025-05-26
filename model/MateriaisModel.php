@@ -278,7 +278,6 @@ class MateriaisModel extends Connection {
                        and p.quantidade >= 1
                      ".$and."
                      order by p.dt_vencimento";
-            
             $res = $this->conn->select($sql, $arr);
             
             $arr = false;

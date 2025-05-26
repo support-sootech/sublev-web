@@ -50,13 +50,14 @@ $app->post('/auto-fracionar-material', function() use ($app){
         try {
             $id_materiais = $app->request->post('id_materiais');
             $dt_vencimento_material = $app->request->post('dt_vencimento');
-
+           
             $class_materiais = new MateriaisModel();
             $material = $class_materiais->loadIdMaterialDetalhes('A',$id_materiais);
 
             if ($material) {
+               
                 $fg_fracionado = fracionarMateriais($id_materiais, $dt_vencimento_material, array());
-
+                
                 if ($fg_fracionado['success']) {
                     $response_status = 200;
 
@@ -71,6 +72,7 @@ $app->post('/auto-fracionar-material', function() use ($app){
                     $arr_etiqueta['status'] = 'A';
                     $arr_etiqueta['id_usuarios'] = $_SESSION['usuario']['id_usuarios'];
                     $data_etiqueta = $class_etiquetas->add($arr_etiqueta);
+                    
 
                     $data = array('success'=>true, 'type'=>'success', 'msg'=>'Fracionamento efetuado com sucesso!', 'id_etiquetas'=>$data_etiqueta);
                 } else {
@@ -140,7 +142,8 @@ $app->get('/fracionar-imprimir-material/:id_etiquetas', function($id_etiquetas='
                 $response['Content-Type'] = 'application/pdf';
             
                 $mpdf->WriteHTML($html);
-                $mpdf->Output();
+                
+                $mpdf->Output('filename.pdf', \Mpdf\Output\Destination::DOWNLOAD);
             } else {
                 $response = $app->response();
                 $response['Access-Control-Allow-Origin'] = '*';
