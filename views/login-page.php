@@ -25,7 +25,7 @@ require_once('header.php');
                                         <input type="password" class="form-control form-control-user" id="senha" name="senha" placeholder="Senha">
                                     </div>
                                     <a href="#" rel="btn-login" class="btn btn-primary btn-user btn-block">
-                                        Acessar 1
+                                        Acessar
                                     </a>
                                 </form>
                                 <hr>
