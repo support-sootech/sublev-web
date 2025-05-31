@@ -36,6 +36,52 @@ function returnPage(){
     return $PAGINA;
 }
 
+
+function retornaParametros($app) {
+	$data = array();
+
+	if (count($app->request->post())>0) {
+		foreach ($app->request->post() as $key => $value) {
+			$data[$key] = $value;
+		}
+	}
+	
+	if (count($data) < 1) {
+		if (!empty($app->request->getBody())) {
+			foreach (json_decode($app->request->getBody(), true) as $key => $value) {
+				$data[$key] = $value;
+			}
+		}
+	}
+
+	return $data;
+}
+
+function retornaToken($app) {
+	$token = false;
+	if ($app->request()->headers()->get("Token-User") !==  null && $app->request()->headers()->get("Token-User")) {
+		$token = $app->request()->headers()->get("Token-User");
+	}
+	return $token;
+}
+
+function getUsuario($app = ''){
+	$data = false;
+	$class_usuarios = new UsuariosModel();
+	if (isset($_SESSION['usuario'])) {
+		$pessoa = $class_usuarios->loadId($_SESSION['usuario']['id_usuarios']);
+		$data = $pessoa;
+
+	} else if (!empty($app)) {
+		if (is_object($app)) {
+			$body = json_decode($app->request->getBody());
+			$token_user = $app->request()->headers()->get("Token-User");
+			$data = $class_usuarios->loadUsuariosHash($token_user);
+		}
+	}	
+	return $data;
+}
+
 function getIdEmpresasLogado() {
 	$id_empresas = '';
 	if (isset($_SESSION['usuario']['id_empresas'])) {

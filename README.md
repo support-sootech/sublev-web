@@ -27,3 +27,30 @@ Controle de start do serviço de impressão
  - pacote pm2 (node) referência: [PM2 - Código Fonte](https://www.youtube.com/watch?v=zi8qHEL-Ilk)
 
 Será necessário executavél na maquina do cliente para receber a impressão (WebSocketServer)
+
+
+## Ambiente de desenvolvimento local - [Docker Desktop](https://www.docker.com/products/docker-desktop/)
+
+### Arquivos no diretório raiz do projeto
+ - apache-conf
+ - docker-compose.yaml
+ - Dockerfile
+
+### Iniciar o projeto
+- A primeira vez do Build da imagem: demora um pouco para baixar a imagem e configurar, com esse comando a primeira vez já iniciar o container
+```
+docker-compose down && docker-compose up -d --build
+```
+
+- Encerrar os containers por terminal: 
+```
+docker-compose down
+```
+
+- Iniciar 
+```
+docker-compose up -d
+```
+
+- Está configurado para porta 8000 (http://localhost:8000)
+- Banco de dados está fazendo a conexão a produção

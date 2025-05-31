@@ -87,6 +87,9 @@ include_once('controller/modo-conservacao-controller.php');
 include_once('controller/relatorios-controller.php');
 include_once('controller/etiqueta-detalhes-controller.php');
 
+//APP
+include_once('controller/api/login-api-controller.php');
+
 
 $app->run();
 

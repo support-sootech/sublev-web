@@ -1,4 +1,4 @@
-version: '3.8'
+#version: '3.8'
 
 services:
   web:
@@ -30,16 +30,3 @@ services:
 #networks:
   #ootech_network:
     #driver: bridge
-
-#version: '3'
-
-#services:
-  #myapp:
-    #build: .
-    #container_name: ootech
-    #ports:
-      #- 8000:80
-    #volumes:
-      #- ./:/var/www/html
-    #restart: always
-    

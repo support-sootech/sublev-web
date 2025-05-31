@@ -191,6 +191,98 @@ class UsuariosModel extends Connection {
         }
     }
 
+    public function loadUsuariosHash($hash) {
+        try {
+            $arr[':HASH'] = $hash;
+            
+            $sql = "select u.*, 
+                           ps.nome as nm_pessoa, 
+                           ps.email, 
+                           ps.dt_nascimento, 
+                           ps.tp_juridico, 
+                           (case when ps.tp_juridico = 'J' then lpad(ps.cpf_cnpj, 14, 0)
+                                else lpad(ps.cpf_cnpj, 11, 0)
+                           end) as cpf_cnpj,
+                           #ps.cpf_cnpj,
+                           ps.genero, 
+                           ps.cep,
+                           ps.logradouro,
+                           ps.numero,
+                           ps.complemento,
+                           ps.bairro,
+                           ps.cidade,
+                           ps.estado,
+                           ps.cod_ibge,
+                           ps.telefone,
+                           e.id_empresas,
+                           e.nome as nm_empresa,
+                           tp.id_tipos_pessoas,
+                           tp.descricao as ds_tipos_pessoas,
+                           md5(concat(u.id_usuarios, now())) as hash_login,
+                           s.id_setor,
+                           s.nome as nm_setor
+                      from ".self::TABLE." u
+                      inner join tb_pessoas ps on ps.id_pessoas = u.id_pessoas
+                      inner join tb_empresas e on e.id_empresas = ps.id_empresas
+                      inner join tb_tipos_pessoas tp on tp.id_tipos_pessoas = ps.id_tipos_pessoas
+                      left join tb_setor s on s.id_setor = u.id_setor
+                     where u.hash = :hash";
+            $res = $this->conn->select($sql, $arr);
+            
+            if (isset($res[0])) {
+
+                $usuario = $res[0];
+                $class_usuarios_perfil = new UsuariosPerfilModel();
+                $usuarios_perfil = $class_usuarios_perfil->loadGeralUsuarios($usuario['id_usuarios']);
+                if ($usuarios_perfil) {
+                    foreach ($usuarios_perfil as $key => $value) {
+                        $usuario['perfil'][] = array('id_perfil'=>$value['id_perfil'], 'ds_perfil'=>$value['ds_perfil']);
+                    }
+                }
+
+                $class_menu = new MenuModel();
+                $menu = array();
+                $arr_menu = array();
+                $endpoints = array();
+                if (isset($usuario['perfil']) && count($usuario['perfil'])>0) {
+                    foreach ($usuario['perfil'] as $key => $value) {                        
+                        //MENU
+                        $m = $class_menu->menuSistema($value['id_perfil']);
+                        if ($m) {
+                            $menu[] = $m;
+                        }
+
+                        //ENDPOINTS
+                        $arr_endpoints = $class_menu->loadEndPointAcesso($value['id_perfil']);
+                        if ($arr_endpoints) {
+                            foreach ($arr_endpoints as $k => $v) {
+                                //$endpoints[$v['link']] = $v;
+                                $endpoints[$k] = $v;
+                            }
+                        }
+                    }
+                }
+
+                //REMOVE OS MENUS REPETIDOS POR CAUSA DO PERFIL
+                $arr_menu = array();
+                foreach ($menu as $key => $value) {
+                    foreach ($value as $k => $v) {
+                        $arr_menu[$v['id_menu']] = $v;
+                    }
+                }
+
+                $usuario['menu'] = $arr_menu;
+                $usuario['endpoints'] = $endpoints;
+
+                return $usuario;
+            } else {
+                return false;
+            }
+        } catch (Exception $e) {
+            return $e->getMessage();
+        }
+    }
+
     public function loadId($id) {
         try {
             $arr[':ID'] = $id;
