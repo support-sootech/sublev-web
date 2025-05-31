@@ -40,7 +40,7 @@
     <script src="./layout/js/sb-admin-2.min.js"></script>
 
     <!-- Page level plugins -->
-    <script src="<?=site_url()?>/layout/vendor/chart.js/Chart.min.js"></script>
+    <script src="./layout/vendor/chart.js/Chart.min.js"></script>
 
     <!-- EXTRAS -->
     <script src="./layout/js/jquery.form.js?v=<?=date('YmdHis')?>"></script>
@@ -57,12 +57,12 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.mask/1.14.16/jquery.mask.js" integrity="sha512-0XDfGxFliYJPFrideYOoxdgNIvrwGTLnmK20xZbCAvPfLGQMzHUsaqZK8ZoH+luXGRxTrS46+Aq400nCnAT0/w==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <!-- <script type='text/javascript' src="https://rawgit.com/RobinHerbots/jquery.inputmask/3.x/dist/jquery.inputmask.bundle.js"></script> -->
 
-    <script src="<?=site_url()?>/layout/js/scripts.js?v=<?=date('YmdHis')?>"></script>
+    <script src="./layout/js/scripts.js?v=<?=date('YmdHis')?>"></script>
 
     <!-- Page level custom scripts -->
     <?php if(returnPage()=='/dashboard'):?>
-        <script src="<?=site_url()?>/layout/js/demo/chart-area-demo.js"></script>
-        <script src="<?=site_url()?>/layout/js/demo/chart-pie-demo.js"></script>
+        <script src="./layout/js/demo/chart-area-demo.js"></script>
+        <script src="./layout/js/demo/chart-pie-demo.js"></script>
     <?php endif;?>
 
     <script>
