@@ -1,12 +1,45 @@
-version: '3'
+version: '3.8'
 
 services:
-  myapp:
+  web:
     build: .
-    container_name: ootech
+    container_name: ootech_local
     ports:
-      - 8000:80
+      - "8000:80"
+      - "443:443"
     volumes:
+      # Monte seu código aqui
       - ./:/var/www/html
-    restart: always
+      # Monte configurações customizadas se necessário
+      #- ./config/apache/sites-available:/etc/apache2/sites-available
+      #- ./config/ssl:/etc/ssl/certs/local
+      # Logs
+      #- ./logs/apache:/var/log/apache2
+      #- ./logs/php:/var/log/php
+    #environment:
+      # Variáveis de ambiente para conexão com banco de produção
+      #- DB_HOST=seu_host_de_producao.com
+      #- DB_NAME=nome_do_banco
+      #- DB_USER=usuario_banco
+      #- DB_PASS=senha_banco
+      #- DB_PORT=3306
+      #- APACHE_DOCUMENT_ROOT=/var/www/html
+    #networks:
+      #- ootech_network
+
+#networks:
+  #ootech_network:
+    #driver: bridge
+
+#version: '3'
+
+#services:
+  #myapp:
+    #build: .
+    #container_name: ootech
+    #ports:
+      #- 8000:80
+    #volumes:
+      #- ./:/var/www/html
+    #restart: always
     

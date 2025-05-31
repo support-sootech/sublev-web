@@ -6,5 +6,8 @@
     "guzzlehttp/guzzle": "^6.3",
     "mpdf/mpdf":"v8.2.4",
     "endroid/qr-code":"^5.1.0"
+  },
+  "config": {
+    "platform-check": false
   }
 }
