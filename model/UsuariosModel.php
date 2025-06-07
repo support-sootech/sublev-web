@@ -226,7 +226,7 @@ class UsuariosModel extends Connection {
                       inner join tb_empresas e on e.id_empresas = ps.id_empresas
                       inner join tb_tipos_pessoas tp on tp.id_tipos_pessoas = ps.id_tipos_pessoas
                       left join tb_setor s on s.id_setor = u.id_setor
-                     where u.hash = :hash";
+                     where u.hash = :HASH";
             $res = $this->conn->select($sql, $arr);
             
             if (isset($res[0])) {

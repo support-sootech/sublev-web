@@ -89,6 +89,8 @@ include_once('controller/etiqueta-detalhes-controller.php');
 
 //APP
 include_once('controller/api/login-api-controller.php');
+include_once('controller/api/etiqueta-api-controller.php');
+include_once('controller/api/materiais-api-controller.php');
 
 
 $app->run();

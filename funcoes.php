@@ -76,7 +76,9 @@ function getUsuario($app = ''){
 		if (is_object($app)) {
 			$body = json_decode($app->request->getBody());
 			$token_user = $app->request()->headers()->get("Token-User");
-			$data = $class_usuarios->loadUsuariosHash($token_user);
+			if ($token_user) {
+				$data = $class_usuarios->loadUsuariosHash($token_user);
+			}
 		}
 	}	
 	return $data;
@@ -651,13 +653,13 @@ function buscaProdutosCodigoBarras($codigo_barras = '') {
 
 }
 
-function fracionarMateriais($id_materiais, $dt_vencimento_material, $arr_qtd_fracionada=array()) {
+function fracionarMateriais($id_materiais, $dt_vencimento_material, $arr_qtd_fracionada=array(), $id_usuarios="") {
 	$data = array();
 	try {
 		$class_materiais = new MateriaisModel();
 		$class_materiais_fracionados = new MateriaisFracionadosModel();
 
-		$material = $class_materiais->loadIdMaterialDtVencimento($id_materiais, $dt_vencimento_material);
+		$material = $class_materiais->loadIdMaterialDtVencimento($id_materiais, $dt_vencimento_material);		
 		
 		if ($material) {
 
@@ -665,14 +667,15 @@ function fracionarMateriais($id_materiais, $dt_vencimento_material, $arr_qtd_fra
 				if (!$arr_qtd_fracionada || count($arr_qtd_fracionada) == 0) {
 					$arr_qtd_fracionada[] = 1;
 				}
-				
+
 				$data_fracionamento = date("Y-m-d");
 				$dt_vencimento = dt_banco($material['dt_vencimento']);
-
+				
 				$data_vencimento_aberto = somar_dias($data_fracionamento,$material['dias_vencimento_aberto']);
 				
 				if (strtotime($data_vencimento_aberto) > strtotime($material['dt_vencimento']))
 					$data_vencimento_aberto = $dt_vencimento;
+				
 				
 				$data_fracionamento = dt_br($data_fracionamento);
 				$data_vencimento_aberto = dt_br($data_vencimento_aberto);
@@ -688,7 +691,7 @@ function fracionarMateriais($id_materiais, $dt_vencimento_material, $arr_qtd_fra
 						'id_materiais'=>$material['id_materiais'],
 						'id_embalagens'=>$material['id_embalagens'],
 						'id_unidades_medidas'=>$material['id_unidades_medidas'],
-						'id_usuarios'=>$_SESSION['usuario']['id_usuarios']
+						'id_usuarios'=> (!empty($id_usuarios) ? $id_usuarios : $_SESSION['usuario']['id_usuarios'])
 					);
 					$add = $class_materiais_fracionados->add($arr_materiais_fracionado);
 				}
@@ -710,7 +713,8 @@ function fracionarMateriais($id_materiais, $dt_vencimento_material, $arr_qtd_fra
 					'success'=>true, 
 					'type'=>'success', 
 					'msg'=>'Material fracionado com sucesso.',
-					'edit_material'=>$edit_material
+					'edit_material'=>$edit_material,
+					'fracionamento'=>$class_materiais_fracionados->loadId($add)
 				);
 			} catch (Exception $e) {
 				$data = array('error'=>true, 'type'=>'danger', 'msg'=>'1');

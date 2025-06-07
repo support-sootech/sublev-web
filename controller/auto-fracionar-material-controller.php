@@ -106,20 +106,25 @@ $app->get('/fracionar-imprimir-material/:id_etiquetas', function($id_etiquetas='
             $usuario = $class_usuarios->loadId($etiqueta['id_usuarios']);
     
             $class_materiais = new MateriaisModel();
-            $material = $class_materiais->loadIdMaterialDetalhes('A',$etiqueta['id_materiais']);
+            $material = $class_materiais->loadIdMaterialDetalhes('A',$etiqueta['id_materiais']);            
 
             if ($etiqueta) {
                 $client = new GuzzleHttp\Client();
                 $res = $client->request('GET', 'https://arodevsistemas.com.br/qrcode3/'.$etiqueta['id_etiquetas']);
                 $data_qrcode = json_decode($res->getBody(), true);
-            
-                $html  = "<table align='center' style='page-break-inside:avoid; alignpadding: 0mm; width: 100%;height: 29mm;border: 0.5mm solid black;'>";
-                $html .= "<tr><td><h4>Material: ".$material['descricao']."</h4><br>";
-                $html .= "<h4>Marca: ".$material['marca']."</h4><br>";
-                $html .= "<h4>Data de Manipulação: ".$material['dt_fracionamento']."</h4><br>";
-                $html .= "<h4>Data de Vencimento: ".$material['dt_vencimento']."</h4><br>";
-                $html .= "<h4>Manipulado por: ".$usuario['nm_pessoa']."</h4></td><br>";
-                $html .= '<td><img src="'.$data_qrcode['img'].'" /></td></tr></table>';
+
+                $html = "<table align='center' style='page-break-inside:avoid; alignpadding: 0mm; width: 100%;height: 29mm;border: 0.5mm solid black;'>";
+                    $html.="<tr>";
+                        $html.="<td>";  
+                            $html.="<p>Material: ".$material['descricao']."</p>";
+                            $html.="<p>Marca: ".$material['marca']."</p>";
+                            $html.="<p>Data de Manipulação: ".$material['dt_fracionamento']."</p>";
+                            $html.="<p>Data de Vencimento: ".$material['dt_vencimento']."</p>";
+                            $html.="<p>Manipulado por: ".(isset($usuario['nm_pessoa']) ? $usuario['nm_pessoa'] : '')."</p>";
+                        $html.="</td>";
+                        $html.='<td><img src="'.$data_qrcode['img'].'"/></td>';
+                    $html.="</tr>";
+                $html.= "</table>";
 
                 $mpdf = new \Mpdf\Mpdf(
                     [
@@ -143,7 +148,7 @@ $app->get('/fracionar-imprimir-material/:id_etiquetas', function($id_etiquetas='
             
                 $mpdf->WriteHTML($html);
                 
-                $mpdf->Output('filename.pdf', \Mpdf\Output\Destination::DOWNLOAD);
+                $mpdf->Output('etiqueta.pdf', \Mpdf\Output\Destination::INLINE);
             } else {
                 $response = $app->response();
                 $response['Access-Control-Allow-Origin'] = '*';
