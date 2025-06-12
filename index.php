@@ -91,7 +91,7 @@ include_once('controller/etiqueta-detalhes-controller.php');
 include_once('controller/api/login-api-controller.php');
 include_once('controller/api/etiqueta-api-controller.php');
 include_once('controller/api/materiais-api-controller.php');
-
+include_once('controller/api/materiais-fracionados-api-controller.php');
 
 $app->run();
 
