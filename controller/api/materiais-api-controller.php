@@ -81,7 +81,14 @@ $app->map('/app-materiais-fracionar', function() use ($app){
 
             if ($material) {
                 
-                $fg_fracionado = fracionarMateriais($params['id_materiais'], $params['dt_vencimento'], array(), $usuario['id_usuarios']);
+                $fg_fracionado = fracionarMateriais(
+                    $params['id_materiais'], 
+                    $params['dt_vencimento'], 
+                    array(), 
+                    'UNIDADE',
+                    true,
+                    $usuario['id_usuarios']
+                );
                 
                 if ($fg_fracionado['success']) {
                     $response_status = 200;

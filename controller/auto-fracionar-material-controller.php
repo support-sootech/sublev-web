@@ -56,22 +56,32 @@ $app->post('/auto-fracionar-material', function() use ($app){
 
             if ($material) {
                
-                $fg_fracionado = fracionarMateriais($id_materiais, $dt_vencimento_material, array());
+                $fg_fracionado = fracionarMateriais(
+                    $id_materiais, 
+                    $dt_vencimento_material, 
+                    array(),
+                    'UNIDADE',
+                    true,
+                    $_SESSION['usuario']['id_usuarios']
+                );
                 
                 if ($fg_fracionado['success']) {
                     $response_status = 200;
-
                     $class_etiquetas = new EtiquetasModel();
-                    $arr_etiqueta = array();
-                    $id_etiquetas = '';
-                    $arr_etiqueta['id_etiquetas'] = '';
-                    $arr_etiqueta['descricao'] = 'Etiqueta '.$material['descricao'].' - '.dt_br(date("Ymd"));
-                    $arr_etiqueta['codigo'] = $material['cod_barras'];
-                    $arr_etiqueta['id_materiais_fracionados'] = $material['id_materiais_fracionados'];
-                    $arr_etiqueta['id_materiais'] = $material['id_materiais'];
-                    $arr_etiqueta['status'] = 'A';
-                    $arr_etiqueta['id_usuarios'] = $_SESSION['usuario']['id_usuarios'];
-                    $data_etiqueta = $class_etiquetas->add($arr_etiqueta);
+
+                    foreach ($fg_fracionado['arr_fracionado'] as $key => $value) {
+                        $arr_etiqueta = array();
+                        $id_etiquetas = '';
+                        $arr_etiqueta['id_etiquetas'] = '';
+                        $arr_etiqueta['descricao'] = 'Etiqueta '.$material['descricao'].' - '.dt_br(date("Ymd"));
+                        $arr_etiqueta['codigo'] = $material['cod_barras'];
+                        $arr_etiqueta['id_materiais_fracionados'] = $material['id_materiais_fracionados'];
+                        $arr_etiqueta['id_materiais'] = $material['id_materiais'];
+                        $arr_etiqueta['status'] = 'A';
+                        $arr_etiqueta['id_usuarios'] = $_SESSION['usuario']['id_usuarios'];
+                        $data_etiqueta = $class_etiquetas->add($arr_etiqueta);
+                    }
+
                     
 
                     $data = array('success'=>true, 'type'=>'success', 'msg'=>'Fracionamento efetuado com sucesso!', 'id_etiquetas'=>$data_etiqueta);

@@ -653,82 +653,158 @@ function buscaProdutosCodigoBarras($codigo_barras = '') {
 
 }
 
-function fracionarMateriais($id_materiais, $dt_vencimento_material, $arr_qtd_fracionada=array(), $id_usuarios="") {
-	$data = array();
-	try {
-		$class_materiais = new MateriaisModel();
-		$class_materiais_fracionados = new MateriaisFracionadosModel();
-
-		$material = $class_materiais->loadIdMaterialDtVencimento($id_materiais, $dt_vencimento_material);		
-		
-		if ($material) {
-
-			try {
-				if (!$arr_qtd_fracionada || count($arr_qtd_fracionada) == 0) {
-					$arr_qtd_fracionada[] = 1;
-				}
-
-				$data_fracionamento = date("Y-m-d");
-				$dt_vencimento = dt_banco($material['dt_vencimento']);
-				
-				$data_vencimento_aberto = somar_dias($data_fracionamento,$material['dias_vencimento_aberto']);
-				
-				if (strtotime($data_vencimento_aberto) > strtotime($material['dt_vencimento']))
-					$data_vencimento_aberto = $dt_vencimento;
-				
-				
-				$data_fracionamento = dt_br($data_fracionamento);
-				$data_vencimento_aberto = dt_br($data_vencimento_aberto);
-				
-				foreach ($arr_qtd_fracionada as $key => $value) {
-					
-					$arr_materiais_fracionado = array(
-						'qtd_fracionada'=>$value,
-						'dt_vencimento'=>$data_vencimento_aberto,
-						'dt_fracionamento'=>$data_fracionamento,
-						'status'=>'A',
-						'motivo_descarte'=>'',
-						'id_materiais'=>$material['id_materiais'],
-						'id_embalagens'=>$material['id_embalagens'],
-						'id_unidades_medidas'=>$material['id_unidades_medidas'],
-						'id_usuarios'=> (!empty($id_usuarios) ? $id_usuarios : $_SESSION['usuario']['id_usuarios'])
-					);
-					$add = $class_materiais_fracionados->add($arr_materiais_fracionado);
-				}
-				
-				if ($material['quantidade'] > 0){
-					try {
-						$material['quantidade'] -= 1;
-					} catch (Exception $e) {
-						$data = array('error'=>true, 'type'=>'danger', 'msg'=>'Material sem quantidade no estoque!');
-					}			
-				}
-					
-				$edit_material = $class_materiais->edit(
-					$material,
-					array('id_materiais'=>$material['id_materiais'])
-				);
+function dividirQuantidade($quantidade, $divisor, $precisao = 2) {
+    if ($divisor <= 0) {
+        throw new InvalidArgumentException("Divisor deve ser maior que zero");
+    }
 	
-				$data = array(
-					'success'=>true, 
-					'type'=>'success', 
-					'msg'=>'Material fracionado com sucesso.',
-					'edit_material'=>$edit_material,
-					'fracionamento'=>$class_materiais_fracionados->loadId($add)
-				);
-			} catch (Exception $e) {
-				$data = array('error'=>true, 'type'=>'danger', 'msg'=>'1');
-			}			
+	// Trabalha com centavos para evitar problemas de ponto flutuante
+    $fator = pow(10, $precisao);
+    $quantidadeInteira = intval(round($quantidade * $fator));
 
-		} else {
-			$data = array('error'=>true, 'type'=>'danger', 'msg'=>'Material não localizado.');
+	$valorBase = intval($quantidadeInteira / $divisor);
+    $resto = $quantidadeInteira % $divisor;
+    
+    $partes = [];
+    
+    // Distribui o valor base
+    for ($i = 0; $i < $divisor; $i++) {
+        $partes[] = $valorBase / $fator;
+    }
+    
+    // Distribui o resto nas primeiras posições
+    for ($i = 0; $i < $resto; $i++) {
+        $partes[$i] += 1 / $fator;
+    }
+
+	$arr = array();
+	if (count($partes)>0) {
+		foreach ($partes as $key => $value) {
+			$arr[] = numberformat($value, false);
 		}
-		
+	}
+    
+    return $arr;
+}
 
-	} catch (Exception $e) {
-		$data = array('error'=>true, 'type'=>'danger', 'msg'=>'3');
+function gerarEtiquetas($material='', $id_material_fracionado, $id_usuarios='') {
+	$data_etiqueta = false;
+	$class_etiquetas = new EtiquetasModel();
+	if ($material) {
+
+		$arr_etiqueta['id_etiquetas'] = '';
+		$arr_etiqueta['descricao'] = 'Etiqueta '.$material['descricao'].' - '.dt_br(date("Ymd"));
+		$arr_etiqueta['codigo'] = $material['cod_barras'];
+		$arr_etiqueta['id_materiais_fracionados'] = $id_material_fracionado;
+		$arr_etiqueta['id_materiais'] = $material['id_materiais'];
+		$arr_etiqueta['status'] = 'A';
+		$arr_etiqueta['id_usuarios'] = (!empty($id_usuarios) ? $id_usuarios : $_SESSION['usuario']['id_usuarios']);
+		$data_etiqueta = $class_etiquetas->add($arr_etiqueta);
+	}
+	return $data_etiqueta ? $class_etiquetas->loadId($data_etiqueta) : $data_etiqueta;
+}
+
+function fracionarMateriais(
+	$id_materiais, 
+	$dt_vencimento_material, 
+	$arr_qtd_fracionada=array(), 
+	$tipo_francionamento = 'UNIDADE',
+	$fg_dividir_auto = true,
+	$id_usuarios) {
+
+	$data = array();
+	/*
+	$tipo_francionamento 
+		- UNIDADE: item inteiro do estoque,
+		- FRACAO: fraciona uma unidade do estoque
+	*/
+	
+	$class_materiais = new MateriaisModel();
+	$class_materiais_fracionados = new MateriaisFracionadosModel();
+
+	$arr_fracionados = array();
+	$arr_etiquetas = array();
+	//$material = $class_materiais->loadIdMaterialDtVencimento($id_materiais, $dt_vencimento_material);
+	$material = $class_materiais->loadId($id_materiais);
+	
+	if (!$material) {
+		throw new Exception("Material não localizado!");
+	}
+	
+	$fg_possui_estoque = false;	
+	if ($tipo_francionamento=='UNIDADE' && $material['quantidade']>=count($arr_qtd_fracionada)) {
+		$fg_possui_estoque = true;
+	} else {
+		$fg_possui_estoque = ($material['quantidade'] >= 1 ? true : false);
 	}
 
+	if (!$fg_possui_estoque) {
+		throw new Exception("Material não possui estoque!");
+	}
+
+	//LOGICA DO FRACIONAMENTO
+	if (!$arr_qtd_fracionada || count($arr_qtd_fracionada) == 0) {
+		$arr_qtd_fracionada[] = $material['peso'];
+	} else {
+		if ($fg_dividir_auto) {
+			if ($tipo_francionamento=='FRACAO') {
+				$arr_qtd_fracionada = dividirQuantidade(numberFormatBanco($material['peso']), count($arr_qtd_fracionada));
+			} else {
+				$arr = array();
+				foreach ($arr_qtd_fracionada as $key => $value) {
+					$arr[] = $material['peso'];
+				}
+				$arr_qtd_fracionada = $arr;
+			}
+		}	
+	}
+
+	$data_fracionamento = date("Y-m-d");
+	$dt_vencimento = dt_banco($material['dt_vencimento']);
+	
+	$data_vencimento_aberto = somar_dias($data_fracionamento,$material['dias_vencimento_aberto']);
+	
+	if (strtotime($data_vencimento_aberto) > strtotime($material['dt_vencimento'])) {
+		$data_vencimento_aberto = $dt_vencimento;
+	}
+	
+	$data_fracionamento = dt_br($data_fracionamento);
+	$data_vencimento_aberto = dt_br($data_vencimento_aberto);
+
+	foreach ($arr_qtd_fracionada as $key => $value) {
+		$arr_materiais_fracionado = array(
+			'qtd_fracionada'=>$value,
+			'dt_vencimento'=>$data_vencimento_aberto,
+			'dt_fracionamento'=>$data_fracionamento,
+			'status'=>'A',
+			'motivo_descarte'=>'',
+			'id_materiais'=>$material['id_materiais'],
+			'id_embalagens'=>$material['id_embalagens'],
+			'id_unidades_medidas'=>$material['id_unidades_medidas'],
+			'id_usuarios'=> $id_usuarios
+		);
+		$add = $class_materiais_fracionados->add($arr_materiais_fracionado);
+		$arr_fracionados[] = $class_materiais_fracionados->loadId($add);
+		$arr_etiquetas[] = gerarEtiquetas($material, $add, $id_usuarios);
+	}
+
+	//ATUALIZA O ESTOQUE
+	$material['quantidade'] = $tipo_francionamento == 'UNIDADE' ? ($material['quantidade'] - count($arr_qtd_fracionada)) : ($material['quantidade'] - 1);
+	$edit_material = $class_materiais->edit(
+		$material,
+		array('id_materiais'=>$material['id_materiais'])
+	);
+
+	$data = array(
+		'success'=>true, 
+		'type'=>'success', 
+		'msg'=>'Material fracionado com sucesso.',
+		'edit_material'=>$edit_material,
+		'arr_fracionado'=>$arr_fracionados,
+		'arr_etiqueta'=>$arr_etiquetas,
+		'material'=>$material
+	);
+	
 	return $data;
 
 }

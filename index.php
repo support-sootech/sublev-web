@@ -51,9 +51,17 @@ $app->get('/info', function() use ($app){
 	echo phpinfo();
 });
 
-$app->get('/texte_mb', function() use ($app){
-	$str = 'anderson';
-	verMatriz(strtoupper(toUpperCase($str)));
+$app->get('/teste', function() use ($app){
+	$arr = array('1','1','1');
+	
+	$data = array();
+	try {
+		$data = fracionarMateriais(27,'12/06/2025',$arr,'UNIDADE',true,2);
+	} catch (Exception $e) {
+		$data = $e->getMessage();
+	}
+
+	verMatriz($data);
 });
 
 $app->notFound(function () use ($app) {
