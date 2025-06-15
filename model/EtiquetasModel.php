@@ -57,7 +57,28 @@ class EtiquetasModel extends Connection {
         }
 
         return $arr;
-    }    
+    }
+
+    private function getFieldsView($data) {
+
+        if (!empty($data['dt_fabricacao'])) {
+            $data['dt_fabricacao'] = dt_br($data['dt_fabricacao']);
+        }
+
+        if (!empty($data['dt_vencimento'])) {
+            $data['dt_vencimento'] = dt_br($data['dt_vencimento']);
+        }
+
+        if (!empty($data['dt_fracionamento'])) {
+            $data['dt_fracionamento'] = dt_br($data['dt_fracionamento']);
+        }
+
+        if (!empty($data['qtd_fracionada'])) {
+            $data['qtd_fracionada'] = numberformat($data['qtd_fracionada'], false);
+        }
+
+        return $data;
+    }
 
     public function loadId($id) {
         try {
@@ -76,6 +97,29 @@ class EtiquetasModel extends Connection {
         } catch (Exception $e) {
             return $e->getMessage();
         }
+    }
+
+    public function loadIdEtiquetaInfo($id_etiquetas) {
+
+        $arr[':ID_ETIQUETAS'] = $id_etiquetas;
+        $sql = "select e.*, 
+                    m.descricao as ds_material, m.lote, m.dt_fabricacao, m.cod_barras,
+                    um.descricao as ds_unidades_medidas,
+                    mc.descricao as ds_modo_conservacao,
+                    mf.qtd_fracionada, mf.dt_fracionamento, mf.dt_vencimento,
+                    p.nome as nm_pessoa
+                from tb_etiquetas e 
+                inner join tb_materiais_fracionados mf on mf.id_materiais_fracionados = e.id_materiais_fracionados
+                inner join tb_materiais m on m.id_materiais = e.id_materiais
+                inner join tb_unidades_medidas um on um.id_unidades_medidas = m.id_unidades_medidas
+                inner join tb_modo_conservacao mc on mc.id = m.id_modo_conservacao
+                inner join tb_usuarios u on u.id_usuarios = mf.id_usuarios
+                inner join tb_pessoas p on p.id_pessoas = u.id_pessoas
+                where e.id_etiquetas = :ID_ETIQUETAS";
+        $res = $this->conn->select($sql, $arr);
+        
+        return isset($res[0]) ? $this->getFieldsView($res[0]) : false;
+
     }
 
     public function loadEtiquetaDetalhes($id) {

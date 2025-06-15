@@ -701,12 +701,11 @@ function gerarEtiquetas($material='', $id_material_fracionado, $id_usuarios='') 
 		$arr_etiqueta['id_usuarios'] = (!empty($id_usuarios) ? $id_usuarios : $_SESSION['usuario']['id_usuarios']);
 		$data_etiqueta = $class_etiquetas->add($arr_etiqueta);
 	}
-	return $data_etiqueta ? $class_etiquetas->loadId($data_etiqueta) : $data_etiqueta;
+	return $data_etiqueta ? $class_etiquetas->loadIdEtiquetaInfo($data_etiqueta) : $data_etiqueta;
 }
 
 function fracionarMateriais(
-	$id_materiais, 
-	$dt_vencimento_material, 
+	$id_materiais,
 	$arr_qtd_fracionada=array(), 
 	$tipo_francionamento = 'UNIDADE',
 	$fg_dividir_auto = true,

@@ -69,48 +69,37 @@ $app->map('/app-materiais-fracionar', function() use ($app){
                 throw new Exception("É necessário informar o código do material!");
             }
 
-            if (!isset($params['dt_vencimento']) || empty($params['dt_vencimento'])) {
-                throw new Exception("É necessário informar a data de vencimento!");
-            }            
+            if (!isset($params['quantidade']) || empty($params['quantidade'])) {
+                throw new Exception("É necessário informar a quantidade!");
+            }
+
+            if (!isset($params['tipo']) || empty($params['tipo'])) {
+                throw new Exception("É necessário informar a tipo do fracionamento (UNIDADE OU FRACAO)!");
+            }
            
             $class_materiais = new MateriaisModel();
             $material = $class_materiais->loadIdMaterialDetalhes('A',$params['id_materiais']);
 
             if ($material) {
-                
-                $fg_fracionado = fracionarMateriais($params['id_materiais'], $params['dt_vencimento'], array(), $usuario['id_usuarios']);
-                
-                if ($fg_fracionado['success']) {
-                    $response_status = 200;
-                    
-                    $class_etiquetas = new EtiquetasModel();
-                    $arr_etiqueta = array();
-                    $id_etiquetas = '';
-                    $arr_etiqueta['id_etiquetas'] = '';
-                    $arr_etiqueta['descricao'] = 'Etiqueta '.$material['descricao'].' - '.dt_br(date("Ymd"));
-                    $arr_etiqueta['codigo'] = $material['cod_barras'];
-                    $arr_etiqueta['id_materiais_fracionados'] = $material['id_materiais_fracionados'];
-                    $arr_etiqueta['id_materiais'] = $material['id_materiais'];
-                    $arr_etiqueta['status'] = 'A';
-                    $arr_etiqueta['id_usuarios'] = $usuario['id_usuarios'];
-                    $data_etiqueta = $class_etiquetas->add($arr_etiqueta);
-                    
-                    if ($data_etiqueta) {
-                        $etiqueta = $class_etiquetas->loadId($data_etiqueta);
-                        $material = $class_materiais->loadIdMaterialDetalhes('A',$etiqueta['id_materiais']);
-                        $res = array('etiqueta'=>$etiqueta, 'material'=>$material, 'fracionamento'=>$fg_fracionado);
-                    }
-
-                } else {
-                    throw new Exception($fg_fracionado['msg']);
+                $quantidade = array();
+                for ($i=1; $i <= $params['quantidade']; $i++) { 
+                    $quantidade[] = 1;
                 }
+
+                $tipo_fracionamento = mb_strtoupper($params['tipo']) == 'FRACAO' ? 'FRACAO' : 'UNIDADE';
+                
+                $fracionamento = fracionarMateriais(
+                    $params['id_materiais'], 
+                    $quantidade, 
+                    $tipo_fracionamento,
+                    true,
+                    $usuario['id_usuarios']
+                );                
+                $response_status = 200;
+                $data = array('success'=>true, 'type'=>'success', 'msg'=>'OK', 'data'=>$fracionamento);
             } else {
                 throw new Exception("Material nãolocalizado!", 1);
             }
-            
-            $response_status = 200;
-            $data = array('success'=>true, 'type'=>'success', 'msg'=>'OK', 'data'=>$res);
-
         } catch (Exception $e) {
             $data = array('error'=>true, 'type'=>'danger', 'msg'=>$e->getMessage());
         }        
