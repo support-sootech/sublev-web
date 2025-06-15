@@ -151,6 +151,40 @@ class EtiquetasModel extends Connection {
         }
     }
 
+    public function loadEtiquetasIdUsuarios($id_usuarios) {
+        try {
+            $arr[':ID_USUARIOS'] = $id_usuarios;
+            
+            $sql = "select e.*, 
+                        m.descricao as ds_material, m.lote, m.dt_fabricacao, m.cod_barras,
+                        um.descricao as ds_unidades_medidas,
+                        mc.descricao as ds_modo_conservacao,
+                        mf.qtd_fracionada, mf.dt_fracionamento, mf.dt_vencimento,
+                        p.nome as nm_pessoa
+                    from tb_etiquetas e 
+                    inner join tb_materiais_fracionados mf on mf.id_materiais_fracionados = e.id_materiais_fracionados
+                    inner join tb_materiais m on m.id_materiais = e.id_materiais
+                    inner join tb_unidades_medidas um on um.id_unidades_medidas = m.id_unidades_medidas
+                    inner join tb_modo_conservacao mc on mc.id = m.id_modo_conservacao
+                    inner join tb_usuarios u on u.id_usuarios = mf.id_usuarios
+                    inner join tb_pessoas p on p.id_pessoas = u.id_pessoas
+                    where e.id_usuarios = :ID_USUARIOS";
+            $res = $this->conn->select($sql, $arr);
+            
+            if (isset($res[0])) {
+                $arr = array();
+                foreach ($res as $key => $value) {
+                    $arr[] = $this->getFieldsView($value);
+                }
+                return $arr;
+            } else {
+                return false;
+            }
+        } catch (Exception $e) {
+            return $e->getMessage();
+        }
+    }
+
     public function loadCodigoBarras($codigo) {
         try {
             $arr[':CODIGO'] = $codigo;
