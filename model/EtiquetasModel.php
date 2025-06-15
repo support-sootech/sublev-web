@@ -168,7 +168,8 @@ class EtiquetasModel extends Connection {
                     inner join tb_modo_conservacao mc on mc.id = m.id_modo_conservacao
                     inner join tb_usuarios u on u.id_usuarios = mf.id_usuarios
                     inner join tb_pessoas p on p.id_pessoas = u.id_pessoas
-                    where e.id_usuarios = :ID_USUARIOS";
+                    where e.id_usuarios = :ID_USUARIOS
+                    order by e.id_etiquetas desc";
             $res = $this->conn->select($sql, $arr);
             
             if (isset($res[0])) {
