@@ -175,6 +175,9 @@ class EtiquetasModel extends Connection {
             if (isset($res[0])) {
                 $arr = array();
                 foreach ($res as $key => $value) {
+                    if(!empty($value['descricao'])) {
+                        $value['descricao'] = utf8_decode($value['descricao']);
+                    }
                     $arr[] = $this->getFieldsView($value);
                 }
                 return $arr;
