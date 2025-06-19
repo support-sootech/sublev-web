@@ -28,7 +28,7 @@ $titulo = 'Home';
             <div class="container-fluid">
 
                     <!-- Page Heading -->
-                    <h1 class="h3 mb-2 text-gray-800"><?=$titulo?> </h1>
+                    <h1 class="h3 mb-2 text-gray-800">Bem vindo(a), <?=$_SESSION['usuario']['nm_pessoa']?>!</h1>
                     
 
                     <!-- DataTales Example -->
@@ -47,7 +47,63 @@ $titulo = 'Home';
                         <div class="card-body">
                             <div class="row">
                                 <div class="col">
-                                    <h5>Bem vindo(a), <?=$_SESSION['usuario']['nm_pessoa']?>!</h5>
+                                    <div class="row">
+                                        <div class="col text-left" id="div_btn_voltar">
+                                            
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col" align="right">
+                                            <div class="card text-bg-danger mb-3" style="max-width: 18rem;">
+                                                <div class="card-body">
+                                                    <h5 class="card-title" align="center"><i class="fas fa-fire-alt"></i></h5>
+                                                    <p class="card-text" align="center">5<br>Vencem Hoje</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col">
+                                            <div class="card text-bg-warning mb-3" style="max-width: 18rem;">
+                                                <div class="card-body">
+                                                    <h5 class="card-title" align="center"><i class="fas fa-exclamation-triangle"></i></h5>
+                                                    <p class="card-text" align="center">3<br>Vencem Amanhã</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col" align="right">    
+                                            <div class="card text-bg-info mb-3" style="max-width: 18rem;">
+                                                <div class="card-body">
+                                                    <h5 class="card-title" align="center"><i class="far fa-calendar"></i></h5>
+                                                    <p class="card-text" align="center">9<br>Vencem Em 1 semana</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col">  
+                                            <div class="card text-bg-success mb-3" style="max-width: 18rem;">
+                                                <div class="card-body">
+                                                    <h5 class="card-title" align="center"><i class="far fa-thumbs-up"></i></h5>
+                                                    <p class="card-text" align="center">15<br>Vencem Após 7 dias</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col" align="right"> 
+                                            <div class="card text-bg-primary mb-3" style="max-width: 18rem; width: 288px; height: 126px;">
+                                                <div class="card-body" style="vertical-align: middle;">
+                                                        <h5 class="card-title" align="center"><br>Entrada de Materiais</h5>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col"> 
+                                            <div class="card text-bg-primary mb-3" style="max-width: 18rem; width: 288px; height: 126px;">
+                                                <div class="card-body">
+                                                    <h5 class="card-title" align="center"><br>Baixar Materiais Fracionados</h5>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
                                     <?php
                                     /*
                                     $fg = array_search('ROOT', array_column($_SESSION['usuario']['perfil'], 'ds_perfil'));
