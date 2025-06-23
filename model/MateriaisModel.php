@@ -326,6 +326,55 @@ class MateriaisModel extends Connection {
         }
     }
 
+    public function loadMateriaisVencimento($status='',$id_acao) {
+        try {
+            $arr = array();
+            $and = '';
+
+            if (!empty($status)) {
+                $arr[':STATUS'] = $status;
+                $and .= " and p.status = :STATUS";
+            } else {
+                $arr[':STATUS'] = 'D';
+                $and .= " and p.status != :STATUS";
+            }
+            
+            if ($id_acao == 'btn_vencem_hoje')
+                $and .= " and mf.dt_vencimento = DATE_FORMAT(CURDATE(), '%Y-%m-%d')";
+            if ($id_acao == 'btn_vencem_amanha')
+                $and .= " and mf.dt_vencimento = DATE_ADD(CURDATE(), INTERVAL 1 DAY)";
+            if ($id_acao == 'btn_vencem_semana')
+                $and .= " and mf.dt_vencimento < DATE_ADD(CURDATE(), INTERVAL 8 DAY)";
+            if ($id_acao == 'btn_vencem_mais_1_semana')
+                $and .= " and mf.dt_vencimento > DATE_ADD(CURDATE(), INTERVAL 7 DAY)";
+
+            $sql = "select p.*,
+                           e.id_etiquetas as id_etiquetas, 
+                           mf.id_materiais_fracionados as id_materiais_fracionados,
+                           DATE_FORMAT(mf.dt_fracionamento,'%d/%m/%Y') as dt_fracionamento,
+                           DATE_FORMAT(mf.dt_vencimento,'%d/%m/%Y') as dt_vencimento,
+                           ifnull(mm.descricao, '') as marca,
+                           ifnull(um.descricao, '') as ds_unidade_medida
+                      from ".self::TABLE." p
+                      inner join tb_materiais_marcas mm on mm.id_materiais_marcas = p.id_materiais_marcas
+                      inner join tb_unidades_medidas um on um.id_unidades_medidas = p.id_unidades_medidas
+                      inner join tb_materiais_fracionados mf on mf.id_materiais = p.id_materiais
+                      inner join tb_etiquetas e on ((e.id_materiais = p.id_materiais) and (e.id_materiais_fracionados = mf.id_materiais_fracionados))
+                     where 1=1
+                       ".$and."";
+            
+            $res = $this->conn->select($sql, $arr);
+            
+            if (isset($res[0])) {
+                return $res;
+            } else {
+                return false;
+            }
+        } catch (Exception $e) {
+            return $e->getMessage();
+        }
+    }
+
     public function loadRelatorioMateriaisRecebimento($id_empresas="", $dt_ini, $dt_fim, $status='') {
         try {
             $arr = array();
