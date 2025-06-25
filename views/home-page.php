@@ -48,8 +48,117 @@ $titulo = 'Home';
                             <div class="row">
                                 <div class="col">
                                     <div class="row">
-                                        <div class="col text-left" id="div_btn_voltar">
-                                            
+                                        <div class="col text-center" id="div_btn_voltar">
+                                            <h1 class="h3 mb-2 text-gray-800">Atalhos Rápidos</h1>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col" align="right"> 
+                                            <div class="card text-bg-primary mb-3" style="max-width: 18rem;">
+                                                <a href="/controle-materiais" class="btn btn-primary" >
+                                                    <div class="card-body" style="vertical-align: middle;">
+                                                            <h5 class="card-title" align="center"><br>Entrada de Materiais</h5>
+                                                    </div>
+                                                </a>
+                                            </div>
+                                        </div>
+                                        <div class="col"> 
+                                            <div class="card text-bg-primary mb-3" style="max-width: 18rem;">
+                                                <a href="/materiais-fracionados-baixa" class="btn btn-primary" >
+                                                    <div class="card-body">
+                                                        <h5 class="card-title" align="center"><br>Baixar Mat. Fracionados</h5>
+                                                    </div>
+                                                </a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col">
+                                    <div class="row">
+                                        <div class="col text-center" id="div_btn_voltar">
+                                            <h1 class="h3 mb-2 text-gray-800">Materiais Fracionados</h1>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col" align="right">
+                                            <div class="card text-bg-danger mb-3" style="max-width: 18rem;">
+                                                <a id="btn_vencem_hoje" rel="btn_card_vencimentos" class="btn btn-danger" data-toggle="modal" data-target="#modalMatFracionados">
+                                                    
+                                                    <div class="card-body" id="card_vencem_hoje">
+                                                        <h5 class="card-title" align="center"><i class="fas fa-fire-alt"></i></h5>
+                                                        <p class="card-text" align="center" id="texto_vencem_hoje"></p>
+                                                    </div>
+                                                </a>
+                                                
+                                            </div>
+                                        </div>
+                                        <div class="col">
+                                            <div class="card text-bg-warning mb-3" style="max-width: 18rem;">
+                                                <a id="btn_vencem_amanha" rel="btn_card_vencimentos" class="btn btn-warning" data-toggle="modal" data-target="#modalMatFracionados">
+                                                    <div class="card-body">
+                                                        <h5 class="card-title" align="center"><i class="fas fa-exclamation-triangle"></i></h5>
+                                                        <p class="card-text" align="center" id="texto_vencem_amanha"></p>
+                                                    </div>
+                                                </a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col" align="right">    
+                                            <div class="card text-bg-info mb-3" style="max-width: 18rem;">
+                                                <a id="btn_vencem_semana" rel="btn_card_vencimentos" class="btn btn-info" data-toggle="modal" data-target="#modalMatFracionados">
+                                                    <div class="card-body">
+                                                        <h5 class="card-title" align="center"><i class="far fa-calendar"></i></h5>
+                                                        <p class="card-text" align="center" id="texto_vencem_semana"></p>
+                                                    </div>
+                                                </a>
+                                            </div>
+                                        </div>
+                                        <div class="col">  
+                                            <div class="card text-bg-success mb-3" style="max-width: 18rem;">
+                                                <a id="btn_vencem_mais_1_semana" rel="btn_card_vencimentos" class="btn btn-success" data-toggle="modal" data-target="#modalMatFracionados">
+                                                    <div class="card-body">
+                                                        <h5 class="card-title" align="center"><i class="far fa-thumbs-up"></i></h5>
+                                                        <p class="card-text" align="center"  id="texto_vencem_mais_1_semana"></p>
+                                                    </div>
+                                                </a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <!-- Modal Structure -->
+                                    <div class="modal fade bd-example-modal-lg" id="modalMatFracionados" tabindex="-1" role="dialog" aria-labelledby="exampleModalLongTitle" aria-hidden="true">
+                                        <div class="modal-dialog modal-lg" role="document">
+                                            <div class="modal-content">
+                                                <div class="modal-header">
+                                                    <h5 class="modal-title" id="titulo-modalMatFracionados"></h5>
+                                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                    <span aria-hidden="true">&times;</span>
+                                                    </button>
+                                                </div>
+                                                <div class="modal-body" id="conteudo-modalMatFracionados">
+                                                    
+                                                </div>
+                                                <div class="modal-footer">
+                                                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <!-- End Modal Structure -->
+                                    
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col">
+                                    <div class="row">
+                                        <div class="col text-center" id="div_btn_voltar">
+                                            <h1 class="h3 mb-2 text-gray-800">Materiais Sem Fracionamento</h1>
                                         </div>
                                     </div>
                                     <div class="row">
@@ -59,7 +168,7 @@ $titulo = 'Home';
                                                     
                                                     <div class="card-body" id="card_vencem_hoje">
                                                         <h5 class="card-title" align="center"><i class="fas fa-fire-alt"></i></h5>
-                                                        <p class="card-text" align="center">5<br>Vencem Hoje</p>
+                                                        <p class="card-text" align="center">5<br>Vencem Amanhã</p>
                                                     </div>
                                                 </a>
                                                 
@@ -70,45 +179,23 @@ $titulo = 'Home';
                                                 <a id="btn_vencem_amanha" rel="btn_card_vencimentos" class="btn btn-warning" data-toggle="modal" data-target="#exampleModalLong">
                                                     <div class="card-body">
                                                         <h5 class="card-title" align="center"><i class="fas fa-exclamation-triangle"></i></h5>
-                                                        <p class="card-text" align="center">3<br>Vencem Amanhã</p>
-                                                    </div>
-                                                </a>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="row">
-                                        <div class="col" align="right">    
-                                            <div class="card text-bg-info mb-3" style="max-width: 18rem;">
-                                                <a id="btn_vencem_semana" rel="btn_card_vencimentos" class="btn btn-info" data-toggle="modal" data-target="#exampleModalLong">
-                                                    <div class="card-body">
-                                                        <h5 class="card-title" align="center"><i class="far fa-calendar"></i></h5>
-                                                        <p class="card-text" align="center">9<br>Vencem Em 1 semana</p>
-                                                    </div>
-                                                </a>
-                                            </div>
-                                        </div>
-                                        <div class="col">  
-                                            <div class="card text-bg-success mb-3" style="max-width: 18rem;">
-                                                <a id="btn_vencem_mais_1_semana" rel="btn_card_vencimentos" class="btn btn-success" data-toggle="modal" data-target="#exampleModalLong">
-                                                    <div class="card-body">
-                                                        <h5 class="card-title" align="center"><i class="far fa-thumbs-up"></i></h5>
-                                                        <p class="card-text" align="center">15<br>Vencem Após 7 dias</p>
+                                                        <p class="card-text" align="center">3<br>Vencem em 1 semana</p>
                                                     </div>
                                                 </a>
                                             </div>
                                         </div>
                                     </div>
                                     <!-- Modal Structure -->
-                                    <div class="modal fade bd-example-modal-lg" id="exampleModalLong" tabindex="-1" role="dialog" aria-labelledby="exampleModalLongTitle" aria-hidden="true">
+                                    <div class="modal fade bd-example-modal-lg" id="modalMatNaoFracionados" tabindex="-1" role="dialog" aria-labelledby="exampleModalLongTitle" aria-hidden="true">
                                         <div class="modal-dialog modal-lg" role="document">
                                             <div class="modal-content">
                                                 <div class="modal-header">
-                                                    <h5 class="modal-title" id="titulo-modal"></h5>
+                                                    <h5 class="modal-title" id="titulo-modalMatNaoFracionados"></h5>
                                                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                                                     <span aria-hidden="true">&times;</span>
                                                     </button>
                                                 </div>
-                                                <div class="modal-body" id="conteudo-modal">
+                                                <div class="modal-body" id="conteudo-modalMatNaoFracionados">
                                                     
                                                 </div>
                                                 <div class="modal-footer">
@@ -118,30 +205,6 @@ $titulo = 'Home';
                                         </div>
                                     </div>
                                     <!-- End Modal Structure -->
-                                    <div class="row">
-                                        <div class="col" align="right"> 
-                                            <div class="card text-bg-primary mb-3" style="max-width: 18rem; width: 288px; height: 126px;">
-                                                <div class="card-body" style="vertical-align: middle;">
-                                                        <h5 class="card-title" align="center"><br>Entrada de Materiais</h5>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="col"> 
-                                            <div class="card text-bg-primary mb-3" style="max-width: 18rem; width: 288px; height: 126px;">
-                                                <div class="card-body">
-                                                    <h5 class="card-title" align="center"><br>Baixar Materiais Fracionados</h5>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <?php
-                                    /*
-                                    $fg = array_search('ROOT', array_column($_SESSION['usuario']['perfil'], 'ds_perfil'));
-                                    if (isset($fg)) {
-                                        verMatriz($_SESSION['usuario']);
-                                    }
-                                    */
-                                    ?>
                                 </div>
                             </div>
                         </div>
@@ -190,16 +253,16 @@ function carrega_materiais_vencimento(id){
             
             if (data) {
                 if (id == 'btn_vencem_hoje'){
-                    $("#titulo-modal").html('Materiais que Vencem Hoje');
+                    $("#titulo-modalMatFracionados").html('Materiais que Vencem Hoje');
                 }
                 if (id == 'btn_vencem_amanha'){
-                    $("#titulo-modal").html('Materiais que Vencem Amanhã');
+                    $("#titulo-modalMatFracionados").html('Materiais que Vencem Amanhã');
                 }
                 if (id == 'btn_vencem_semana'){
-                    $("#titulo-modal").html('Materiais que Vencem em 1 semana');
+                    $("#titulo-modalMatFracionados").html('Materiais que Vencem em 1 semana');
                 }
                 if (id == 'btn_vencem_mais_1_semana'){
-                    $("#titulo-modal").html('Materiais que Vencem Após 1 semana');
+                    $("#titulo-modalMatFracionados").html('Materiais que Vencem Após 1 semana');
                 }
 
                 if (data.data) {
@@ -212,7 +275,7 @@ function carrega_materiais_vencimento(id){
                     body += '<th scope="col"><b>Data de Validade </b></th>';
                     body += '<th scope="col"><b>Data de Fracionamento </b></th>';
                     body += '</tr></thead><tbody>';
-
+                    
                     $.each(data.data, function(i, v){
 
                         body += '<tr>';
@@ -226,7 +289,7 @@ function carrega_materiais_vencimento(id){
                     });
 
                     body += '</tbody></table>';
-                    $("#conteudo-modal").html(body);
+                    $("#conteudo-modalMatFracionados").html(body);
                 }
             }
         },
@@ -248,11 +311,143 @@ function carrega_materiais_vencimento(id){
 
 $(document).ready(function(){
 
+    $.ajax({
+        url:'/quant-materiais-vencimento-json',
+        type:'post',
+        dataType:'json',
+        data:{
+            'id_acao':'texto_vencem_hoje'
+        },
+        success:function(data){
+            console.log('carrega_materiais_vencimento',data);
+            
+            if (data) {
+                
+                $.each(data.data, function(i, v){
+                    $("#texto_vencem_hoje").html(v.quantidade+'<br>Vencem Hoje');
+                });
+                
+            }
+        },
+        beforeSend:function(){
+            preloaderStart();
+        },
+        error:function(a,b,c){
+            preloaderStop();
+            gerarAlerta(a, 'Aviso', 'danger');
+            console.error('a',a);
+            console.error('b',b);
+            console.error('c',c);
+        },
+        complete:function(){
+            preloaderStop();
+        }
+    });
+
+    $.ajax({
+        url:'/quant-materiais-vencimento-json',
+        type:'post',
+        dataType:'json',
+        data:{
+            'id_acao':'texto_vencem_amanha'
+        },
+        success:function(data){
+            console.log('carrega_materiais_vencimento',data);
+            
+            if (data) {
+                
+                $.each(data.data, function(i, v){
+                    $("#texto_vencem_amanha").html(v.quantidade+'<br>Vencem Amanhã');
+                });
+                
+            }
+        },
+        beforeSend:function(){
+            preloaderStart();
+        },
+        error:function(a,b,c){
+            preloaderStop();
+            gerarAlerta(a, 'Aviso', 'danger');
+            console.error('a',a);
+            console.error('b',b);
+            console.error('c',c);
+        },
+        complete:function(){
+            preloaderStop();
+        }
+    });
+
+    $.ajax({
+        url:'/quant-materiais-vencimento-json',
+        type:'post',
+        dataType:'json',
+        data:{
+            'id_acao':'texto_vencem_semana'
+        },
+        success:function(data){
+            console.log('carrega_materiais_vencimento',data);
+            
+            if (data) {
+                
+                $.each(data.data, function(i, v){
+                    $("#texto_vencem_semana").html(v.quantidade+'<br>Vencem em 1 semana');
+                });
+                
+            }
+        },
+        beforeSend:function(){
+            preloaderStart();
+        },
+        error:function(a,b,c){
+            preloaderStop();
+            gerarAlerta(a, 'Aviso', 'danger');
+            console.error('a',a);
+            console.error('b',b);
+            console.error('c',c);
+        },
+        complete:function(){
+            preloaderStop();
+        }
+    });
+
+    $.ajax({
+        url:'/quant-materiais-vencimento-json',
+        type:'post',
+        dataType:'json',
+        data:{
+            'id_acao':'texto_vencem_mais_1_semana'
+        },
+        success:function(data){
+            console.log('carrega_materiais_vencimento',data);
+            
+            if (data) {
+                
+                $.each(data.data, function(i, v){
+                    $("#texto_vencem_mais_1_semana").html(v.quantidade+'<br>Vencem Após 7 dias');
+                });
+                
+            }
+        },
+        beforeSend:function(){
+            preloaderStart();
+        },
+        error:function(a,b,c){
+            preloaderStop();
+            gerarAlerta(a, 'Aviso', 'danger');
+            console.error('a',a);
+            console.error('b',b);
+            console.error('c',c);
+        },
+        complete:function(){
+            preloaderStop();
+        }
+    });
+
     $(document).on('click','a[rel=btn_card_vencimentos]', function(e){
         e.preventDefault();
         const id = $(this).attr('id');
         if (id) {
-            $("#conteudo-modal").html("");
+            $("#conteudo-modalMatFracionados").html("");
             carrega_materiais_vencimento(id);
         }
     });

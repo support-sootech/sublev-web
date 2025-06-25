@@ -375,6 +375,49 @@ class MateriaisModel extends Connection {
         }
     }
 
+    public function loadQuantMateriaisVencimento($status='',$id_acao) {
+        try {
+            $arr = array();
+            $and = '';
+
+            if (!empty($status)) {
+                $arr[':STATUS'] = $status;
+                $and .= " and p.status = :STATUS";
+            } else {
+                $arr[':STATUS'] = 'D';
+                $and .= " and p.status != :STATUS";
+            }
+            
+            if ($id_acao == 'texto_vencem_hoje')
+                $and .= " and mf.dt_vencimento = DATE_FORMAT(CURDATE(), '%Y-%m-%d')";
+            if ($id_acao == 'texto_vencem_amanha')
+                $and .= " and mf.dt_vencimento = DATE_ADD(CURDATE(), INTERVAL 1 DAY)";
+            if ($id_acao == 'texto_vencem_semana')
+                $and .= " and mf.dt_vencimento < DATE_ADD(CURDATE(), INTERVAL 8 DAY)";
+            if ($id_acao == 'texto_vencem_mais_1_semana')
+                $and .= " and mf.dt_vencimento > DATE_ADD(CURDATE(), INTERVAL 7 DAY)";
+
+            $sql = "select count(*) as quantidade
+                      from ".self::TABLE." p
+                      inner join tb_materiais_marcas mm on mm.id_materiais_marcas = p.id_materiais_marcas
+                      inner join tb_unidades_medidas um on um.id_unidades_medidas = p.id_unidades_medidas
+                      inner join tb_materiais_fracionados mf on mf.id_materiais = p.id_materiais
+                      inner join tb_etiquetas e on ((e.id_materiais = p.id_materiais) and (e.id_materiais_fracionados = mf.id_materiais_fracionados))
+                     where 1=1
+                       ".$and."";
+            
+            $res = $this->conn->select($sql, $arr);
+            
+            if (isset($res[0])) {
+                return $res;
+            } else {
+                return false;
+            }
+        } catch (Exception $e) {
+            return $e->getMessage();
+        }
+    }
+
     public function loadRelatorioMateriaisRecebimento($id_empresas="", $dt_ini, $dt_fim, $status='') {
         try {
             $arr = array();
