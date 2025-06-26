@@ -69,7 +69,7 @@ $app->post('/quant-materiais-vencimento-json', function() use ($app){
             }
 
             $class_materiais = new MateriaisModel();
-            $arr = $class_materiais->loadQuantMateriaisVencimento($status,$id_acao);
+            $arr = $class_materiais->loadQuantMateriaisVencimento($status,$id_acao, $id_empresas);
             if ($arr) {
                 foreach ($arr as $key => $value) {
                     $data['data'][] = $value;

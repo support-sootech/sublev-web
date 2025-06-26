@@ -375,7 +375,7 @@ class MateriaisModel extends Connection {
         }
     }
 
-    public function loadQuantMateriaisVencimento($status='',$id_acao) {
+    public function loadQuantMateriaisVencimento($status='',$id_acao, $id_empresas) {
         try {
             $arr = array();
             $and = '';
@@ -387,6 +387,9 @@ class MateriaisModel extends Connection {
                 $arr[':STATUS'] = 'D';
                 $and .= " and p.status != :STATUS";
             }
+
+            $arr[':ID_EMPRESAS'] = $id_empresas;
+            $and .= " and p.id_empresas = :ID_EMPRESAS";
             
             if ($id_acao == 'texto_vencem_hoje')
                 $and .= " and mf.dt_vencimento = DATE_FORMAT(CURDATE(), '%Y-%m-%d')";
