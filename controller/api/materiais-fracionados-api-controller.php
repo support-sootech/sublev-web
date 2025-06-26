@@ -119,4 +119,55 @@ $app->map('/app-materiais-fracionar', function() use ($app){
 
 })->via('POST','OPTIONS');
 
+$app->map('/app-materiais-fracionados-vencimento', function() use ($app){
+	$response_status = 400;
+    $response_metodo = 'GET';
+    $data = array();
+
+    if ($app->request->isOptions()) {
+        $response_status = 200;
+        $response_metodo = 'GET, OPTIONS';
+        $data = array('OK');
+    } else if ($app->request->isGet()) {
+
+        try {
+            $usuario = getUsuario($app);
+            if ($usuario==false) {
+                throw new Exception("Usuário não localizado!");
+            }            
+
+            $class_materiais = new MateriaisModel();
+            $arr['vencem_hoje'] = $class_materiais->loadQuantMateriaisVencimento('','texto_vencem_hoje', $usuario['id_empresas']);
+            $arr['vencem_hoje'] = isset($arr['vencem_hoje'][0]['quantidade']) ? $arr['vencem_hoje'][0]['quantidade'] : 0;
+
+            $arr['vencem_amanha'] = $class_materiais->loadQuantMateriaisVencimento('','texto_vencem_amanha', $usuario['id_empresas']);
+            $arr['vencem_amanha'] = isset($arr['vencem_amanha'][0]['quantidade']) ? $arr['vencem_amanha'][0]['quantidade'] : 0;
+
+            $arr['vencem_semana'] = $class_materiais->loadQuantMateriaisVencimento('','texto_vencem_semana', $usuario['id_empresas']);
+            $arr['vencem_semana'] = isset($arr['vencem_semana'][0]['quantidade']) ? $arr['vencem_semana'][0]['quantidade'] : 0;
+
+            $arr['vencem_mais_1_semana'] = $class_materiais->loadQuantMateriaisVencimento('','texto_vencem_mais_1_semana', $usuario['id_empresas']);
+            $arr['vencem_mais_1_semana'] = isset($arr['vencem_mais_1_semana'][0]['quantidade']) ? $arr['vencem_mais_1_semana'][0]['quantidade'] : 0;
+            
+            $response_status = 200;
+            $data = array('success'=>true, 'type'=>'success', 'msg'=>'OK', 'data'=>$arr);
+
+        } catch (Exception $e) {
+            $data = array('error'=>true, 'type'=>'danger', 'msg'=>$e->getMessage());
+        }        
+        
+    } else {
+        $data = array('success'=>false, 'type'=>'danger', 'msg'=>'Método incorreto!');
+    }
+
+	$response = $app->response();
+	$response['Access-Control-Allow-Origin'] = '*';
+    $response['Access-Control-Allow-Headers'] = '*';
+	$response['Access-Control-Allow-Methods'] = $response_metodo;
+	$response['Content-Type'] = 'application/json';
+
+	$response->status($response_status);
+	$response->body(json_encode($data));
+
+})->via('GET','OPTIONS');
 ?>
