@@ -819,4 +819,30 @@ function toUpperCase($str) {
 	return $str;
 }
 
+function abreviarNome(string $nomeCompleto) {
+    // Remove espaços extras no início e fim e quebra o nome em partes
+    $partesNome = array_values(array_filter(explode(' ', trim($nomeCompleto))));
+
+    // Se o nome tiver apenas uma parte, retorna-o como está
+    if (count($partesNome) <= 1) {
+        return $nomeCompleto;
+    }
+
+    $primeiroNome = array_shift($partesNome); // Pega o primeiro nome
+    $ultimoSobrenome = array_pop($partesNome); // Pega o último sobrenome
+
+    $iniciaisNomesDoMeio = '';
+    foreach ($partesNome as $parte) {
+        // Ignora preposições comuns que geralmente não são abreviadas
+        if (!in_array(strtolower($parte), ['de', 'da', 'do', 'dos', 'das', 'e'])) {
+            $iniciaisNomesDoMeio .= strtoupper(substr($parte, 0, 1)) . '. ';
+        }
+    }
+
+    // Constrói o nome abreviado
+    $nomeAbreviado = $primeiroNome.' '.trim($iniciaisNomesDoMeio).' '. $ultimoSobrenome;
+
+    return $nomeAbreviado;
+}
+
 ?>

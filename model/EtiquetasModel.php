@@ -117,8 +117,16 @@ class EtiquetasModel extends Connection {
                 inner join tb_pessoas p on p.id_pessoas = u.id_pessoas
                 where e.id_etiquetas = :ID_ETIQUETAS";
         $res = $this->conn->select($sql, $arr);
+
+        if (isset($res[0])) {
+            $data = $this->getFieldsView($res[0]);
+            $data['nm_pessoa_abreviado'] = (!empty($data['nm_pessoa']) ? abreviarNome($data['nm_pessoa']) : '');
+            return $data;
+        } else {
+            return false;
+        }
         
-        return isset($res[0]) ? $this->getFieldsView($res[0]) : false;
+        return isset($res[0]) ?  : false;
 
     }
 
@@ -175,6 +183,7 @@ class EtiquetasModel extends Connection {
             if (isset($res[0])) {
                 $arr = array();
                 foreach ($res as $key => $value) {
+                    $value['nm_pessoa_abreviado'] = (!empty($value['nm_pessoa']) ? abreviarNome($value['nm_pessoa']) : '');
                     $arr[] = $this->getFieldsView($value);
                 }
                 return $arr;
