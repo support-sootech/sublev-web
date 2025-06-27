@@ -86,9 +86,9 @@ $titulo = 'Home';
                                     <div class="row">
                                         <div class="col" align="right">
                                             <div class="card text-bg-danger mb-3" style="max-width: 18rem;">
-                                                <a id="btn_vencem_hoje" rel="btn_card_vencimentos" class="btn btn-danger" data-toggle="modal" data-target="#modalMatFracionados">
+                                                <a id="btn_vencem_hoje" rel="btn_card_fracionados" class="btn btn-danger" data-toggle="modal" data-target="#modalMatFracionados">
                                                     
-                                                    <div class="card-body" id="card_vencem_hoje">
+                                                    <div class="card-body">
                                                         <h5 class="card-title" align="center"><i class="fas fa-fire-alt"></i></h5>
                                                         <p class="card-text" align="center" id="texto_vencem_hoje"></p>
                                                     </div>
@@ -98,7 +98,7 @@ $titulo = 'Home';
                                         </div>
                                         <div class="col">
                                             <div class="card text-bg-warning mb-3" style="max-width: 18rem;">
-                                                <a id="btn_vencem_amanha" rel="btn_card_vencimentos" class="btn btn-warning" data-toggle="modal" data-target="#modalMatFracionados">
+                                                <a id="btn_vencem_amanha" rel="btn_card_fracionados" class="btn btn-warning" data-toggle="modal" data-target="#modalMatFracionados">
                                                     <div class="card-body">
                                                         <h5 class="card-title" align="center"><i class="fas fa-exclamation-triangle"></i></h5>
                                                         <p class="card-text" align="center" id="texto_vencem_amanha"></p>
@@ -110,7 +110,7 @@ $titulo = 'Home';
                                     <div class="row">
                                         <div class="col" align="right">    
                                             <div class="card text-bg-info mb-3" style="max-width: 18rem;">
-                                                <a id="btn_vencem_semana" rel="btn_card_vencimentos" class="btn btn-info" data-toggle="modal" data-target="#modalMatFracionados">
+                                                <a id="btn_vencem_semana" rel="btn_card_fracionados" class="btn btn-info" data-toggle="modal" data-target="#modalMatFracionados">
                                                     <div class="card-body">
                                                         <h5 class="card-title" align="center"><i class="far fa-calendar"></i></h5>
                                                         <p class="card-text" align="center" id="texto_vencem_semana"></p>
@@ -120,7 +120,7 @@ $titulo = 'Home';
                                         </div>
                                         <div class="col">  
                                             <div class="card text-bg-success mb-3" style="max-width: 18rem;">
-                                                <a id="btn_vencem_mais_1_semana" rel="btn_card_vencimentos" class="btn btn-success" data-toggle="modal" data-target="#modalMatFracionados">
+                                                <a id="btn_vencem_mais_1_semana" rel="btn_card_fracionados" class="btn btn-success" data-toggle="modal" data-target="#modalMatFracionados">
                                                     <div class="card-body">
                                                         <h5 class="card-title" align="center"><i class="far fa-thumbs-up"></i></h5>
                                                         <p class="card-text" align="center"  id="texto_vencem_mais_1_semana"></p>
@@ -150,61 +150,6 @@ $titulo = 'Home';
                                     </div>
                                     <!-- End Modal Structure -->
                                     
-                                </div>
-                            </div>
-                        </div>
-                        <div class="card-body">
-                            <div class="row">
-                                <div class="col">
-                                    <div class="row">
-                                        <div class="col text-center" id="div_btn_voltar">
-                                            <h1 class="h3 mb-2 text-gray-800">Materiais Sem Fracionamento</h1>
-                                        </div>
-                                    </div>
-                                    <div class="row">
-                                        <div class="col" align="right">
-                                            <div class="card text-bg-danger mb-3" style="max-width: 18rem;">
-                                                <a id="btn_vencem_hoje" rel="btn_card_vencimentos" class="btn btn-danger" data-toggle="modal" data-target="#exampleModalLong">
-                                                    
-                                                    <div class="card-body" id="card_vencem_hoje">
-                                                        <h5 class="card-title" align="center"><i class="fas fa-fire-alt"></i></h5>
-                                                        <p class="card-text" align="center">5<br>Vencem Amanhã</p>
-                                                    </div>
-                                                </a>
-                                                
-                                            </div>
-                                        </div>
-                                        <div class="col">
-                                            <div class="card text-bg-warning mb-3" style="max-width: 18rem;">
-                                                <a id="btn_vencem_amanha" rel="btn_card_vencimentos" class="btn btn-warning" data-toggle="modal" data-target="#exampleModalLong">
-                                                    <div class="card-body">
-                                                        <h5 class="card-title" align="center"><i class="fas fa-exclamation-triangle"></i></h5>
-                                                        <p class="card-text" align="center">3<br>Vencem em 1 semana</p>
-                                                    </div>
-                                                </a>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <!-- Modal Structure -->
-                                    <div class="modal fade bd-example-modal-lg" id="modalMatNaoFracionados" tabindex="-1" role="dialog" aria-labelledby="exampleModalLongTitle" aria-hidden="true">
-                                        <div class="modal-dialog modal-lg" role="document">
-                                            <div class="modal-content">
-                                                <div class="modal-header">
-                                                    <h5 class="modal-title" id="titulo-modalMatNaoFracionados"></h5>
-                                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                                    <span aria-hidden="true">&times;</span>
-                                                    </button>
-                                                </div>
-                                                <div class="modal-body" id="conteudo-modalMatNaoFracionados">
-                                                    
-                                                </div>
-                                                <div class="modal-footer">
-                                                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <!-- End Modal Structure -->
                                 </div>
                             </div>
                         </div>
@@ -443,7 +388,7 @@ $(document).ready(function(){
         }
     });
 
-    $(document).on('click','a[rel=btn_card_vencimentos]', function(e){
+    $(document).on('click','a[rel=btn_card_fracionados]', function(e){
         e.preventDefault();
         const id = $(this).attr('id');
         if (id) {
