@@ -150,9 +150,13 @@ function dh_banco($dh){
 	return $data;
 }
 
-function dt_br($dt){
+function dt_br($dt, $ano_completo=true){
 	if ($dt) {
-		$data = date('d/m/Y', strtotime($dt));
+		if ($ano_completo) {
+			$data = date('d/m/Y', strtotime($dt));
+		} else {
+			$data = date('d/m/y', strtotime($dt));
+		}
 	} else {
 		$data = '';
 	}

@@ -62,14 +62,17 @@ class EtiquetasModel extends Connection {
     private function getFieldsView($data) {
 
         if (!empty($data['dt_fabricacao'])) {
+            $data['dt_fabricacao_reduzido'] = dt_br($data['dt_fabricacao'], false);
             $data['dt_fabricacao'] = dt_br($data['dt_fabricacao']);
         }
 
         if (!empty($data['dt_vencimento'])) {
+            $data['dt_vencimento_reduzido'] = dt_br($data['dt_vencimento'], false);
             $data['dt_vencimento'] = dt_br($data['dt_vencimento']);
         }
 
         if (!empty($data['dt_fracionamento'])) {
+            $data['dt_fracionamento_reduzido'] = dt_br($data['dt_fracionamento'], false);
             $data['dt_fracionamento'] = dt_br($data['dt_fracionamento']);
         }
 
