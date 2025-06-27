@@ -107,7 +107,8 @@ class EtiquetasModel extends Connection {
                     um.descricao as ds_unidades_medidas,
                     mc.descricao as ds_modo_conservacao,
                     mf.qtd_fracionada, mf.dt_fracionamento, mf.dt_vencimento,
-                    p.nome as nm_pessoa
+                    p.nome as nm_pessoa,
+                    s.nome as nm_setor
                 from tb_etiquetas e 
                 inner join tb_materiais_fracionados mf on mf.id_materiais_fracionados = e.id_materiais_fracionados
                 inner join tb_materiais m on m.id_materiais = e.id_materiais
@@ -115,6 +116,7 @@ class EtiquetasModel extends Connection {
                 inner join tb_modo_conservacao mc on mc.id = m.id_modo_conservacao
                 inner join tb_usuarios u on u.id_usuarios = mf.id_usuarios
                 inner join tb_pessoas p on p.id_pessoas = u.id_pessoas
+                left join tb_setor s on s.id_setor = mf.id_setor
                 where e.id_etiquetas = :ID_ETIQUETAS";
         $res = $this->conn->select($sql, $arr);
 
@@ -164,11 +166,12 @@ class EtiquetasModel extends Connection {
             $arr[':ID_USUARIOS'] = $id_usuarios;
             
             $sql = "select e.*, 
-                        m.descricao as ds_material, m.lote, m.dt_fabricacao, m.cod_barras,
-                        um.descricao as ds_unidades_medidas,
-                        mc.descricao as ds_modo_conservacao,
-                        mf.qtd_fracionada, mf.dt_fracionamento, mf.dt_vencimento,
-                        p.nome as nm_pessoa
+                            m.descricao as ds_material, m.lote, m.dt_fabricacao, m.cod_barras,
+                            um.descricao as ds_unidades_medidas,
+                            mc.descricao as ds_modo_conservacao,
+                            mf.qtd_fracionada, mf.dt_fracionamento, mf.dt_vencimento,
+                            p.nome as nm_pessoa,
+                            s.nome as nm_setor
                     from tb_etiquetas e 
                     inner join tb_materiais_fracionados mf on mf.id_materiais_fracionados = e.id_materiais_fracionados
                     inner join tb_materiais m on m.id_materiais = e.id_materiais
@@ -176,6 +179,7 @@ class EtiquetasModel extends Connection {
                     inner join tb_modo_conservacao mc on mc.id = m.id_modo_conservacao
                     inner join tb_usuarios u on u.id_usuarios = mf.id_usuarios
                     inner join tb_pessoas p on p.id_pessoas = u.id_pessoas
+                    left join tb_setor s on s.id_setor = mf.id_setor
                     where e.id_usuarios = :ID_USUARIOS
                     order by e.id_etiquetas desc";
             $res = $this->conn->select($sql, $arr);
