@@ -120,7 +120,7 @@ class EtiquetasModel extends Connection {
                 inner join tb_usuarios u on u.id_usuarios = mf.id_usuarios
                 inner join tb_pessoas p on p.id_pessoas = u.id_pessoas
                 left join tb_setor s on s.id_setor = mf.id_setor
-                where e.id_etiquetas = :ID_ETIQUETAS";
+                where e.id_etiquetas = :ID_ETIQUETAS and e.status != 'D'";
         $res = $this->conn->select($sql, $arr);
 
         if (isset($res[0])) {
