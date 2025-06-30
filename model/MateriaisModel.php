@@ -108,6 +108,10 @@ class MateriaisModel extends Connection {
             $data['dt_fabricacao'] = dt_br($data['dt_fabricacao']);
         }
 
+        if (!empty($data['dh_cadastro'])) {
+            $data['dh_cadastro'] = dt_br($data['dh_cadastro']);
+        }
+
         if (!empty($data['dt_vencimento'])) {
             $data['dt_vencimento'] = dt_br($data['dt_vencimento']);
         }
@@ -117,7 +121,7 @@ class MateriaisModel extends Connection {
         }
 
         if (!empty($data['preco'])) {
-            $data['preco'] = numberformat($data['preco']);
+            $data['preco_formatado'] = numberformat($data['preco']);
         }
 
         if (!empty($data['peso'])) {
