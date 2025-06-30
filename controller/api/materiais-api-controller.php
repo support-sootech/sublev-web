@@ -1,5 +1,5 @@
 <?php
-$app->map('/app-materiais-info(/:cod_barras)', function($cod_barras='') use ($app){
+$app->map('/app-materiais-info(/:filtro)', function($filtro='') use ($app){
 	$response_status = 400;
     $response_metodo = 'GET';
     $data = array();
@@ -16,12 +16,12 @@ $app->map('/app-materiais-info(/:cod_barras)', function($cod_barras='') use ($ap
                 throw new Exception("Usuário não localizado!");
             }
 
-            if (empty($cod_barras)) {
+            if (empty($filtro)) {
                 throw new Exception("É necessário informar o código de barras!");
             }
 
             $class_materiais = new MateriaisModel();
-            $arr = $class_materiais->loadCodBarrasMaterialDetalhes('', $cod_barras);
+            $arr = $class_materiais->loadMaterialCodBarrasNomeDetalhes('', $filtro);
             if ($arr==false) {
                 throw new Exception("Nenhum material localizado!");                
             }
