@@ -29,17 +29,19 @@ $app->map('/app-materiais-info(/:filtro)', function($filtro='') use ($app){
             $arr_materiais = array();
             if (is_array($arr)) {
                 foreach ($arr as $key => $value) {
-                    $arr_materiais['id_materiais'] = $value['id_materiais'];
-                    $arr_materiais['descricao'] = $value['descricao'];
-                    $arr_materiais['peso'] = $value['peso'];
-                    $arr_materiais['lote'] = $value['lote'];
-                    $arr_materiais['cod_barras'] = $value['cod_barras'];
-                    $arr_materiais['marca'] = $value['marca'];
-                    $arr_materiais['ds_unidade_medida'] = $value['ds_unidade_medida'];
-                    $arr_materiais['color_dt_vencimento'] = $value['color_dt_vencimento'];
-                    $arr_materiais['quantidade'] = $value['quantidade'];
-                    $arr_materiais['dt_fabricacao'] = $value['dt_fabricacao'];
-                    $arr_materiais['dt_vencimento'] = $value['dt_vencimento'];
+                    $arr_materiais[] = array(
+                        'id_materiais'=>$value['id_materiais'],
+                        'descricao'=>$value['descricao'],
+                        'peso'=>$value['peso'],
+                        'lote'=>$value['lote'],
+                        'cod_barras'=>$value['cod_barras'],
+                        'marca'=>$value['marca'],
+                        'ds_unidade_medida'=>$value['ds_unidade_medida'],
+                        'color_dt_vencimento'=>$value['color_dt_vencimento'],
+                        'quantidade'=>$value['quantidade'],
+                        'dt_fabricacao'=>$value['dt_fabricacao'],
+                        'dt_vencimento'=>$value['dt_vencimento']
+                    );
                 }
             }
             
