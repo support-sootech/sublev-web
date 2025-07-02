@@ -184,6 +184,7 @@ class EtiquetasModel extends Connection {
                     inner join tb_pessoas p on p.id_pessoas = u.id_pessoas
                     left join tb_setor s on s.id_setor = mf.id_setor
                     where e.id_usuarios = :ID_USUARIOS
+                      and e.status != 'D'
                     order by e.id_etiquetas desc";
             $res = $this->conn->select($sql, $arr);
             
