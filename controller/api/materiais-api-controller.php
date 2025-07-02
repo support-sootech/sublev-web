@@ -38,6 +38,8 @@ $app->map('/app-materiais-info(/:filtro)', function($filtro='') use ($app){
                     $arr_materiais['ds_unidade_medida'] = $value['ds_unidade_medida'];
                     $arr_materiais['color_dt_vencimento'] = $value['color_dt_vencimento'];
                     $arr_materiais['quantidade'] = $value['quantidade'];
+                    $arr_materiais['dt_fabricacao'] = $value['dt_fabricacao'];
+                    $arr_materiais['dt_vencimento'] = $value['dt_vencimento'];
                 }
             }
             
