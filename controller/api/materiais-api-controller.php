@@ -3,6 +3,7 @@ $app->map('/app-materiais-info(/:filtro)', function($filtro='') use ($app){
 	$response_status = 400;
     $response_metodo = 'GET';
     $data = array();
+    $arr = array();
 
     if ($app->request->isOptions()) {
         $response_status = 200;
@@ -25,9 +26,22 @@ $app->map('/app-materiais-info(/:filtro)', function($filtro='') use ($app){
             if ($arr==false) {
                 throw new Exception("Nenhum material localizado!");                
             }
+            $arr_materiais = array();
+            if (is_array($arr)) {
+                foreach ($arr as $key => $value) {
+                    $arr_materiais['id_materiais'] = $value['id_materiais'];
+                    $arr_materiais['descricao'] = $value['descricao'];
+                    $arr_materiais['peso'] = $value['peso'];
+                    $arr_materiais['lote'] = $value['lote'];
+                    $arr_materiais['cod_barras'] = $value['cod_barras'];
+                    $arr_materiais['marca'] = $value['marca'];
+                    $arr_materiais['ds_unidade_medida'] = $value['ds_unidade_medida'];
+                    $arr_materiais['color_dt_vencimento'] = $value['color_dt_vencimento'];
+                }
+            }
             
             $response_status = 200;
-            $data = array('success'=>true, 'type'=>'success', 'msg'=>'OK', 'data'=>$arr);
+            $data = array('success'=>true, 'type'=>'success', 'msg'=>'OK', 'data'=>$arr_materiais);
 
         } catch (Exception $e) {
             $data = array('error'=>true, 'type'=>'danger', 'msg'=>$e->getMessage());
