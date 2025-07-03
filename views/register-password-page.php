@@ -15,19 +15,23 @@ require_once('header.php');
                         <div class="col">
                             <div class="p-5">
                                 <div class="text-center">
-                                    <h1 class="h4 text-gray-900 mb-4">Cadastro de Senha</h1>
+                                    <h1 class="h4 text-gray-900 mb-4">Alteração de Senha</h1>
                                 </div>
                                 <form name="form-register-password" class="">
                                     <input type="hidden" name="hash" value="<?=$usuario['hash']?>" />
                                     <div class="form-group">
                                         <input type="password" class="form-control" id="senha" name="senha" aria-describedby="senha" placeholder="Senha">
                                     </div>
+                                    <br>
                                     <div class="form-group">
                                         <input type="password" class="form-control" id="senha_confirm" name="senha_confirm" placeholder="Confirmação de senha">
                                     </div>
-                                    <a href="#" rel="btn-save" class="btn btn-primary btn-user btn-block">
-                                        Salvar
-                                    </a>
+                                    <br>
+                                    <div class="text-center">
+                                    <a href="#" rel="btn-success" class="btn btn-success btn-user btn-block">Salvar</a>&nbsp;&nbsp;&nbsp;
+                                    <a href="#" rel="btn-success" class="btn btn-primary btn-user btn-block">Fechar</a>
+                                    </div>
+                                    
                                 </form>
                             </div>
                         </div>

@@ -499,7 +499,7 @@ function comboSetores(id_setor=''){
 }
 
 $(document).ready(function(){
-
+     
     formFieldsRequered();
     carrega_lista();
 
@@ -507,6 +507,7 @@ $(document).ready(function(){
         e.preventDefault();
         comboSetores();
         $('div#modal-<?=$prefix?>').modal('show');
+        $('input[name=<?=$prefix?>_cpf_cnpj]').prop('disabled', false);
     });
 
     $('div#modal-<?=$prefix?>').on('hidden.bs.modal', function (e) {
@@ -546,6 +547,7 @@ $(document).ready(function(){
                         
                         fieldCpfCnpj(data.data.tp_juridico);
                         $('input[name=<?=$prefix?>_cpf_cnpj]').val(data.data.cpf_cnpj);
+                        $('input[name=<?=$prefix?>_cpf_cnpj]').prop('disabled', true);
                         comboSetores(data.data.id_setor);
 
                         $('div#modal-<?=$prefix?>').modal('show');
