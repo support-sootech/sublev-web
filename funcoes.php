@@ -695,14 +695,14 @@ function gerarEtiquetas($material='', $id_material_fracionado, $id_usuarios='') 
 	$data_etiqueta = false;
 	$class_etiquetas = new EtiquetasModel();
 	if ($material) {
-
 		$arr_etiqueta['id_etiquetas'] = '';
-		$arr_etiqueta['descricao'] = 'Etiqueta '.$material['descricao'].' - '.dt_br(date("Ymd"));
+		$arr_etiqueta['descricao'] = substr($material['descricao'], 0, 99);
 		$arr_etiqueta['codigo'] = $material['cod_barras'];
 		$arr_etiqueta['id_materiais_fracionados'] = $id_material_fracionado;
 		$arr_etiqueta['id_materiais'] = $material['id_materiais'];
 		$arr_etiqueta['status'] = 'A';
 		$arr_etiqueta['id_usuarios'] = (!empty($id_usuarios) ? $id_usuarios : $_SESSION['usuario']['id_usuarios']);
+		
 		$data_etiqueta = $class_etiquetas->add($arr_etiqueta);
 	}
 	return $data_etiqueta ? $class_etiquetas->loadIdEtiquetaInfo($data_etiqueta) : $data_etiqueta;

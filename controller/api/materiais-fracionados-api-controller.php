@@ -80,6 +80,8 @@ $app->map('/app-materiais-fracionar', function() use ($app){
             $class_materiais = new MateriaisModel();
             $material = $class_materiais->loadIdMaterialDetalhes('A',$params['id_materiais']);
 
+            $etiqueta = gerarEtiquetas($material, 419, $usuario['id_usuarios']);
+
             if ($material) {
                 $quantidade = array();
                 for ($i=1; $i <= $params['quantidade']; $i++) { 
@@ -96,7 +98,7 @@ $app->map('/app-materiais-fracionar', function() use ($app){
                     $usuario['id_usuarios']
                 );                
                 $response_status = 200;
-                $data = array('success'=>true, 'type'=>'success', 'msg'=>'OK', 'data'=>$fracionamento);
+                $data = $fracionamento;
             } else {
                 throw new Exception("Material nãolocalizado!", 1);
             }

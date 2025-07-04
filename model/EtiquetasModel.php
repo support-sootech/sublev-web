@@ -11,7 +11,7 @@ class EtiquetasModel extends Connection {
     //MODELAGEM DO BANCO
     private $fields = array(
         'id_etiquetas'=>array('type'=>'integer', 'requered'=>true, 'max'=>11, 'key'=>true, 'description'=>'ID'),
-        'descricao'=>array('type'=>'string', 'requered'=>false, 'max'=>'50', 'default'=>'', 'key'=>false, 'description'=>'Descrição'),
+        'descricao'=>array('type'=>'string', 'requered'=>false, 'max'=>'100', 'default'=>'', 'key'=>false, 'description'=>'Descrição'),
         'codigo'=>array('type'=>'string', 'requered'=>false, 'max'=>'2000', 'default'=>'', 'key'=>false, 'description'=>'QR Code'),
         'id_materiais_fracionados'=>array('type'=>'integer', 'fk'=>true, 'requered'=>true, 'max'=>'11', 'default'=>'', 'key'=>false, 'description'=>'Material Fracionado'),
         'id_materiais'=>array('type'=>'integer', 'fk'=>true, 'requered'=>true, 'max'=>'11', 'default'=>'', 'key'=>false, 'description'=>'Material'),
@@ -258,6 +258,7 @@ class EtiquetasModel extends Connection {
             $save = $this->conn->insert(self::TABLE, $values);
             return $save;
         } catch (Exception $e) {
+            die('ERROR: '.$e->getMessage());
             return $e->getMessage();
         }
     }
