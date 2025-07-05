@@ -238,4 +238,53 @@ $app->map('/app-materiais-fracionados-baixa', function() use ($app){
 
 })->via('PUT','OPTIONS');
 
+$app->map('/app-materiais-fracionados-vencimento-json(/:acao)', function($acao='') use ($app){
+	$response_status = 400;
+    $response_metodo = 'GET';
+    $data = array();
+
+    if ($app->request->isOptions()) {
+        $response_status = 200;
+        $response_metodo = 'GET, OPTIONS';
+        $data = array('OK');
+    } else if ($app->request->isGet()) {
+
+        try {
+            $usuario = getUsuario($app);
+            if ($usuario==false) {
+                throw new Exception("Usuário não localizado!");
+            }
+
+            if (empty(trim($acao))) {
+                throw new Exception("É necessário informar a ação do filtro!");
+            }
+
+            $arr = array();
+            $class_materiais = new MateriaisModel();
+            $arr = $class_materiais->loadMateriaisVencimento('',mb_strtolower($acao), $usuario['id_empresas']);
+            if (!$arr) {
+                throw new Exception("Nenhum material fracionado localizado!");
+            }
+            $response_status = 200;
+            $data = array('success'=>true, 'type'=>'success', 'msg'=>'OK', 'data'=>$arr);
+
+        } catch (Exception $e) {
+            $data = array('error'=>true, 'type'=>'danger', 'msg'=>$e->getMessage());
+        }        
+        
+    } else {
+        $data = array('success'=>false, 'type'=>'danger', 'msg'=>'Método incorreto!');
+    }
+
+	$response = $app->response();
+	$response['Access-Control-Allow-Origin'] = '*';
+    $response['Access-Control-Allow-Headers'] = '*';
+	$response['Access-Control-Allow-Methods'] = $response_metodo;
+	$response['Content-Type'] = 'application/json';
+
+	$response->status($response_status);
+	$response->body(json_encode($data));
+
+})->via('GET','OPTIONS');
+
 ?>

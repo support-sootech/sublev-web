@@ -379,7 +379,7 @@ class MateriaisModel extends Connection {
         }
     }
 
-    public function loadMateriaisVencimento($status='',$id_acao) {
+    public function loadMateriaisVencimento($status='',$id_acao, $id_empresas='') {
         try {
             $arr = array();
             $and = '';
@@ -390,6 +390,11 @@ class MateriaisModel extends Connection {
             } else {
                 $arr[':STATUS'] = 'D';
                 $and .= " and p.status != :STATUS";
+            }
+
+            if (!empty($id_empresas)) {
+                $and.= " and p.id_empresas = :ID_EMPRESAS";
+                $arr[':ID_EMPRESAS'] = $id_empresas;
             }
             
             if ($id_acao == 'btn_vencem_hoje')
@@ -402,8 +407,12 @@ class MateriaisModel extends Connection {
                 $and .= " and mf.dt_vencimento > DATE_ADD(CURDATE(), INTERVAL 7 DAY)";
 
             $sql = "select p.*,
+                           mc.descricao as ds_modo_consevacao,
                            e.id_etiquetas as id_etiquetas, 
                            mf.id_materiais_fracionados as id_materiais_fracionados,
+                           mf.qtd_fracionada,
+                           mf.id_setor,
+                           s.nome as nm_setor,
                            DATE_FORMAT(mf.dt_fracionamento,'%d/%m/%Y') as dt_fracionamento,
                            DATE_FORMAT(mf.dt_vencimento,'%d/%m/%Y') as dt_vencimento,
                            ifnull(mm.descricao, '') as marca,
@@ -413,6 +422,8 @@ class MateriaisModel extends Connection {
                       inner join tb_unidades_medidas um on um.id_unidades_medidas = p.id_unidades_medidas
                       inner join tb_materiais_fracionados mf on mf.id_materiais = p.id_materiais
                       inner join tb_etiquetas e on ((e.id_materiais = p.id_materiais) and (e.id_materiais_fracionados = mf.id_materiais_fracionados))
+                      left join tb_setor s on s.id_setor = mf.id_setor
+                      left join tb_modo_conservacao mc on mc.id = p.id_modo_conservacao
                      where 1=1
                        ".$and."";
             
