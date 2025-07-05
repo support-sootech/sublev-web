@@ -696,7 +696,7 @@ function gerarEtiquetas($material='', $id_material_fracionado, $id_usuarios='') 
 	$class_etiquetas = new EtiquetasModel();
 	if ($material) {
 		$arr_etiqueta['id_etiquetas'] = '';
-		$arr_etiqueta['descricao'] = substr($material['descricao'], 0, 99);
+		$arr_etiqueta['descricao'] = substr($material['descricao'], 0, 32);
 		$arr_etiqueta['codigo'] = $material['cod_barras'];
 		$arr_etiqueta['id_materiais_fracionados'] = $id_material_fracionado;
 		$arr_etiqueta['id_materiais'] = $material['id_materiais'];
