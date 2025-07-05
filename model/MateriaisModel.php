@@ -387,9 +387,11 @@ class MateriaisModel extends Connection {
             if (!empty($status)) {
                 $arr[':STATUS'] = $status;
                 $and .= " and p.status = :STATUS";
+                $and .= " and mf.status != :STATUS";
             } else {
                 $arr[':STATUS'] = 'D';
                 $and .= " and p.status != :STATUS";
+                $and .= " and mf.status != :STATUS";
             }
 
             if (!empty($id_empresas)) {

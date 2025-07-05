@@ -261,10 +261,17 @@ $app->map('/app-materiais-fracionados-vencimento-json(/:acao)', function($acao='
 
             $arr = array();
             $class_materiais = new MateriaisModel();
-            $arr = $class_materiais->loadMateriaisVencimento('',mb_strtolower($acao), $usuario['id_empresas']);
-            if (!$arr) {
+            $lista = $class_materiais->loadMateriaisVencimento('',mb_strtolower($acao), $usuario['id_empresas']);
+            if (!$lista) {
                 throw new Exception("Nenhum material fracionado localizado!");
             }
+
+            $class_etiquetas = new EtiquetasModel();            
+            foreach ($lista as $key => $value) {                
+                $value['etiqueta'] = $class_etiquetas->loadIdEtiquetaInfo($value['id_etiquetas']);
+                $arr[] = $value;
+            }
+
             $response_status = 200;
             $data = array('success'=>true, 'type'=>'success', 'msg'=>'OK', 'data'=>$arr);
 
