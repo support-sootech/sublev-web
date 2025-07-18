@@ -89,9 +89,7 @@ function register_password() {
     }).submit();
 }
 $(document).ready(function(){
-    alert('Entrou');
     $('a[rel=btn-save]').on('click', function(e){
-        
 		e.preventDefault();
         register_password();
 	});
