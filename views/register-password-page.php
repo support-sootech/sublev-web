@@ -28,8 +28,8 @@ require_once('header.php');
                                     </div>
                                     <br>
                                     <div class="text-center">
-                                    <a href="#" rel="btn-success" class="btn btn-success btn-user btn-block">Salvar</a>&nbsp;&nbsp;&nbsp;
-                                    <a href="#" rel="btn-success" class="btn btn-primary btn-user btn-block">Fechar</a>
+                                    <a href="#" rel="btn-save" class="btn btn-success btn-user btn-block">Salvar</a>&nbsp;&nbsp;&nbsp;
+                                    <a href="#" rel="btn-cancel" class="btn btn-primary btn-user btn-block">Fechar</a>
                                     </div>
                                     
                                 </form>
@@ -84,13 +84,14 @@ function register_password() {
         },
         type:'post',
         dataType:'json',
-        url: '/register-password',
+        url: '/web-register-password',
         resetForm:false
     }).submit();
 }
-
 $(document).ready(function(){
+    alert('Entrou');
     $('a[rel=btn-save]').on('click', function(e){
+        
 		e.preventDefault();
         register_password();
 	});

@@ -104,7 +104,7 @@ Class EnvioEmailModel extends Connection{
 		$from = $empresa['smtp_email'];
 		$fromName = 'Cadastro de senha';
 
-        $link = site_url().'/register-password/'.md5($usuario['id_usuarios'].$usuario['email']);
+        $link = site_url().'/web-register-password/'.md5($usuario['id_usuarios'].$usuario['email']);
 
         $body = '<h5>Bem vindo, '.$usuario['nm_pessoa'].'!</h5>';
         $body.= '<p>Segue seu link para cadastrar sua senha para acesso ao sistema.</p>';

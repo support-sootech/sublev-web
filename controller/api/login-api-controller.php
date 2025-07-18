@@ -49,17 +49,6 @@ $app->map('/app-login', function() use ($app){
 
 })->via('POST','OPTIONS');
 
-$app->get('/register-password/:hash', function($hash) use ($app){
-    $class_usuarios = new UsuariosModel();
-    $usuario = $class_usuarios->loadHash($hash);
-    if ($usuario) {
-        $usuario['hash'] = md5($usuario['id_usuarios'].$usuario['email']);
-        $app->render('/register-password-page.php', array('usuario'=>$usuario));
-    } else {
-        $app->notFound();
-    }
-});
-
 $app->post('/register-password', function() use ($app){
 	$status = 400;
 	$data = array();

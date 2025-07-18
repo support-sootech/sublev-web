@@ -194,7 +194,7 @@ $app->post('/usuarios-save', function() use ($app){
 	$response->body(json_encode($retorno));
 });
 
-$app->get('/teste-register-password', function() use ($app){
+$app->get('/form-register-password', function() use ($app){
     $class_envio_email = new EnvioEmailModel();
     $data = $class_envio_email->emailRegisterPassword(2);
 

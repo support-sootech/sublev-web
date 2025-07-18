@@ -30,24 +30,24 @@
     </div>    
     
     <!-- Bootstrap core JavaScript-->
-    <script src="./layout/vendor/jquery/jquery.min.js"></script>
-    <script src="./layout/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+    <script src="../layout/vendor/jquery/jquery.min.js"></script>
+    <script src="../layout/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
 
     <!-- Core plugin JavaScript-->
-    <script src="./layout/vendor/jquery-easing/jquery.easing.min.js"></script>
+    <script src="../layout/vendor/jquery-easing/jquery.easing.min.js"></script>
 
     <!-- Custom scripts for all pages-->
-    <script src="./layout/js/sb-admin-2.min.js"></script>
+    <script src="../layout/js/sb-admin-2.min.js"></script>
 
     <!-- Page level plugins -->
-    <script src="./layout/vendor/chart.js/Chart.min.js"></script>
+    <script src="../layout/vendor/chart.js/Chart.min.js"></script>
 
     <!-- EXTRAS -->
-    <script src="./layout/js/jquery.form.js?v=<?=date('YmdHis')?>"></script>
-    <script src="./layout/js/jquery.maskMoney.js?v=<?=date('YmdHis')?>"></script>
-    <script src="./layout/js/jquery.preloaders.js?v=<?=date('YmdHis')?>"></script>
-    <script src="./layout/js/pnotify.min.js?v=<?=date('YmdHis')?>"></script>
-    <script src="./layout/js/jgrowl.min.js?v=<?=date('YmdHis')?>"></script>
+    <script src="../layout/js/jquery.form.js?v=<?=date('YmdHis')?>"></script>
+    <script src="../layout/js/jquery.maskMoney.js?v=<?=date('YmdHis')?>"></script>
+    <script src="../layout/js/jquery.preloaders.js?v=<?=date('YmdHis')?>"></script>
+    <script src="../layout/js/pnotify.min.js?v=<?=date('YmdHis')?>"></script>
+    <script src="../layout/js/jgrowl.min.js?v=<?=date('YmdHis')?>"></script>
     <script src="https://cdn.datatables.net/2.0.3/js/dataTables.js"></script>
     <script src="//cdnjs.cloudflare.com/ajax/libs/jquery-jgrowl/1.4.8/jquery.jgrowl.min.js"></script>
     <!-- <script src="./layout/js/sweetalert2.min.js?v=<?=date('YmdHis')?>"></script> -->
@@ -57,12 +57,12 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.mask/1.14.16/jquery.mask.js" integrity="sha512-0XDfGxFliYJPFrideYOoxdgNIvrwGTLnmK20xZbCAvPfLGQMzHUsaqZK8ZoH+luXGRxTrS46+Aq400nCnAT0/w==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <!-- <script type='text/javascript' src="https://rawgit.com/RobinHerbots/jquery.inputmask/3.x/dist/jquery.inputmask.bundle.js"></script> -->
 
-    <script src="./layout/js/scripts.js?v=<?=date('YmdHis')?>"></script>
+    <script src="../layout/js/scripts.js?v=<?=date('YmdHis')?>"></script>
 
     <!-- Page level custom scripts -->
     <?php if(returnPage()=='/dashboard'):?>
-        <script src="./layout/js/demo/chart-area-demo.js"></script>
-        <script src="./layout/js/demo/chart-pie-demo.js"></script>
+        <script src="../layout/js/demo/chart-area-demo.js"></script>
+        <script src="../layout/js/demo/chart-pie-demo.js"></script>
     <?php endif;?>
 
     <script>

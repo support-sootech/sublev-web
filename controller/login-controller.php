@@ -47,7 +47,8 @@ $app->post('/login', function() use ($app){
 	$response->body(json_encode($retorno));
 });
 
-$app->get('/register-password/:hash', function($hash) use ($app){
+$app->get('/web-register-password/:hash', function($hash) use ($app){
+    
     $class_usuarios = new UsuariosModel();
     $usuario = $class_usuarios->loadHash($hash);
     if ($usuario) {
@@ -58,7 +59,7 @@ $app->get('/register-password/:hash', function($hash) use ($app){
     }
 });
 
-$app->post('/register-password', function() use ($app){
+$app->post('/web-register-password', function() use ($app){
 	$status = 400;
 	$data = array();
     $retorno = array();
