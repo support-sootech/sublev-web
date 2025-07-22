@@ -132,7 +132,6 @@ class Connection extends PDO {
 
 		try {
 			$sql = "UPDATE ".$tabela." SET ".implode(', ', $fields)." WHERE ".implode(' and ', $condicao);
-
 			$stmt = $conn->prepare($sql);
 			$this->setParams($stmt, array_merge($values, $where));
 	        $conn->beginTransaction();

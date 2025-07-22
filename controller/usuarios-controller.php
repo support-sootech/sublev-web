@@ -35,14 +35,14 @@ $app->get('/usuarios-edit/:id_usuarios', function($id_usuarios='') use ($app){
 	$response->body(json_encode($data));
 });
 
-$app->get('/usuarios-del/:id_perfil', function($id_perfil='') use ($app){
+$app->get('/usuarios-del/:id_usuarios', function($id_usuarios='') use ($app){
     $status = 400;
 	$data = array();
     if (valida_logado()) {
-        $class_usuarios = new PerfilModel();
+        $class_usuarios = new UsuariosModel();
 
-        if (!empty($id_perfil)) {
-            $del = $class_usuarios->del($id_perfil);
+        if (!empty($id_usuarios)) {
+            $del = $class_usuarios->del($id_usuarios);
             if ($del) {
                 $status = 200;
                 $data = array('success'=>true, 'type'=>'success', 'msg'=>messagesDefault('delete'));
