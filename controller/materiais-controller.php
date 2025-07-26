@@ -67,7 +67,7 @@ $app->post('/materiais-json', function() use ($app){
     if (valida_logado()) {
         
         try {
-            $id_empresas = $_SESSION['usuario']['id_empresas'];
+            $id_empresas = getIdEmpresasLogado();
 
             $status = '';
             if ($app->request->post('status')) {
@@ -75,7 +75,7 @@ $app->post('/materiais-json', function() use ($app){
             }
     
             $class_materiais = new MateriaisModel();
-            $arr = $class_materiais->loadAll($status);
+            $arr = $class_materiais->loadAll($status, $id_empresas);
             if ($arr) {
                 foreach ($arr as $key => $value) {
                     $data['data'][] = $value;
@@ -103,7 +103,7 @@ $app->post('/materiais-da-categoria-json', function() use ($app){
     if (valida_logado()) {
         
         try {
-            $id_empresas = $_SESSION['usuario']['id_empresas'];
+            $id_empresas = getIdEmpresasLogado();
 
             $status = '';
             if ($app->request->post('status')) {
@@ -116,7 +116,7 @@ $app->post('/materiais-da-categoria-json', function() use ($app){
             }
     
             $class_materiais = new MateriaisModel();
-            $arr = $class_materiais->loadIdMaterialCategoria($status,$id_materiais_categorias);
+            $arr = $class_materiais->loadIdMaterialCategoria($status,$id_materiais_categorias, $id_empresas);
             if ($arr) {
                 foreach ($arr as $key => $value) {
                     $data['data'][] = $value;
@@ -157,7 +157,7 @@ $app->post('/detalhes-materiais-json', function() use ($app){
             }
     
             $class_materiais = new MateriaisModel();
-            $arr = $class_materiais->loadIdMaterialDetalhes($status,$id_materiais);
+            $arr = $class_materiais->loadIdMaterialDetalhes($status,$id_materiais, $id_empresas);
             if ($arr) {
                 if(!empty($arr['peso'])) {
                     $arr['peso'] = numberformat($arr['peso'], false);
@@ -205,7 +205,7 @@ $app->post('/materiais-save', function() use ($app){
                 $post['status'] = 'A';
             }
 
-            $post['id_empresas'] = $_SESSION['usuario']['id_empresas'];
+            $post['id_empresas'] = getIdEmpresasLogado();
             
             try {
                 $class_materiais = new MateriaisModel();

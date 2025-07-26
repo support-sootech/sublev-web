@@ -67,7 +67,7 @@ $app->post('/setor-json', function() use ($app){
     if (valida_logado()) {
         $class_setor = new SetorModel();
 
-        $id_empresas = $_SESSION['usuario']['id_empresas'];
+        $id_empresas = getIdEmpresasLogado();
         $status = (isset($_POST['status']) && !empty($_POST['status']) ? $_POST['status'] : '');
 
         $arr = $class_setor->loadAll($id_empresas, $status);
@@ -107,7 +107,7 @@ $app->post('/setor-save', function() use ($app){
                 unset($post['id_setor']);
             }
 
-            $post['id_empresas'] = $_SESSION['usuario']['id_empresas'];
+            $post['id_empresas'] = getIdEmpresasLogado();
             
             try {
                 $class_setor = new SetorModel();

@@ -12,6 +12,7 @@ class EmbalagemCondicoesModel extends Connection {
     private $fields = array(
         'id'=>array('type'=>'integer', 'requered'=>true, 'max'=>10, 'key'=>true, 'description'=>'ID'),
         'descricao'=>array('type'=>'string', 'requered'=>false, 'max'=>'100', 'default'=>'', 'key'=>false, 'description'=>'Descrição'),
+        'id_empresas'=>array('type'=>'integer', 'requered'=>true, 'max'=>10, 'default'=>'', 'key'=>false, 'description'=>'ID EMPRESA'),
     );
     
     private function setFields($arr) {

@@ -22,7 +22,7 @@ $app->map('/app-materiais-info(/:filtro)', function($filtro='') use ($app){
             }
 
             $class_materiais = new MateriaisModel();
-            $arr = $class_materiais->loadMaterialCodBarrasNomeDetalhes('', $filtro);
+            $arr = $class_materiais->loadMaterialCodBarrasNomeDetalhes('', $filtro, $usuario['id_empresas']);
             if ($arr==false) {
                 throw new Exception("Nenhum material localizado!");                
             }

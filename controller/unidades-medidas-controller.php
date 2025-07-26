@@ -67,8 +67,7 @@ $app->post('/unidades-medidas-json', function() use ($app){
     if (valida_logado()) {
 
         try {
-            //$id_empresas = $_SESSION['usuario']['id_empresas'];
-            $id_empresas = '';
+            $id_empresas = getIdEmpresasLogado();
 
             $status = '';
             if ($app->request->post('status')) {
@@ -117,7 +116,7 @@ $app->post('/unidades-medidas-save', function() use ($app){
                 unset($post['id_unidades_medidas']);
             }
 
-            //$post['id_empresas'] = $_SESSION['usuario']['id_empresas'];
+            $post['id_empresas'] = $_SESSION['usuario']['id_empresas'];
             
             try {
                 $class_embalagens_tipos = new UnidadesMedidasModel();

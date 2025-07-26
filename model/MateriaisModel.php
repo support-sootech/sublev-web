@@ -174,15 +174,15 @@ class MateriaisModel extends Connection {
         }
     }
 
-    public function loadIdMaterialCategoria($status,$id) {
+    public function loadIdMaterialCategoria($status='', $id, $id_empresas) {
         
         try {
             $arr= array();
 
-            $arr[':ID'] = $id;
-            $arr[':STATUS'] = $status;
+            $arr[':ID'] = $id;           
 
-            $and = '';
+            $and = ' and p.id_empresas = :ID_EMPRESAS';
+            $arr[':ID_EMPRESAS'] = $id_empresas;
 
             if (!empty($status)) {
                 $arr[':STATUS'] = $status;
@@ -210,7 +210,7 @@ class MateriaisModel extends Connection {
         }
     }
 
-    public function loadIdMaterialDetalhes($status,$id) {
+    public function loadIdMaterialDetalhes($status,$id, $id_empresas) {
         
         try {
             $arr= array();
@@ -218,7 +218,8 @@ class MateriaisModel extends Connection {
             $arr[':ID'] = $id;
             $arr[':STATUS'] = $status;
 
-            $and = '';
+            $and = ' and p.id_empresas = :ID_EMPRESAS';
+            $arr[':ID_EMPRESAS'] = $id_empresas;
 
             if (!empty($status)) {
                 $arr[':STATUS'] = $status;
@@ -298,7 +299,7 @@ class MateriaisModel extends Connection {
         }
     }
 
-    public function loadMaterialCodBarrasNomeDetalhes($status,$filtro) {
+    public function loadMaterialCodBarrasNomeDetalhes($status,$filtro, $id_empresas='') {
         
         try {
             $arr= array();
@@ -308,6 +309,11 @@ class MateriaisModel extends Connection {
             $arr[':STATUS'] = $status;
 
             $and = '';
+
+            if (!empty($id_empresas)) {
+                $and.= " and p.id_empresas = :ID_EMPRESAS";
+                $arr[':ID_EMPRESAS'] = $id_empresas;
+            }
 
             if (!empty($status)) {
                 $arr[':STATUS'] = $status;
@@ -328,7 +334,7 @@ class MateriaisModel extends Connection {
                       left join tb_materiais_marcas mm on mm.id_materiais_marcas = p.id_materiais_marcas
                       left join tb_unidades_medidas um on um.id_unidades_medidas = p.id_unidades_medidas
                      where (p.cod_barras = :FILTRO or p.descricao like '%".$fil_descricao."%')
-                       and p.quantidade >= 1
+                       and p.quantidade >= 1                       
                      ".$and."
                      order by p.dt_vencimento";
             $res = $this->conn->select($sql, $arr);
@@ -347,7 +353,7 @@ class MateriaisModel extends Connection {
         }
     }
     
-    public function loadAll($status='') {
+    public function loadAll($status='', $id_empresas) {
         try {
             $arr = array();
             $and = '';
@@ -359,6 +365,9 @@ class MateriaisModel extends Connection {
                 $arr[':STATUS'] = 'D';
                 $and .= " and p.status != :STATUS";
             }
+
+            $arr[':ID_EMPRESAS'] = $id_empresas;
+            $and .= " and p.id_empresas = :ID_EMPRESAS";
             
             $sql = "select p.*, p1.nome as nm_fabricante, p2.nome as nm_fornecedor, mm.descricao as marca
                       from ".self::TABLE." p

@@ -11,7 +11,7 @@ $app->post('/fracionar-material-json', function() use ($app){
     $status = 200;
 	$data['data'] = array();
     if (valida_logado()) {
-        $id_empresas = $_SESSION['usuario']['id_empresas'];
+        $id_empresas = getIdEmpresasLogado();
         $class_materiais_categorias = new MateriaisCategoriasModel();
         $arr_materiais_categorias = $class_materiais_categorias->loadAll($id_empresas, 'A');
         if ($arr_materiais_categorias) {
@@ -73,7 +73,7 @@ $app->post('/materiais-fracionados-json', function() use ($app){
     if (valida_logado()) {
         
         try {
-            $id_empresas = $_SESSION['usuario']['id_empresas'];
+            $id_empresas = getIdEmpresasLogado();
 
             $status = '';
             if ($app->request->post('status')) {

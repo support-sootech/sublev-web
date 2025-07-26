@@ -13,4 +13,5 @@ info/
 /node/node_modules
 /node/client.js
 /node/client1.js
-/app/old
+/app/
+.gitignore

@@ -17,6 +17,7 @@ class EtiquetasModel extends Connection {
         'id_materiais'=>array('type'=>'integer', 'fk'=>true, 'requered'=>true, 'max'=>'11', 'default'=>'', 'key'=>false, 'description'=>'Material'),
         'status'=>array('type'=>'string', 'requered'=>false, 'max'=>'1', 'default'=>'A', 'key'=>false, 'description'=>'status'),
         'id_usuarios'=>array('type'=>'integer', 'fk'=>true, 'requered'=>true, 'max'=>'11', 'default'=>'', 'key'=>false, 'description'=>'Usuário'),
+        'id_empresas'=>array('type'=>'integer', 'fk'=>true, 'requered'=>true, 'max'=>'10', 'default'=>'', 'key'=>false, 'description'=>'ID EMPRESAS'),
     );
     
     private function setFields($arr) {
@@ -164,9 +165,10 @@ class EtiquetasModel extends Connection {
         }
     }
 
-    public function loadEtiquetasIdUsuarios($id_usuarios) {
+    public function loadEtiquetasIdUsuarios($id_usuarios, $id_empresas) {
         try {
             $arr[':ID_USUARIOS'] = $id_usuarios;
+            $arr[':ID_EMPRESAS'] = $id_empresas;
             
             $sql = "select e.*, 
                             m.descricao as ds_material, m.lote, m.dt_fabricacao, m.cod_barras,
@@ -184,6 +186,7 @@ class EtiquetasModel extends Connection {
                     inner join tb_pessoas p on p.id_pessoas = u.id_pessoas
                     left join tb_setor s on s.id_setor = mf.id_setor
                     where e.id_usuarios = :ID_USUARIOS
+                      and e.id_empresas = :ID_EMPRESAS
                       and e.status != 'D'
                     order by e.id_etiquetas desc";
             $res = $this->conn->select($sql, $arr);

@@ -10,8 +10,10 @@ use Endroid\QrCode\Writer\PngWriter;
 $app->get('/auto-fracionar-material', function() use ($app){
     if (valida_logado(true)) {
 
+        $id_empresas = getIdEmpresasLogado();
+
         $class_computadores = new ComputadoresModel();
-        $arr_computadores = $class_computadores->loadIdUsuarios($_SESSION['usuario']['id_usuarios']);
+        $arr_computadores = $class_computadores->loadIdUsuarios($_SESSION['usuario']['id_usuarios'], '', $id_empresas);
 
         $app->render('/auto-fracionar-material-page.php', array('arr_computadores'=>$arr_computadores));
     } else {
@@ -50,9 +52,11 @@ $app->post('/auto-fracionar-material', function() use ($app){
         try {
             $id_materiais = $app->request->post('id_materiais');
             $dt_vencimento_material = $app->request->post('dt_vencimento');
+
+            $id_empresas = getIdEmpresasLogado();
            
             $class_materiais = new MateriaisModel();
-            $material = $class_materiais->loadIdMaterialDetalhes('A',$id_materiais);
+            $material = $class_materiais->loadIdMaterialDetalhes('A',$id_materiais,$id_empresas);
 
             if ($material) {
                
@@ -109,6 +113,7 @@ $app->get('/fracionar-imprimir-material/:id_etiquetas', function($id_etiquetas='
         
         try {
 
+            $id_empresas = getIdEmpresasLogado();
             $class_etiquetas = new EtiquetasModel();
             $etiqueta = $class_etiquetas->loadId($id_etiquetas);
     
@@ -116,7 +121,7 @@ $app->get('/fracionar-imprimir-material/:id_etiquetas', function($id_etiquetas='
             $usuario = $class_usuarios->loadId($etiqueta['id_usuarios']);
     
             $class_materiais = new MateriaisModel();
-            $material = $class_materiais->loadIdMaterialDetalhes('A',$etiqueta['id_materiais']);            
+            $material = $class_materiais->loadIdMaterialDetalhes('A',$etiqueta['id_materiais'],$id_empresas);            
 
             if ($etiqueta) {
                 $client = new GuzzleHttp\Client();

@@ -89,7 +89,7 @@ $app->post('/fornecedores-fabricantes-json', function() use ($app){
         if (array_search('ROOT', array_column($_SESSION['usuario']['perfil'], 'ds_perfil')) !== false) {
             $id_empresas = '';
         } else {
-            $id_empresas = $_SESSION['usuario']['id_empresas'];
+            $id_empresas = getIdEmpresasLogado();
         }
 
         $id_tipos_pessoas = $app->request->post('id_tipos_pessoas');
@@ -130,7 +130,7 @@ $app->post('/fornecedores-fabricantes-save', function() use ($app){
                 $obj_pessoas['id_tipos_pessoas'] = $app->request->post('fornecedores_fabricantes_id_tipos_pessoas');
 
                 if ($obj_pessoas['id_tipos_pessoas']=='3') {
-                    $obj_pessoas['id_empresas'] = $_SESSION['usuario']['id_empresas'];
+                    $obj_pessoas['id_empresas'] = getIdEmpresasLogado();
                 } else {
                     $obj_pessoas['id_empresas'] = '';
                 }

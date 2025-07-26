@@ -691,7 +691,7 @@ function dividirQuantidade($quantidade, $divisor, $precisao = 2) {
     return $arr;
 }
 
-function gerarEtiquetas($material='', $id_material_fracionado, $id_usuarios='') {
+function gerarEtiquetas($material='', $id_material_fracionado, $id_usuarios='', $id_empresas='') {
 	$data_etiqueta = false;
 	$class_etiquetas = new EtiquetasModel();
 	if ($material) {
@@ -702,6 +702,7 @@ function gerarEtiquetas($material='', $id_material_fracionado, $id_usuarios='') 
 		$arr_etiqueta['id_materiais'] = $material['id_materiais'];
 		$arr_etiqueta['status'] = 'A';
 		$arr_etiqueta['id_usuarios'] = (!empty($id_usuarios) ? $id_usuarios : $_SESSION['usuario']['id_usuarios']);
+		$arr_etiqueta['id_empresas'] = $id_empresas;
 		
 		$data_etiqueta = $class_etiquetas->add($arr_etiqueta);
 	}
@@ -713,7 +714,8 @@ function fracionarMateriais(
 	$arr_qtd_fracionada=array(), 
 	$tipo_francionamento = 'UNIDADE',
 	$fg_dividir_auto = true,
-	$id_usuarios) {
+	$id_usuarios, 
+	$id_empresas) {
 
 	$data = array();
 	/*
@@ -788,7 +790,7 @@ function fracionarMateriais(
 		);
 		$add = $class_materiais_fracionados->add($arr_materiais_fracionado);
 		$arr_fracionados[] = $class_materiais_fracionados->loadId($add);
-		$arr_etiquetas[] = gerarEtiquetas($material, $add, $id_usuarios);
+		$arr_etiquetas[] = gerarEtiquetas($material, $add, $id_usuarios, $id_empresas);
 	}
 
 	//ATUALIZA O ESTOQUE

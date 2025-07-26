@@ -15,7 +15,7 @@ $app->post('/detalhes-etiqueta-json', function() use ($app){
     if (valida_logado()) {
         
         try {
-            $id_empresas = $_SESSION['usuario']['id_empresas'];
+            $id_empresas = getIdEmpresasLogado();
             
             $id_etiqueta = '';
             if ($app->request->post('id_etiqueta')) {

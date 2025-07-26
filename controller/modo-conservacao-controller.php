@@ -68,8 +68,9 @@ $app->post('/modo-conservacao-json', function() use ($app){
         $class = new ModoConservacaoModel();
 
         $status = (isset($_POST['status']) && !empty($_POST['status']) ? $_POST['status'] : '');
+        $id_empresas = getIdEmpresasLogado();
 
-        $arr = $class->loadAll($status);
+        $arr = $class->loadAll($status, $id_empresas);
         if ($arr) {
             foreach ($arr as $key => $value) {
                 $data['data'][] = $value;
@@ -104,6 +105,8 @@ $app->post('/modo-conservacao-save', function() use ($app){
                 $id = $post['id'];
                 unset($post['id']);
             }
+
+            $post['id_empresas'] = getIdEmpresasLogado();
 
             try {
                 $class = new ModoConservacaoModel();

@@ -13,6 +13,7 @@ class ModoConservacaoModel extends Connection {
         'id'=>array('type'=>'integer', 'requered'=>true, 'max'=>10, 'key'=>true, 'description'=>'ID'),
         'descricao'=>array('type'=>'string', 'requered'=>false, 'max'=>'100', 'default'=>'', 'key'=>false, 'description'=>'Descrição'),
         'status'=>array('type'=>'string', 'requered'=>false, 'max'=>'1', 'default'=>'A', 'key'=>false, 'description'=>'status'),
+        'id_empresas'=>array('type'=>'integer', 'requered'=>false, 'max'=>10, 'default'=>'', 'key'=>false, 'description'=>'ID EMPRESAS'),
     );
     
     private function setFields($arr) {
@@ -71,7 +72,7 @@ class ModoConservacaoModel extends Connection {
         }
     }
 
-    public function loadAll($status='') {
+    public function loadAll($status='', $id_empresas) {
         try {
             $arr = array();
             $and = '';
@@ -83,6 +84,9 @@ class ModoConservacaoModel extends Connection {
                 $and.= " and p.status != :STATUS";
                 $arr[':STATUS'] = 'D';
             }
+
+            $and.= " and p.id_empresas = :ID_EMPRESAS";
+            $arr[':ID_EMPRESAS'] = $id_empresas;
 
             $sql = "select p.*
                       from ".self::TABLE." p

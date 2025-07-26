@@ -127,7 +127,7 @@ class ComputadoresModel extends Connection {
         }
     }
 
-    public function loadIdUsuarios($id_usuarios='', $status='') {
+    public function loadIdUsuarios($id_usuarios='', $status='', $id_empresas) {
         try {
             $arr = array();
             $and = '';

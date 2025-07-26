@@ -78,9 +78,9 @@ $app->map('/app-materiais-fracionar', function() use ($app){
             }
            
             $class_materiais = new MateriaisModel();
-            $material = $class_materiais->loadIdMaterialDetalhes('A',$params['id_materiais']);
+            $material = $class_materiais->loadIdMaterialDetalhes('A',$params['id_materiais'], $usuario['id_empresas']);
 
-            $etiqueta = gerarEtiquetas($material, 419, $usuario['id_usuarios']);
+            $etiqueta = gerarEtiquetas($material, 419, $usuario['id_usuarios'], $usuario['id_empresas']);
 
             if ($material) {
                 $quantidade = array();
@@ -95,12 +95,13 @@ $app->map('/app-materiais-fracionar', function() use ($app){
                     $quantidade, 
                     $tipo_fracionamento,
                     true,
-                    $usuario['id_usuarios']
+                    $usuario['id_usuarios'],
+                    $usuario['id_empresas']
                 );                
                 $response_status = 200;
                 $data = $fracionamento;
             } else {
-                throw new Exception("Material nãolocalizado!", 1);
+                throw new Exception("Material não localizado!", 1);
             }
         } catch (Exception $e) {
             $data = array('error'=>true, 'type'=>'danger', 'msg'=>$e->getMessage());

@@ -20,7 +20,7 @@ $app->post('/relatorio-materiais-recebimento', function() use ($app){
             $arr_perfil = array_column($_SESSION['usuario']['perfil'], 'ds_perfil');
             $fg_root = array_search('ROOT', $arr_perfil);
             
-            $id_empresas = $_SESSION['usuario']['id_empresas'];
+            $id_empresas = getIdEmpresasLogado();
             if ($fg_root >= 0) {
                 $id_empresas = '';
             }

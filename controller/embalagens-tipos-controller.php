@@ -116,7 +116,7 @@ $app->post('/embalagens-tipos-save', function() use ($app){
                 unset($post['id_embalagens_tipos']);
             }
 
-            $post['id_empresas'] = $_SESSION['usuario']['id_empresas'];
+            $post['id_empresas'] = getIdEmpresasLogado();
             
             try {
                 $class_embalagens_tipos = new EmbalagensTiposModel();
