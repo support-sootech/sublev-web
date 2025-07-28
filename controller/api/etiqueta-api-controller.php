@@ -66,7 +66,7 @@ $app->map('/app-etiquetas', function($id_etiquetas='') use ($app){
             }
 
             $class_etiquetas = new EtiquetasModel();
-            $arr = $class_etiquetas->loadEtiquetasIdUsuarios($usuario['id_usuarios']);
+            $arr = $class_etiquetas->loadEtiquetasIdUsuarios($usuario['id_usuarios'], $usuario['id_empresas']);
             if (!$arr) {
                 throw new Exception("Nenhuma etiqueta localizada!", 1);
             }
