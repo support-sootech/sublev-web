@@ -270,7 +270,9 @@ $app->map('/app-materiais-fracionados-vencimento-json(/:acao)', function($acao='
             $class_etiquetas = new EtiquetasModel();            
             foreach ($lista as $key => $value) {                
                 $value['etiqueta'] = $class_etiquetas->loadIdEtiquetaInfo($value['id_etiquetas']);
-                $arr[] = $value['etiqueta'];
+                if ($value['etiqueta']) {
+                    $arr[] = $value['etiqueta'];
+                }
             }
 
             $response_status = 200;
