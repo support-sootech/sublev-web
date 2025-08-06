@@ -33,7 +33,7 @@ if (isset($_SESSION['usuario']['endpoints'][returnPage()])) {
             <div class="container-fluid">
 
                     <!-- Page Heading -->
-                    <h1 class="h3 mb-2 text-gray-800">Controle de <?=$titulo?> </h1>
+                    <h1 class="h3 mb-2 text-gray-800">Catálogo de <?=$titulo?> </h1>
 
                     <!-- DataTales Example -->
                     <div class="card shadow mb-4">
@@ -56,10 +56,10 @@ if (isset($_SESSION['usuario']['endpoints'][returnPage()])) {
                                 <table class="table table-bordered" id="table-<?=str_replace('_','-',$prefix)?>" width="100%" cellspacing="0">
                                     <thead>
                                         <tr>
-                                            <th >ID</th>
+                                            <th >Código de Barras</th>
                                             <th >Descrição</th>
-                                            <th >Validade</th>
-                                            <th >Validade Aberto</th>
+                                            <th >Qtd. Dias Vencimento</th>
+                                            <th >Qtd. Dias Vencimento Após Aberto</th>
                                             <th >Status</th>
                                             <th >Ações</th>
                                         </tr>
@@ -226,7 +226,7 @@ function carrega_lista(){
         "columns":
                 [
                     { "data": function ( data, type, row ) {
-                                    return data.id_produtos;
+                                    return data.codigo_barras;
                                 }
                     },
                     { "data": function ( data, type, row ) {

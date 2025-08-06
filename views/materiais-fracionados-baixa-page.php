@@ -1,7 +1,7 @@
 <?php
 require_once('header.php');
-$titulo = 'Materiais Francionados Baixa';
-$prefix = 'material_francionados';
+$titulo = 'Baixa de Materiais Fracionados';
+$prefix = 'material_fracionado';
 $arr_permissoes = array();
 if (isset($_SESSION['usuario']['endpoints'][returnPage()])) {
     $arr_permissoes = $_SESSION['usuario']['endpoints'][returnPage()];
@@ -44,7 +44,7 @@ $arr_perfil = array_column($_SESSION['usuario']['perfil'], 'ds_perfil');
             <div class="container-fluid">
 
                     <!-- Page Heading -->
-                    <h1 class="h3 mb-2 text-gray-800">Controle de <?=$titulo?> </h1>
+                    <h1 class="h3 mb-2 text-gray-800"><?=$titulo?> </h1>
 
                     <div class="row">
                         <div class="col">

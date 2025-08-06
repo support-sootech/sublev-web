@@ -66,6 +66,7 @@ $app->post('/produtos-json', function() use ($app){
 	$data['data'] = array();
     $total = array();
     $output = array();
+    $order_by = '';
     if (valida_logado()) {
 
         try {
@@ -79,9 +80,30 @@ $app->post('/produtos-json', function() use ($app){
             $draw = $_REQUEST['draw'];
             $start = $_REQUEST['start'];
             $length = $_REQUEST['length'];
+            $columns = array( 
+                            0 => 'codigo_barras', 
+                            1 => 'descricao',
+                            2 => 'dias_vencimento',
+                            3 => 'dias_vencimento_aberto',
+                            4 => 'status'
+                        );
+
+            if (!empty($_REQUEST['order'])){
+                $order_by = " ORDER BY ".$columns[$_REQUEST['order'][0]['column']]." ".$_REQUEST['order'][0]['dir']; 
+            }
+
+            $where = '';
+            if(!empty($_REQUEST['search']['value'])) { 
+                $where .= " AND  ( id_produtos LIKE '%".$_REQUEST['search']['value']."%' ";    
+                $where .= " OR descricao LIKE '%".$_REQUEST['search']['value']."%' ";
+                $where .= " OR dias_vencimento LIKE '%".$_REQUEST['search']['value']."%' ";
+                $where .= " OR dias_vencimento_aberto LIKE '%".$_REQUEST['search']['value']."%' ";
+                $where .= " OR status LIKE '%".$_REQUEST['search']['value']."%' )";
+                
+            }
             
             $class_produtos = new ProdutosModel();
-            $arr = $class_produtos->loadAll($status,$start,$length);
+            $arr = $class_produtos->loadAll($status,$start,$length,$order_by,$where);
             if ($arr) {
                 foreach ($arr as $key => $value) {
                     if (!empty($value['peso'])) {

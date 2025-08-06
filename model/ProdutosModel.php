@@ -99,7 +99,7 @@ class ProdutosModel extends Connection {
         }
     }
 
-    public function loadAll($status='',$start, $length) {
+    public function loadAll($status='',$start, $length,$order_by,$where) {
         try {
             $arr = array();
             $and = '';
@@ -112,14 +112,18 @@ class ProdutosModel extends Connection {
                 $and .= " and status != :STATUS";
             }
             
+            if ($order_by != ''){
+                $and .= $order_by;
+            }
+
             if (($start != '') and ($length != '')) {
                 $and .= " LIMIT ".$start.",".$length;
             }
-            
+
             $sql = "select p.*
                       from ".self::TABLE." p
                      where 1 = 1 
-                       ".$and."";
+                       ".$where." ".$and."";
             
             $res = $this->conn->select($sql, $arr);
             

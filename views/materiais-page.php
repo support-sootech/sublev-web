@@ -37,15 +37,13 @@ if (isset($_SESSION['usuario']['endpoints'][returnPage()])) {
             <div class="container-fluid">
 
                     <!-- Page Heading -->
-                    <h1 class="h3 mb-2 text-gray-800">Controle de <?=$titulo?> </h1>
+                    <h1 class="h3 mb-2 text-gray-800">Entrada de <?=$titulo?> </h1>
 
                     <!-- DataTales Example -->
                     <div class="card shadow mb-4">
                         <div class="card-header py-3">
                             <div class="row">
-                                <div class="col">
-                                    <h6 class="m-0 font-weight-bold text-primary"><?=$titulo?></h6>
-                                </div>
+                                
                                 <div class="col text-right">
                                     <?php if(in_array('CADASTRAR', $arr_permissoes)):?>
                                         <a href="#" rel="btn-<?=str_replace('_','-',$prefix)?>-novo" class="btn btn-primary btn-sm">
