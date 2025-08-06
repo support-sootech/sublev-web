@@ -212,13 +212,14 @@ require_once('footer.php');
 <script>
 function carrega_lista(){
     $('#table-<?=str_replace('_','-',$prefix)?>').DataTable({
+        "processing": true,
+        "serverSide": true,
         "ajax": {
             "url": '/<?=str_replace('_','-',$prefix)?>-json',
             "type": "post",
             "data":{}
         },
         "language": { "url": "https://cdn.datatables.net/plug-ins/1.10.13/i18n/Portuguese-Brasil.json", "search": "Pesquisar:", },
-        "processing": true,
         "destroy": true,
         "order": [],
         "columnDefs": [],
