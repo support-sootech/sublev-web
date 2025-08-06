@@ -155,14 +155,15 @@ class MateriaisFracionadosModel extends Connection {
             
             $sql = "select x.*, 
                            m.descricao as ds_materiais,
-                           (case when x.status = 'V' then 'VENDIDO'
+                           (case when x.status = 'V' then 'UTILIZADO'
                                 when x.status = 'C' then 'VENCIDO'
                                 when x.status = 'D' then 'DESCARTADO'
                                 else 'ATIVO'
                             end) as ds_status,
                             um.descricao as ds_unidade_medida,
                             p.nome as nm_usuario,
-                            s.nome as nm_setor
+                            s.nome as nm_setor,
+                            e.id_etiquetas as id_etiqueta
                       from ".self::TABLE." x
                       inner join tb_materiais m on m.id_materiais = x.id_materiais
                       left join (select l.id_materiais_fracionados, l.id_usuarios 
@@ -172,6 +173,7 @@ class MateriaisFracionadosModel extends Connection {
                       left join tb_pessoas p on p.id_pessoas = u.id_pessoas
                       inner join tb_unidades_medidas um on um.id_unidades_medidas = x.id_unidades_medidas
                       inner join tb_setor s on s.id_setor = x.id_setor
+                      inner join tb_etiquetas e on e.id_materiais_fracionados = x.id_materiais_fracionados
                      where m.id_empresas = :ID_EMPRESAS ".$and;
             $res = $this->conn->select($sql, $arr);
             
