@@ -109,6 +109,7 @@ $app->post('/empresas-save', function() use ($app){
                 if (!empty($id_empresas)) {
                     $data = $class_empresas->edit($post, array('id_empresas'=>$id_empresas));
                 } else {
+                    $post['cnpj'] = preg_replace('/[^0-9]/', '', $post['cnpj']);
                     $data = $class_empresas->add($post);
                 }
                 

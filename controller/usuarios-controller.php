@@ -110,7 +110,7 @@ $app->post('/usuarios-save', function() use ($app){
                 $obj_pessoas['genero'] = $app->request->post('usuarios_genero');
                 $obj_pessoas['email'] = $app->request->post('usuarios_email');
                 $obj_pessoas['dt_nascimento'] = $app->request->post('usuarios_dt_nascimento');
-                $obj_pessoas['id_empresas'] = $_SESSION['usuario']['id_empresas'];
+                $obj_pessoas['id_empresas'] = $app->request->post('usuarios_id_empresa');
                 $obj_pessoas['id_tipos_pessoas'] = 1; //USUARIOS
                 $obj_pessoas['telefone'] = $app->request->post('usuarios_telefone');
                 $obj_pessoas['cep'] = $app->request->post('usuarios_cep');

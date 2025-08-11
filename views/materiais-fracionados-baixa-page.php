@@ -337,7 +337,7 @@ function carrega_lista(){
                                     //A-tivo, (V)endido, Ven(C)ido, (D)escartado
                                     if (data.status!='A') {
                                         campo+= '<a href="#" title="Ativar o material" id="'+data.id_materiais_fracionados+'" data-status="A" rel="btn-material-status" role="button" class="btn btn-primary btn-sm" style="margin: 1px 2px">'+
-                                                    '<i class="fas fa-check"></i>'+
+                                                    '<i class="fa fa-undo"></i>'+
                                                 '</a>';
                                     }
 
@@ -349,7 +349,7 @@ function carrega_lista(){
 
                                     if (data.status!='C' && data.status!='V') {
                                         campo+= '<a href="#" title="Material vencido" id="'+data.id_materiais_fracionados+'" data-status="C" rel="btn-material-status" role="button" class="btn btn-danger btn-sm" style="margin: 1px 2px">'+
-                                                    '<i class="fas fa-ban"></i>'+
+                                                    '<i class="fa fa-calendar"></i>'+
                                                 '</a>';
                                     }
 

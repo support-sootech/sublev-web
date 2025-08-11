@@ -334,7 +334,7 @@ function carrega_lista(){
                     },
                     { "data": function ( data, type, row ) {
                                     let campo = data.descricao;
-                                    campo+= '<br><medium><strong>Qtd Estoque: '+(data.quantidade ? data.quantidade : 0)+'</strong></medium>';
+                                    campo+= '<br><medium><strong>Qtd. Estoque: '+(data.quantidade ? data.quantidade : 0)+'</strong></medium>';
                                     if(data.marca) campo+= '<br><medium><strong>Marca: '+data.marca+'</strong></medium>';
                                     return campo;
                                 }

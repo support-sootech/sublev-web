@@ -65,6 +65,7 @@ $app->post('/produtos-json', function() use ($app){
     $status = 200;
 	$data['data'] = array();
     $total = array();
+    $totalRecords = 0;
     $output = array();
     $order_by = '';
     if (valida_logado()) {
@@ -106,6 +107,7 @@ $app->post('/produtos-json', function() use ($app){
             $arr = $class_produtos->loadAll($status,$start,$length,$order_by,$where);
             if ($arr) {
                 foreach ($arr as $key => $value) {
+                    
                     if (!empty($value['peso'])) {
                         $value['peso'] = numberformat($value['peso'], false);
                     }
@@ -115,6 +117,7 @@ $app->post('/produtos-json', function() use ($app){
             }
             $total = $class_produtos->countAll($status);
             $totalRecords = $total[0]['total'];
+            //$totalRecords = count($arr);
     
             //die('Draw = '.$draw.' - Start = '.$start.' - LENGTH = '.$length.' - Total Records = '.$totalRecords);
         } catch (Exception $e) {
