@@ -33,7 +33,7 @@ if (isset($_SESSION['usuario']['endpoints'][returnPage()])) {
             <div class="container-fluid">
 
                     <!-- Page Heading -->
-                    <h1 class="h3 mb-2 text-gray-800">Controle de <?=$titulo?> </h1>
+                    <h1 class="h3 mb-2 text-gray-800">Catálogo de <?=$titulo?> </h1>
 
                     <!-- DataTales Example -->
                     <div class="card shadow mb-4">
@@ -56,10 +56,10 @@ if (isset($_SESSION['usuario']['endpoints'][returnPage()])) {
                                 <table class="table table-bordered" id="table-<?=str_replace('_','-',$prefix)?>" width="100%" cellspacing="0">
                                     <thead>
                                         <tr>
-                                            <th >ID</th>
+                                            <th >Código de Barras</th>
                                             <th >Descrição</th>
-                                            <th >Validade</th>
-                                            <th >Validade Aberto</th>
+                                            <th >Qtd. Dias Vencimento</th>
+                                            <th >Qtd. Dias Vencimento Após Aberto</th>
                                             <th >Status</th>
                                             <th >Ações</th>
                                         </tr>
@@ -212,20 +212,21 @@ require_once('footer.php');
 <script>
 function carrega_lista(){
     $('#table-<?=str_replace('_','-',$prefix)?>').DataTable({
+        "processing": true,
+        "serverSide": true,
         "ajax": {
             "url": '/<?=str_replace('_','-',$prefix)?>-json',
             "type": "post",
             "data":{}
         },
         "language": { "url": "https://cdn.datatables.net/plug-ins/1.10.13/i18n/Portuguese-Brasil.json", "search": "Pesquisar:", },
-        "processing": true,
         "destroy": true,
         "order": [],
         "columnDefs": [],
         "columns":
                 [
                     { "data": function ( data, type, row ) {
-                                    return data.id_produtos;
+                                    return data.codigo_barras;
                                 }
                     },
                     { "data": function ( data, type, row ) {

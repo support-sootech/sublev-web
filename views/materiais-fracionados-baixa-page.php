@@ -1,7 +1,7 @@
 <?php
 require_once('header.php');
-$titulo = 'Materiais Francionados Baixa';
-$prefix = 'material_francionados';
+$titulo = 'Baixa de Materiais Fracionados';
+$prefix = 'material_fracionado';
 $arr_permissoes = array();
 if (isset($_SESSION['usuario']['endpoints'][returnPage()])) {
     $arr_permissoes = $_SESSION['usuario']['endpoints'][returnPage()];
@@ -44,7 +44,7 @@ $arr_perfil = array_column($_SESSION['usuario']['perfil'], 'ds_perfil');
             <div class="container-fluid">
 
                     <!-- Page Heading -->
-                    <h1 class="h3 mb-2 text-gray-800">Controle de <?=$titulo?> </h1>
+                    <h1 class="h3 mb-2 text-gray-800"><?=$titulo?> </h1>
 
                     <div class="row">
                         <div class="col">
@@ -84,14 +84,14 @@ $arr_perfil = array_column($_SESSION['usuario']['perfil'], 'ds_perfil');
                                                         <option value="">--Selecione--</option>
                                                         <option value="A">Ativo</option>
                                                         <option value="D">Descartado</option>
-                                                        <option value="V">Vendido</option>
+                                                        <option value="V">Utilizado</option>
                                                         <option value="C">Vencido</option>
                                                     </select>
                                                 </div>
                                             </div>
 
                                             <div class="col-sm-12 col-md-12 col-lg-3 col-xl-3 col-xxl-3" style="padding-top: 30px;">
-                                                <a href="#" rel="btn-form-filtro" class="btn btn-secondary" role="button"><i class="fas fa-search"></i> Filtrar</a>
+                                                <a href="#" rel="btn-form-filtro" class="btn btn-secondary" role="button"><i class="fas fa-search"></i>Filtrar</a>
                                                 <a href="#" rel="btn-form-pdf" class="btn btn-secondary" role="button"><i class="fas fa-file-pdf"></i> Exportar PDF</a>
                                             </div>
 
@@ -119,7 +119,7 @@ $arr_perfil = array_column($_SESSION['usuario']['perfil'], 'ds_perfil');
                                         <table class="table table-bordered" id="table-<?=str_replace('_','-',$prefix)?>" width="100%" cellspacing="0">
                                             <thead>
                                                 <tr>
-                                                    <th >ID</th>
+                                                    <th>Etiqueta</th>
                                                     <th>Fracionado</th>
                                                     <th >Material</th>
                                                     <th>Setor</th>
@@ -284,7 +284,7 @@ function carrega_lista(){
         "columns":
                 [
                     { "data": function ( data, type, row ) {
-                                    return data.id_materiais_fracionados;
+                                    return data.id_etiqueta;
                                 }
                     },
                     { "data": function ( data, type, row ) {
@@ -313,7 +313,7 @@ function carrega_lista(){
                                     var status_label 	= '';
 
                                     if (data.status=='V') {
-                                        status_desc 	= 'Vendido';
+                                        status_desc 	= 'Utilizado';
                                         status_label 	= 'warning';
                                     } else if(data.status=='C') {
                                         status_desc 	= 'Vencido';
@@ -336,20 +336,20 @@ function carrega_lista(){
 
                                     //A-tivo, (V)endido, Ven(C)ido, (D)escartado
                                     if (data.status!='A') {
-                                        campo+= '<a href="#" title="Ativar o material" id="'+data.id_materiais_fracionados+'" data-status="A" rel="btn-material-status" role="button" class="btn btn-success btn-sm" style="margin: 1px 2px">'+
-                                                    '<i class="fas fa-check"></i>'+
+                                        campo+= '<a href="#" title="Ativar o material" id="'+data.id_materiais_fracionados+'" data-status="A" rel="btn-material-status" role="button" class="btn btn-primary btn-sm" style="margin: 1px 2px">'+
+                                                    '<i class="fa fa-undo"></i>'+
                                                 '</a>';
                                     }
 
                                     if (data.status!='V' && data.status!='C' && data.status!='D') {                                        
-                                        campo+= '<a href="#" title="Material vendido" id="'+data.id_materiais_fracionados+'" data-status="V" rel="btn-material-status" role="button" class="btn btn-primary btn-sm" style="margin: 1px 2px">'+
-                                                    '<i class="fas fa-money-bill-alt"></i>'+
+                                        campo+= '<a href="#" title="Material utilizado" id="'+data.id_materiais_fracionados+'" data-status="V" rel="btn-material-status" role="button" class="btn btn-success btn-sm" style="margin: 1px 2px">'+
+                                                    '<i class="fas fa-check"></i>'+
                                                 '</a>';
                                     }
 
                                     if (data.status!='C' && data.status!='V') {
                                         campo+= '<a href="#" title="Material vencido" id="'+data.id_materiais_fracionados+'" data-status="C" rel="btn-material-status" role="button" class="btn btn-danger btn-sm" style="margin: 1px 2px">'+
-                                                    '<i class="fas fa-ban"></i>'+
+                                                    '<i class="fa fa-calendar"></i>'+
                                                 '</a>';
                                     }
 

@@ -242,8 +242,13 @@ if (isset($_SESSION['usuario']['endpoints'][returnPage()])) {
                                     <select class="form-select requered" id="<?=$prefix?>_id_setor" name="<?=$prefix?>_id_setor"></select>
                                 </div>
                             </div>
+                            <div class="col-sm-12 col-md-12 col-lg-3 col-xl-3 col-xxl-3">
+                                <div class="form-group">
+                                    <label for="<?=$prefix?>_id_empresa">Empresa</label>
+                                    <select class="form-select requered" id="<?=$prefix?>_id_empresa" name="<?=$prefix?>_id_empresa"></select>
+                                </div>
+                            </div>
                         </div>
-
                     </form>
                 </div>
                 <div class="modal-footer">
@@ -498,6 +503,38 @@ function comboSetores(id_setor=''){
     });
 }
 
+function comboEmpresas(id_empresa=''){
+    const el = $('select[name=<?=$prefix?>_id_empresa]')
+    let opt = '';
+    $.ajax({
+        url:'/empresas-json',
+        type:'post',
+        dataType:'json',
+        data:{status:'A'},
+        success:function(data) {
+            console.log('data', data);
+            if (data.data.length > 0) {
+                opt = '<option value="">--Selecione--</option>';
+                $.each(data.data, function(i,v){
+                    opt+= '<option value="'+v.id_empresas+'" '+(v.id_empresas==id_empresa?'selected':'')+' >'+v.nome+'</option>'
+                });                
+            }
+            el.html(opt);
+        },
+        beforeSend:function(){
+            opt = '<option>Carregando...</option>';
+        },
+        complete:function(){
+
+        },
+        error:function(a,b,c){
+            console.log('a',a);
+            console.log('b',b);
+            console.log('c',c);
+        }
+    });
+}
+
 // Valida CPF
 function validaCPF(cpf) {  
     cpf = cpf.replace(/[^\d]+/g,'');    
@@ -568,6 +605,7 @@ $(document).ready(function(){
     $(document).on('click', 'a[rel=btn-<?=$prefix?>-novo]', function(e){
         e.preventDefault();
         comboSetores();
+        comboEmpresas();
         $('div#modal-<?=$prefix?>').modal('show');
         $('input[name=<?=$prefix?>_cpf_cnpj]').prop('disabled', false);
     });
@@ -580,6 +618,7 @@ $(document).ready(function(){
 
     $(document).on('click','a[rel=btn-<?=$prefix?>-editar]', function(e){
         e.preventDefault();
+        //$('input[name=<?=$prefix?>_cpf_cnpj]').prop('disabled', true);
         const id = $(this).attr('id');
         if (id) {            
             $.ajax({
@@ -609,9 +648,8 @@ $(document).ready(function(){
                         
                         fieldCpfCnpj(data.data.tp_juridico);
                         $('input[name=<?=$prefix?>_cpf_cnpj]').val(data.data.cpf_cnpj);
-                        $('input[name=<?=$prefix?>_cpf_cnpj]').prop('disabled', true);
                         comboSetores(data.data.id_setor);
-
+                        comboEmpresas(data.data.id_empresas);
                         $('div#modal-<?=$prefix?>').modal('show');
                     }
                 },
@@ -639,7 +677,7 @@ $(document).ready(function(){
 
         if (id) {
             Swal.fire({
-                text: 'Você realmente deseja excluír esse registro?',
+                text: 'Você deseja realmente excluir esse registro?',
                 confirmButtonColor: '#3085d6',
                 cancelButtonColor: '#dc3545',
                 confirmButtonText: 'Sim',

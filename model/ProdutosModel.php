@@ -99,7 +99,7 @@ class ProdutosModel extends Connection {
         }
     }
 
-    public function loadAll($status='') {
+    public function loadAll($status='',$start, $length,$order_by,$where) {
         try {
             $arr = array();
             $and = '';
@@ -112,10 +112,49 @@ class ProdutosModel extends Connection {
                 $and .= " and status != :STATUS";
             }
             
+            if ($order_by != ''){
+                $and .= $order_by;
+            }
+
+            if (($start != '') and ($length != '')) {
+                $and .= " LIMIT ".$start.",".$length;
+            }
+
             $sql = "select p.*
                       from ".self::TABLE." p
                      where 1 = 1 
+                       ".$where." ".$and."";
+            
+            $res = $this->conn->select($sql, $arr);
+            
+            if (isset($res[0])) {
+                return $res;
+            } else {
+                return false;
+            }
+        } catch (Exception $e) {
+            return $e->getMessage();
+        }
+    }
+
+    public function countAll($status='') {
+        try {
+            $arr = array();
+            $and = '';
+
+            if (!empty($status)) {
+                $arr[':STATUS'] = $status;
+                $and .= " and status = :STATUS";
+            } else {
+                $arr[':STATUS'] = 'D';
+                $and .= " and status != :STATUS";
+            }
+            
+            $sql = "select count(*) as total
+                      from ".self::TABLE." p
+                     where 1 = 1 
                        ".$and."";
+            
             $res = $this->conn->select($sql, $arr);
             
             if (isset($res[0])) {

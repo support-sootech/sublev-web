@@ -374,7 +374,8 @@ class MateriaisModel extends Connection {
                       left join tb_pessoas p1 on p1.id_pessoas = p.id_pessoas_fabricante
                       left join tb_pessoas p2 on p2.id_pessoas = p.id_pessoas_fornecedor
                       left join tb_materiais_marcas mm on mm.id_materiais_marcas = p.id_materiais_marcas
-                     where 1 = 1 
+                     where 1 = 1
+                       and p.quantidade > 0  
                        ".$and."";
             $res = $this->conn->select($sql, $arr);
             
@@ -397,10 +398,12 @@ class MateriaisModel extends Connection {
                 $arr[':STATUS'] = $status;
                 $and .= " and p.status = :STATUS";
                 $and .= " and mf.status = :STATUS";
+                $and .= " and e.status = :STATUS";
             } else {
                 $arr[':STATUS'] = 'D';
                 $and .= " and p.status != :STATUS";
                 $and .= " and mf.status != :STATUS";
+                $and .= " and e.status != :STATUS";
             }
 
             if (!empty($id_empresas)) {
@@ -413,7 +416,7 @@ class MateriaisModel extends Connection {
             if ($id_acao == 'btn_vencem_amanha')
                 $and .= " and mf.dt_vencimento = DATE_ADD(CURDATE(), INTERVAL 1 DAY)";
             if ($id_acao == 'btn_vencem_semana')
-                $and .= " and mf.dt_vencimento < DATE_ADD(CURDATE(), INTERVAL 8 DAY)";
+                $and .= " and (mf.dt_vencimento BETWEEN DATE_FORMAT(CURDATE(), '%Y-%m-%d') AND DATE_ADD(CURDATE(), INTERVAL 7 DAY))";
             if ($id_acao == 'btn_vencem_mais_1_semana')
                 $and .= " and mf.dt_vencimento > DATE_ADD(CURDATE(), INTERVAL 7 DAY)";
 
@@ -458,11 +461,13 @@ class MateriaisModel extends Connection {
             if (!empty($status)) {
                 $arr[':STATUS'] = $status;
                 $and .= " and p.status = :STATUS";
-                $and .= " and mf.status != :STATUS";
+                $and .= " and mf.status = :STATUS";
+                $and .= " and e.status = :STATUS";
             } else {
                 $arr[':STATUS'] = 'D';
                 $and .= " and p.status != :STATUS";
                 $and .= " and mf.status != :STATUS";
+                $and .= " and e.status != :STATUS";
             }
 
             $arr[':ID_EMPRESAS'] = $id_empresas;
@@ -473,7 +478,7 @@ class MateriaisModel extends Connection {
             if ($id_acao == 'texto_vencem_amanha')
                 $and .= " and mf.dt_vencimento = DATE_ADD(CURDATE(), INTERVAL 1 DAY)";
             if ($id_acao == 'texto_vencem_semana')
-                $and .= " and mf.dt_vencimento < DATE_ADD(CURDATE(), INTERVAL 8 DAY)";
+                $and .= " and (mf.dt_vencimento BETWEEN DATE_FORMAT(CURDATE(), '%Y-%m-%d') AND DATE_ADD(CURDATE(), INTERVAL 7 DAY))";
             if ($id_acao == 'texto_vencem_mais_1_semana')
                 $and .= " and mf.dt_vencimento > DATE_ADD(CURDATE(), INTERVAL 7 DAY)";
 

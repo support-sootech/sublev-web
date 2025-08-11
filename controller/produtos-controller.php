@@ -64,6 +64,10 @@ $app->get('/produtos-del/:id_produtos', function($id_produtos='') use ($app){
 $app->post('/produtos-json', function() use ($app){
     $status = 200;
 	$data['data'] = array();
+    $total = array();
+    $totalRecords = 0;
+    $output = array();
+    $order_by = '';
     if (valida_logado()) {
 
         try {
@@ -73,12 +77,37 @@ $app->post('/produtos-json', function() use ($app){
             if ($app->request->post('status')) {
                 $status = $app->request->post('status');
             }
-    
+            
+            $draw = $_REQUEST['draw'];
+            $start = $_REQUEST['start'];
+            $length = $_REQUEST['length'];
+            $columns = array( 
+                            0 => 'codigo_barras', 
+                            1 => 'descricao',
+                            2 => 'dias_vencimento',
+                            3 => 'dias_vencimento_aberto',
+                            4 => 'status'
+                        );
+
+            if (!empty($_REQUEST['order'])){
+                $order_by = " ORDER BY ".$columns[$_REQUEST['order'][0]['column']]." ".$_REQUEST['order'][0]['dir']; 
+            }
+
+            $where = '';
+            if(!empty($_REQUEST['search']['value'])) { 
+                $where .= " AND  ( id_produtos LIKE '%".$_REQUEST['search']['value']."%' ";    
+                $where .= " OR descricao LIKE '%".$_REQUEST['search']['value']."%' ";
+                $where .= " OR dias_vencimento LIKE '%".$_REQUEST['search']['value']."%' ";
+                $where .= " OR dias_vencimento_aberto LIKE '%".$_REQUEST['search']['value']."%' ";
+                $where .= " OR status LIKE '%".$_REQUEST['search']['value']."%' )";
+                
+            }
+            
             $class_produtos = new ProdutosModel();
-            $arr = $class_produtos->loadAll($status);
+            $arr = $class_produtos->loadAll($status,$start,$length,$order_by,$where);
             if ($arr) {
                 foreach ($arr as $key => $value) {
-
+                    
                     if (!empty($value['peso'])) {
                         $value['peso'] = numberformat($value['peso'], false);
                     }
@@ -86,6 +115,11 @@ $app->post('/produtos-json', function() use ($app){
                     $data['data'][] = $value;
                 }
             }
+            $total = $class_produtos->countAll($status);
+            $totalRecords = $total[0]['total'];
+            //$totalRecords = count($arr);
+    
+            //die('Draw = '.$draw.' - Start = '.$start.' - LENGTH = '.$length.' - Total Records = '.$totalRecords);
         } catch (Exception $e) {
             die('ERROR: '.$e->getMessage().'');
         }
@@ -95,9 +129,16 @@ $app->post('/produtos-json', function() use ($app){
 	$response['Access-Control-Allow-Origin'] = '*';
 	$response['Access-Control-Allow-Methods'] = 'POST';
 	$response['Content-Type'] = 'application/json';
-
+    
 	$response->status($status);
-	$response->body(json_encode($data));
+    $output = array(
+        "draw" => intval($draw),
+        "recordsTotal" => intval($totalRecords), // Total records in DB
+        "recordsFiltered" => intval($totalRecords), // Records after filtering
+        "data" => $data['data'] // Array of data for the current page
+    );
+    
+	$response->body(json_encode($output));
 });
 
 $app->post('/produtos-save', function() use ($app){
