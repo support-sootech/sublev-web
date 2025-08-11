@@ -80,7 +80,7 @@ $app->map('/app-materiais-fracionar', function() use ($app){
             $class_materiais = new MateriaisModel();
             $material = $class_materiais->loadIdMaterialDetalhes('A',$params['id_materiais'], $usuario['id_empresas']);
 
-            $etiqueta = gerarEtiquetas($material, 419, $usuario['id_usuarios'], $usuario['id_empresas']);
+            //$etiqueta = gerarEtiquetas($material, 419, $usuario['id_usuarios'], $usuario['id_empresas']);
 
             if ($material) {
                 $quantidade = array();
