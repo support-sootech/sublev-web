@@ -67,8 +67,7 @@ $app->post('/materiais-marcas-json', function() use ($app){
     if (valida_logado()) {
 
         try {
-            //$id_empresas = $_SESSION['usuario']['id_empresas'];
-            $id_empresas = '';
+            $id_empresas = $_SESSION['usuario']['id_empresas'];
 
             $status = '';
             if ($app->request->post('status')) {
@@ -117,7 +116,7 @@ $app->post('/materiais-marcas-save', function() use ($app){
                 unset($post['id_materiais_marcas']);
             }
 
-            //$post['id_empresas'] = $_SESSION['usuario']['id_empresas'];
+            $post['id_empresas'] = $_SESSION['usuario']['id_empresas'];
             
             try {
                 $class_embalagens_tipos = new MateriaisMarcasModel();
