@@ -90,8 +90,10 @@ class SetorModel extends Connection {
                 $arr[':STATUS'] = $status;
             }
 
-            $and.= " and p.id_empresas = :ID_EMPRESAS";
-            $arr[':ID_EMPRESAS'] = $id_empresas;
+            if ($id_empresas != ''){
+                $arr[':ID_EMPRESAS'] = $id_empresas;
+                $and.= " and p.id_empresas = :ID_EMPRESAS";
+            }
             
             $sql = "select p.*
                       from ".self::TABLE." p

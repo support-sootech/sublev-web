@@ -238,14 +238,14 @@ if (isset($_SESSION['usuario']['endpoints'][returnPage()])) {
                         <div class="row">
                             <div class="col-sm-12 col-md-12 col-lg-3 col-xl-3 col-xxl-3">
                                 <div class="form-group">
-                                    <label for="<?=$prefix?>_id_setor">Setor</label>
-                                    <select class="form-select requered" id="<?=$prefix?>_id_setor" name="<?=$prefix?>_id_setor"></select>
+                                    <label for="<?=$prefix?>_id_empresa">Empresa</label>
+                                    <select class="form-select requered" id="<?=$prefix?>_id_empresa" name="<?=$prefix?>_id_empresa"></select>
                                 </div>
                             </div>
                             <div class="col-sm-12 col-md-12 col-lg-3 col-xl-3 col-xxl-3">
                                 <div class="form-group">
-                                    <label for="<?=$prefix?>_id_empresa">Empresa</label>
-                                    <select class="form-select requered" id="<?=$prefix?>_id_empresa" name="<?=$prefix?>_id_empresa"></select>
+                                    <label for="<?=$prefix?>_id_setor">Setor</label>
+                                    <select class="form-select requered" id="<?=$prefix?>_id_setor" name="<?=$prefix?>_id_setor"></select>
                                 </div>
                             </div>
                         </div>
