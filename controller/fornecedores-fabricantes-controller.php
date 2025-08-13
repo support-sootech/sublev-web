@@ -129,11 +129,7 @@ $app->post('/fornecedores-fabricantes-save', function() use ($app){
                 $obj_pessoas['dt_nascimento'] = $app->request->post('fornecedores_fabricantes_dt_nascimento');
                 $obj_pessoas['id_tipos_pessoas'] = $app->request->post('fornecedores_fabricantes_id_tipos_pessoas');
 
-                if ($obj_pessoas['id_tipos_pessoas']=='3') {
-                    $obj_pessoas['id_empresas'] = getIdEmpresasLogado();
-                } else {
-                    $obj_pessoas['id_empresas'] = '';
-                }
+                $obj_pessoas['id_empresas'] = getIdEmpresasLogado();
                 
                 $obj_pessoas['telefone'] = $app->request->post('fornecedores_fabricantes_telefone');
                 $obj_pessoas['cep'] = $app->request->post('fornecedores_fabricantes_cep');
