@@ -61,6 +61,44 @@ $app->get('/produtos-del/:id_produtos', function($id_produtos='') use ($app){
 	$response->body(json_encode($data));
 });
 
+$app->post('/prod-autocomplete-json', function() use ($app){
+    $status = 200;
+	$data['data'] = array();
+    if (valida_logado()) {
+        try {
+            $id_empresas = getIdEmpresasLogado();
+            $flagListaCampo = '';
+            $campo = '';
+            $flagListaCampo = '';
+            if ($app->request->post('flagListaCampo')) {
+                $flagListaCampo = $app->request->post('flagListaCampo');
+            }
+            if ($app->request->post('campo')) {
+                $campo = $app->request->post('campo');
+            }
+            $class_produtos = new ProdutosModel();
+            $arr = $class_produtos->loadProdutos($campo, $flagListaCampo);
+            
+            if ($arr) {
+                foreach ($arr as $key => $value) {
+                    $data['data'][] = $value;
+                }
+            }
+        } catch (Exception $e) {
+            die('ERROR: '.$e->getMessage().'');
+        }
+        
+
+    }
+    $response = $app->response();
+	$response['Access-Control-Allow-Origin'] = '*';
+	$response['Access-Control-Allow-Methods'] = 'POST';
+	$response['Content-Type'] = 'application/json';
+
+	$response->status($status);
+	$response->body(json_encode($data));
+});
+
 $app->post('/produtos-json', function() use ($app){
     $status = 200;
 	$data['data'] = array();
@@ -115,7 +153,7 @@ $app->post('/produtos-json', function() use ($app){
                     $data['data'][] = $value;
                 }
             }
-            $total = $class_produtos->countAll($status);
+            $total = $class_produtos->countAll($status,$where);
             $totalRecords = $total[0]['total'];
             //$totalRecords = count($arr);
     

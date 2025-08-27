@@ -137,7 +137,41 @@ class ProdutosModel extends Connection {
         }
     }
 
-    public function countAll($status='') {
+    public function loadProdutos($campo,$flagListaCampo) {
+        try {
+            $arr = array();
+            $and = '';
+            
+            if ($flagListaCampo == 'L') {
+                if (!empty($campo)) {
+                    $and .= " and p.descricao like '%".$campo."%' LIMIT 14 ";
+                }
+            }
+            if ($flagListaCampo == 'C') {
+                if (!empty($campo)) {
+                    $and .= " and p.codigo_barras = '".$campo."'";
+                }
+            }
+
+            $sql = "select p.descricao,
+                           p.codigo_barras
+                      from ".self::TABLE." p
+                     where 1 = 1 
+                       ".$and." ";
+                       
+            $res = $this->conn->select($sql, $arr);
+            
+            if (isset($res[0])) {
+                return $res;
+            } else {
+                return false;
+            }
+        } catch (Exception $e) {
+            return $e->getMessage();
+        }
+    }
+
+    public function countAll($status='',$where) {
         try {
             $arr = array();
             $and = '';
@@ -153,7 +187,7 @@ class ProdutosModel extends Connection {
             $sql = "select count(*) as total
                       from ".self::TABLE." p
                      where 1 = 1 
-                       ".$and."";
+                     ".$where." ".$and."";
             
             $res = $this->conn->select($sql, $arr);
             

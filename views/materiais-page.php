@@ -11,6 +11,27 @@ if (isset($_SESSION['usuario']['endpoints'][returnPage()])) {
     table tr td {
         font-size: 14px;
     }
+
+    #produtos-lista {
+        float: left;
+        list-style: none;
+        margin-top: -3px;
+        padding: 0;
+        width: auto;
+        position: absolute;
+        z-index: 10;
+    }
+
+    #produtos-lista li {
+        padding: 10px;
+        background: #f0f0f0;
+        border-bottom: #bbb9b9 1px solid;
+    }
+
+    #produtos-lista li:hover {
+        background: #ece3d2;
+        cursor: pointer;
+    }
 </style>
 <!-- Page Wrapper -->
 <div id="wrapper">
@@ -114,13 +135,18 @@ if (isset($_SESSION['usuario']['endpoints'][returnPage()])) {
                             <div class="col-sm-12 col-md-12 col-lg-3 col-xl-3 col-xxl-3">                                
                                 <div class="form-group">
                                     <label for="<?=$prefix?>_cod_barras">Código de Barras</label>
-                                    <input type="text" class="form-control requered" id="<?=$prefix?>_cod_barras" name="<?=$prefix?>_cod_barras" placeholder="Descrição">
+                                    <input type="text" class="form-control requered" id="<?=$prefix?>_cod_barras" name="<?=$prefix?>_cod_barras" placeholder="Código de Barras">
                                 </div>
                             </div>
                             <div class="col">
-                                <div class="form-group">
+                                <div class="frmSearch">
                                     <label for="<?=$prefix?>_descricao">Descrição</label>
-                                    <input type="text" class="form-control requered" id="<?=$prefix?>_descricao" name="<?=$prefix?>_descricao" placeholder="Descrição">
+                                    <input type="text" onKeyUp="lookup(this.value);" class="form-control requered" id="<?=$prefix?>_descricao" name="<?=$prefix?>_descricao" placeholder="Descrição">
+                                    <div class="suggestionsBox" id="suggestions" style="display: none;">
+                                        <div class="suggestionList" id="autoSuggestionsList">
+                                            
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -314,6 +340,86 @@ if (isset($_SESSION['usuario']['endpoints'][returnPage()])) {
 require_once('footer.php');
 ?>
 <script>
+
+function lookup(inputString) {
+    let linha = '';
+    let flagListaCampo = '';
+    let campo = '';
+    if(inputString.length == 0) {
+        // Hide the suggestion box.
+        $('#autoSuggestionsList').html(linha); 
+        $('#suggestions').hide();
+    } else {
+        $.ajax({
+            url:'/prod-autocomplete-json',
+            type:'post',
+            beforeSend: function() {
+				$("#material_descricao").css("background", "#FFF no-repeat 165px");
+			},
+            dataType:'json',
+            data:{flagListaCampo:'L',campo:inputString},
+            success:function(data){
+                if (data.data.length > 0) {
+                    $('#suggestions').show();
+                    linha+= '<ul id="produtos-lista">';
+                    $.each(data.data, function(i,v){
+                        linha+= '<li data-codigo="'+v.codigo_barras+'" rel="item">'+v.codigo_barras+' - '+v.descricao+'</li>';
+                    });    
+                    linha+= '</ul>';     
+                    $('#autoSuggestionsList').html(linha);  
+                }
+                $("#material_descricao").css("background", "#FFF");
+            },
+            beforeSend:function(){
+                preloaderStart();
+            },
+            error:function(a,b,c){
+                preloaderStop();
+                gerarAlerta(a, 'Aviso', 'danger');
+                console.error('a',a);
+                console.error('b',b);
+                console.error('c',c);
+            },
+            complete:function(){
+                preloaderStop();
+            }
+        });
+    }
+} // lookup
+
+function fill(codigo) {
+    alert(codigo);
+    console.log('Valor Codigo Barras = ',codigo);
+    $.ajax({
+            url:'/prod-autocomplete-json',
+            type:'post',
+            dataType:'json',
+            data:{flagListaCampo:'C', campo:codigo},
+            success:function(data){
+                if (data.data.length > 0) {
+                    $.each(data.data, function(i,v){
+                        $('#material_descricao').val(v.descricao);
+                        $('#material_cod_barras').val(v.codigo_barras);
+                    });    
+                }
+            },
+            beforeSend:function(){
+                preloaderStart();
+            },
+            error:function(a,b,c){
+                preloaderStop();
+                gerarAlerta(a, 'Aviso', 'danger');
+                console.error('a',a);
+                console.error('b',b);
+                console.error('c',c);
+            },
+            complete:function(){
+                preloaderStop();
+            }
+    });
+    setTimeout("$('#suggestions').hide();", 200);
+}
+
 function carrega_lista(){
     $('#table-<?=str_replace('_','-',$prefix)?>').DataTable({
         "ajax": {
@@ -757,6 +863,10 @@ $(document).ready(function(){
 
     carrega_lista();
 
+    $(document).on('click','li[rel=item]', function(e){
+        console.log('Elemento',$(this).attr('data-codigo'));
+        fill($(this).attr('data-codigo'));
+    });
     $(document).on('click', 'a[rel=btn-<?=str_replace('_','-',$prefix)?>-novo]', function(e){
         e.preventDefault();
         comboCategorias();
