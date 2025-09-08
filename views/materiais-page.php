@@ -388,7 +388,7 @@ function lookup(inputString) {
 } // lookup
 
 function fill(codigo) {
-    alert(codigo);
+    
     console.log('Valor Codigo Barras = ',codigo);
     $.ajax({
             url:'/prod-autocomplete-json',
