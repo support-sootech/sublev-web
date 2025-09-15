@@ -94,7 +94,7 @@ if (isset($_SESSION['usuario']['endpoints'][returnPage()])) {
 
     <!-- Logout Modal-->
     <div class="modal fade" id="modal-<?=$prefix?>" tabindex="-1" role="dialog" aria-labelledby="modal<?=$prefix?>" aria-hidden="true">
-        <div class="modal-dialog" role="document">
+        <div class="modal-dialog modal-lg" role="document">
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title" id="modal<?=$prefix?>"><?=$titulo?></h5>
@@ -116,13 +116,19 @@ if (isset($_SESSION['usuario']['endpoints'][returnPage()])) {
                         </div>
 
                         <div class="row">
-                            <div class="col-sm-12 col-md-12 col-lg-6 col-xl-6 col-xxl-4">
+                            <div class="col-sm-12 col-md-12 col-lg-4 col-xl-4 col-xxl-4">
                                 <div class="form-group">
                                     <label for="<?=$prefix?>_cnpj">CNPJ</label>
                                     <input type="text" class="form-control requered mask-cnpj" id="<?=$prefix?>_cnpj" name="<?=$prefix?>_cnpj" placeholder="99.999.999/9999-99">
                                 </div>
                             </div>
-                            <div class="col-sm-12 col-md-12 col-lg-6 col-xl-6 col-xxl-4">
+                            <div class="col-sm-12 col-md-12 col-lg-4 col-xl-4 col-xxl-4">
+                                <div class="form-group">
+                                    <label for="<?=$prefix?>_num_etiqueta">Sequencial Etiqueta</label>
+                                    <input type="text" class="form-control requered somente_numeros" id="<?=$prefix?>_num_etiqueta" name="<?=$prefix?>_num_etiqueta" placeholder="99">
+                                </div>
+                            </div>
+                            <div class="col-sm-12 col-md-12 col-lg-4 col-xl-4 col-xxl-4">
                                 <div class="form-group">
                                     <label for="<?=$prefix?>_status">Status</label>
                                     <select class="form-select requered" id="<?=$prefix?>_status" name="<?=$prefix?>_status">

@@ -18,6 +18,7 @@ class EmpresasModel extends Connection {
         'smtp'=>array('type'=>'string', 'requered'=>false, 'max'=>'200', 'default'=>'', 'key'=>false, 'description'=>'SMTP'),
         'smtp_porta'=>array('type'=>'integer', 'requered'=>false, 'max'=>'5', 'default'=>'', 'key'=>false, 'description'=>'SMTP Porta'),
         'smtp_senha'=>array('type'=>'string', 'requered'=>false, 'max'=>'50', 'default'=>'', 'key'=>false, 'description'=>'SMTP Senha'),
+        'num_etiqueta'=>array('type'=>'integer', 'requered'=>false, 'max'=>10, 'key'=>true, 'description'=>'Número senquencial da etiqueta'),
     );
     
     private function setFields($arr) {
