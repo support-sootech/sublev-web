@@ -1,5 +1,5 @@
 <?php
-$app->map('/app-etiqueta-info(/:id_etiquetas)', function($id_etiquetas='') use ($app){
+$app->map('/app-etiqueta-info(/:num_etiqueta)', function($num_etiqueta='') use ($app){
 	$response_status = 400;
     $response_metodo = 'GET';
     $data = array();
@@ -16,12 +16,12 @@ $app->map('/app-etiqueta-info(/:id_etiquetas)', function($id_etiquetas='') use (
                 throw new Exception("Usuário não localizado!");
             }
 
-            if (empty($id_etiquetas)) {
+            if (empty($num_etiqueta)) {
                 throw new Exception("É necessário informar o código da etiqueta!");
             }
 
             $class_etiquetas = new EtiquetasModel();
-            $arr = $class_etiquetas->loadIdEtiquetaInfo($id_etiquetas);
+            $arr = $class_etiquetas->loadNumEtiquetaInfo($num_etiqueta);
             if (!$arr) {
                 throw new Exception("Nenhuma etiqueta localizada!", 1);
             }

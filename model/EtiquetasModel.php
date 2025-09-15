@@ -136,6 +136,39 @@ class EtiquetasModel extends Connection {
 
     }
 
+    public function loadNumEtiquetaInfo($num_etiqueta) {
+
+        $arr[':NUM_ETIQUETA'] = $num_etiqueta;
+        $sql = "select e.*, 
+                    m.descricao as ds_material, m.lote, m.dt_fabricacao, m.cod_barras,
+                    um.descricao as ds_unidades_medidas,
+                    mc.descricao as ds_modo_conservacao,
+                    mf.qtd_fracionada, mf.dt_fracionamento, mf.dt_vencimento,
+                    p.nome as nm_pessoa,
+                    s.nome as nm_setor
+                from tb_etiquetas e 
+                inner join tb_materiais_fracionados mf on mf.id_materiais_fracionados = e.id_materiais_fracionados
+                inner join tb_materiais m on m.id_materiais = e.id_materiais
+                inner join tb_unidades_medidas um on um.id_unidades_medidas = m.id_unidades_medidas
+                inner join tb_modo_conservacao mc on mc.id = m.id_modo_conservacao
+                inner join tb_usuarios u on u.id_usuarios = mf.id_usuarios
+                inner join tb_pessoas p on p.id_pessoas = u.id_pessoas
+                left join tb_setor s on s.id_setor = mf.id_setor
+                where e.num_etiqueta = :NUM_ETIQUETA and e.status != 'D'";
+        $res = $this->conn->select($sql, $arr);
+
+        if (isset($res[0])) {
+            $data = $this->getFieldsView($res[0]);
+            $data['nm_pessoa_abreviado'] = (!empty($data['nm_pessoa']) ? abreviarNome($data['nm_pessoa']) : '');
+            return $data;
+        } else {
+            return false;
+        }
+        
+        return isset($res[0]) ?  : false;
+
+    }
+
     public function loadEtiquetaDetalhes($id) {
         try {
             $arr[':ID'] = $id;
