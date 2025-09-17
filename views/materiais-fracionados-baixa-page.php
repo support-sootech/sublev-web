@@ -284,7 +284,7 @@ function carrega_lista(){
         "columns":
                 [
                     { "data": function ( data, type, row ) {
-                                    return data.id_etiqueta;
+                                    return data.num_etiqueta;
                                 }
                     },
                     { "data": function ( data, type, row ) {

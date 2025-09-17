@@ -163,7 +163,8 @@ class MateriaisFracionadosModel extends Connection {
                             um.descricao as ds_unidade_medida,
                             p.nome as nm_usuario,
                             s.nome as nm_setor,
-                            e.id_etiquetas as id_etiqueta
+                            e.id_etiquetas as id_etiqueta,
+                            e.num_etiqueta as num_etiqueta
                       from ".self::TABLE." x
                       inner join tb_materiais m on m.id_materiais = x.id_materiais
                       left join (select l.id_materiais_fracionados, l.id_usuarios 
