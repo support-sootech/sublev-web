@@ -18,6 +18,8 @@ class EtiquetasModel extends Connection {
         'status'=>array('type'=>'string', 'requered'=>false, 'max'=>'1', 'default'=>'A', 'key'=>false, 'description'=>'status'),
         'id_usuarios'=>array('type'=>'integer', 'fk'=>true, 'requered'=>true, 'max'=>'11', 'default'=>'', 'key'=>false, 'description'=>'Usuário'),
         'id_empresas'=>array('type'=>'integer', 'fk'=>true, 'requered'=>true, 'max'=>'10', 'default'=>'', 'key'=>false, 'description'=>'ID EMPRESAS'),
+        'num_etiqueta' => ['type'=>'integer','requered'=>false,'max'=>11,'default'=>null,'key'=>false,'description'=>'Número Etiqueta'],
+        'tipo_etiqueta'=> ['type'=>'string', 'requered'=>false,'max'=>'1','default'=>'E','key'=>false,'description'=>'Tipo (A/E)']
     );
     
     private function setFields($arr) {
@@ -132,8 +134,6 @@ class EtiquetasModel extends Connection {
             return false;
         }
         
-        return isset($res[0]) ?  : false;
-
     }
 
     public function loadNumEtiquetaInfo($num_etiqueta) {
@@ -157,15 +157,13 @@ class EtiquetasModel extends Connection {
                 where e.num_etiqueta = :NUM_ETIQUETA and e.status != 'D'";
         $res = $this->conn->select($sql, $arr);
 
-        if (isset($res[0])) {
+       if (isset($res[0])) {
             $data = $this->getFieldsView($res[0]);
             $data['nm_pessoa_abreviado'] = (!empty($data['nm_pessoa']) ? abreviarNome($data['nm_pessoa']) : '');
             return $data;
         } else {
             return false;
         }
-        
-        return isset($res[0]) ?  : false;
 
     }
 
@@ -331,6 +329,103 @@ class EtiquetasModel extends Connection {
         } catch (Exception $e) {
             return $e->getMessage();
         }
+    }
+    /**
+     * Próximo número sequencial por empresa (dentro de transação).
+     */
+    private static function nextNumEtiqueta(int $id_empresas): int {
+        $pdo = $GLOBALS['pdo'];
+        $sql = "SELECT num_etiqueta
+                  FROM tb_etiquetas
+                 WHERE id_empresas = :EMP
+              ORDER BY num_etiqueta DESC
+                 LIMIT 1 FOR UPDATE";
+        $st  = $pdo->prepare($sql);
+        $st->execute([':EMP' => $id_empresas]);
+        $row = $st->fetch(\PDO::FETCH_ASSOC);
+        return isset($row['num_etiqueta']) ? ((int)$row['num_etiqueta'] + 1) : 1;
+    }
+
+
+    /**
+     * Busca etiquetas por IDs (LEFT JOINs pois podem ser avulsas).
+     */
+    public static function buscarPorIds(array $ids): array {
+        if (empty($ids)) return [];
+        $pdo = $GLOBALS['pdo'];
+
+        $in = implode(',', array_map('intval', $ids));
+        $sql = "
+        SELECT
+            e.id_etiquetas,
+            e.descricao,
+            e.codigo,
+            e.id_materiais_fracionados,
+            e.id_materiais,
+            e.status,
+            e.id_usuarios,
+            m.descricao AS ds_material,
+            m.lote,
+            DATE_FORMAT(m.dt_fabricacao, '%Y-%m-%d') AS dt_fabricacao,
+            DATE_FORMAT(m.dt_fabricacao, '%d/%m/%Y') AS dt_fabricacao_reduzido,
+            m.cod_barras,
+            um.descricao AS ds_unidades_medidas,
+            mc.descricao AS ds_modo_conservacao,
+            NULL AS qtd_fracionada,
+            NULL AS dt_fracionamento,
+            NULL AS dt_fracionamento_reduzido,
+            DATE_FORMAT(m.dt_vencimento, '%Y-%m-%d') AS dt_vencimento,
+            DATE_FORMAT(m.dt_vencimento, '%d/%m/%Y') AS dt_vencimento_reduzido,
+            NULL AS nm_pessoa,
+            NULL AS nm_pessoa_abreviado,
+            NULL AS nm_setor,
+            e.num_etiqueta
+        FROM tb_etiquetas e
+        LEFT JOIN tb_materiais m        ON m.id_materiais = e.id_materiais
+        LEFT JOIN tb_unidades_medidas um ON um.id_unidades_medidas = m.id_unidades_medidas
+        LEFT JOIN tb_modo_conservacao mc ON mc.id = m.id_modo_conservacao
+        WHERE e.id_etiquetas IN ($in)
+        ORDER BY e.id_etiquetas DESC";
+        $st = $pdo->query($sql);
+        $rows = $st ? $st->fetchAll(\PDO::FETCH_ASSOC) : [];
+        return $rows ?: [];
+    }
+
+    /**
+     * Insere UMA etiqueta avulsa, atrelada a um material fracionado.
+     * Define tipo_etiqueta='A' explicitamente.
+     * Retorna o id da etiqueta criada.
+     */
+    public static function criarAvulsaUnit(
+    int $id_materiais,
+    int $id_materiais_fracionados,
+    string $descricao,
+    int $id_usuarios,
+    int $id_empresas,
+    ?int $num_etiqueta
+    ): int {
+    $pdo = $GLOBALS['pdo'];
+
+    $cols = "id_materiais, id_materiais_fracionados, descricao, id_empresas, id_usuarios, status, tipo_etiqueta, dt_cadastro";
+    $vals = ":m, :mf, :d, :e, :u, 'A', 'A', NOW()";
+
+    if ($num_etiqueta !== null) {
+        $cols .= ", num_etiqueta";
+        $vals .= ", :n";
+    }
+
+    $sql = "INSERT INTO tb_etiquetas ($cols) VALUES ($vals)";
+    $st = $pdo->prepare($sql);
+    $st->execute([
+        ':m'  => $id_materiais,
+        ':mf' => $id_materiais_fracionados,
+        ':d'  => $descricao,
+        ':e'  => $id_empresas,
+        ':u'  => $id_usuarios,
+        ...( $num_etiqueta !== null ? [':n' => $num_etiqueta] : [] ),
+    ]);
+
+    return (int)$pdo->lastInsertId();
     }
 }
 ?>

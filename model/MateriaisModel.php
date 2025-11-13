@@ -587,5 +587,46 @@ class MateriaisModel extends Connection {
             throw $e->getMessage();
         }
     }
+
+   // === INÍCIO: métodos para etiqueta avulsa ===
+
+
+   /**
+     * AVULSA: SEM procurar existente, SEM incrementar.
+     * Sempre cria um novo material com a QUANTIDADE informada.
+     * Se existir fg_avulsa em tb_materiais, marca 'S'.
+     */
+    public static function createFromAvulsa(
+    string $descricao,
+    ?string $validadeIso,
+    float $peso,
+    ?int $id_unidades_medidas,
+    ?int $id_modo_conservacao,
+    int $id_empresas,
+    int $id_usuarios,
+    int $quantidade
+    ): int {
+    $pdo = $GLOBALS['pdo'];
+
+    $cols = "descricao, peso, quantidade, status, dt_vencimento, id_unidades_medidas, id_modo_conservacao, id_empresas, id_usuarios";
+    $vals = ":d, :p, :q, 'A', :v, :um, :mc, :e, :u";
+    $params = [
+        ':d'  => $descricao,
+        ':p'  => $peso,
+        ':q'  => max(0, $quantidade),
+        ':v'  => $validadeIso ?: null,
+        ':um' => $id_unidades_medidas ?: null,
+        ':mc' => $id_modo_conservacao ?: null,
+        ':e'  => $id_empresas,
+        ':u'  => $id_usuarios,
+    ];
+
+
+    $sqlI = "INSERT INTO tb_materiais ($cols) VALUES ($vals)";
+    $stI = $pdo->prepare($sqlI);
+    $stI->execute($params);
+
+    return (int)$pdo->lastInsertId();
+    }
 }
 ?>

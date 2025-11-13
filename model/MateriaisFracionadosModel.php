@@ -242,5 +242,28 @@ class MateriaisFracionadosModel extends Connection {
             throw $e->getMessage();
         }
     }
+
+    public static function addUnit(
+    int $id_materiais,
+    string $dt_vencimento_iso, // 'YYYY-MM-DD'
+    int $id_usuarios,
+    int $id_setor,
+    int $id_unidades_medidas
+    ): int {
+    $pdo = $GLOBALS['pdo'];
+    $sql = "INSERT INTO tb_materiais_fracionados
+                (id_materiais, qtd_fracionada, dt_vencimento, status, id_usuarios, id_setor, id_unidades_medidas)
+            VALUES
+                (:m, 1, :v, 'A', :u, :s, :um)";
+    $st = $pdo->prepare($sql);
+    $st->execute([
+        ':m' => $id_materiais,
+        ':v' => $dt_vencimento_iso ?: null,
+        ':u' => $id_usuarios,
+        ':s' => $id_setor,
+        ':um'=> $id_unidades_medidas
+    ]);
+    return (int)$pdo->lastInsertId();
+    }
 }
 ?>

@@ -92,6 +92,10 @@ function getIdEmpresasLogado() {
 	return $id_empresas;
 }
 
+function getIdSetorLogado(): int {
+  return (int)($_SESSION['usuario']['id_setor'] ?? 0);
+}
+
 function salvar_log($string){
   $arquivo    = site_url().'/imagens/log.txt';
   $fg_existe  = '';

@@ -138,6 +138,8 @@ $app->post('/modo-conservacao-save', function() use ($app){
         $retorno = array('success'=>false, 'type'=>'danger', 'msg'=>'Método incorreto!');
     }
 
+    
+
 	$response = $app->response();
 	$response['Access-Control-Allow-Origin'] = '*';
 	$response['Access-Control-Allow-Methods'] = 'POST';
@@ -146,6 +148,61 @@ $app->post('/modo-conservacao-save', function() use ($app){
 	$response->status($status);
 	$response->body(json_encode($retorno));
 });
+
+$app->map('/app-modo-conservacao', function() use ($app) {
+  $status = 200; $ret = ['success'=>false, 'data'=>[]];
+
+  $logado = function_exists('valida_logado') ? valida_logado() : false;
+  $id_usuario = $logado ? ($_SESSION['usuario']['id_usuarios'] ?? null) : null;
+
+  if (!$id_usuario) {
+    // tenta por Token-User
+    try {
+      $token = $app->request->headers->get('Token-User');
+      if ($token) {
+        $pdo = $GLOBALS['pdo'];
+        $st = $pdo->prepare("SELECT id_usuarios FROM tb_usuarios WHERE hash = :h AND status = 'A' LIMIT 1");
+        $st->execute([':h' => $token]);
+        $row = $st->fetch(PDO::FETCH_ASSOC);
+        if ($row) $id_usuario = (int)$row['id_usuarios'];
+      }
+    } catch (Exception $e) {}
+  }
+
+  if (!$id_usuario) {
+    $status = 401; $ret = ['success'=>false, 'msg'=>'Não autorizado'];
+  } else {
+    $id_empresas = function_exists('getIdEmpresasLogado') ? (int)(getIdEmpresasLogado() ?: 0) : 0;
+    if ($id_empresas <= 0) {
+      $hdr = $app->request->headers->get('X-Company-Id');
+      if (!empty($hdr)) $id_empresas = (int)$hdr;
+    }
+    if ($id_empresas <= 0) {
+      $param = $app->request->params('id_empresas');
+      if (!empty($param)) $id_empresas = (int)$param;
+    }
+
+    if ($id_empresas <= 0) {
+      $status = 400; $ret = ['success'=>false, 'msg'=>'Empresa não informada'];
+    } else {
+      try {
+        $statusParam = $app->request->params('status') ?: 'A';
+        $class = new ModoConservacaoModel();
+        $arr   = $class->loadAll($statusParam, $id_empresas);
+        $ret   = ['success'=>true, 'data'=>($arr ?: [])];
+      } catch (Exception $e) {
+        $status = 500; $ret = ['success'=>false, 'msg'=>'Erro ao listar modos', 'detail'=>$e->getMessage()];
+      }
+    }
+  }
+
+  $response = $app->response();
+  $response['Access-Control-Allow-Origin']  = '*';
+  $response['Access-Control-Allow-Methods'] = 'GET, POST';
+  $response['Content-Type'] = 'application/json';
+  $response->status($status);
+  $response->body(json_encode($ret));
+})->via('GET','POST');
 
 
 ?>
