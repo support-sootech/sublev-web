@@ -64,7 +64,9 @@ $app->get('/produtos-del/:id_produtos', function($id_produtos='') use ($app){
 $app->post('/prod-autocomplete-json', function() use ($app){
     $status = 200;
 	$data['data'] = array();
-    if (valida_logado()) {
+    // Permitir fallback por headers (Token-User) assim como outros controllers
+    $logado = valida_logado() || (function_exists('_getHeaderValue') && _getHeaderValue('Token-User'));
+    if ($logado) {
         try {
             $id_empresas = getIdEmpresasLogado();
             $flagListaCampo = '';
@@ -76,6 +78,19 @@ $app->post('/prod-autocomplete-json', function() use ($app){
             if ($app->request->post('campo')) {
                 $campo = $app->request->post('campo');
             }
+            // Suporte a JSON: se não vier via form-urlencoded, tentar extrair do corpo
+            if ((empty($flagListaCampo) || empty($campo)) && function_exists('retornaParametros')) {
+                $params = retornaParametros($app);
+                if (empty($flagListaCampo) && isset($params['flagListaCampo'])) {
+                    $flagListaCampo = $params['flagListaCampo'];
+                }
+                if (empty($campo) && isset($params['campo'])) {
+                    $campo = $params['campo'];
+                }
+            }
+            // Sanitização simples
+            $flagListaCampo = trim($flagListaCampo);
+            $campo = trim($campo);
             $class_produtos = new ProdutosModel();
             $arr = $class_produtos->loadProdutos($campo, $flagListaCampo);
             
@@ -84,18 +99,31 @@ $app->post('/prod-autocomplete-json', function() use ($app){
                     $data['data'][] = $value;
                 }
             }
+            // Adicionar metadados mínimos para depuração
+            $data['success'] = true;
+            $data['msg'] = 'OK';
+            $data['q'] = array('flag'=>$flagListaCampo, 'campo'=>$campo);
         } catch (Exception $e) {
-            die('ERROR: '.$e->getMessage().'');
+            // Em vez de die (interrompe PHP e pode retornar HTML), retornar estrutura JSON padronizada
+            $status = 500;
+            $data = array('success'=>false, 'type'=>'danger', 'msg'=>'Erro interno: '.$e->getMessage());
         }
-        
-
+    } else {
+        // Não autenticado: manter status 401 para permitir tratamento claro no app
+        $status = 401;
+        $data = array('success'=>false, 'type'=>'danger', 'msg'=>'Não autorizado');
     }
     $response = $app->response();
 	$response['Access-Control-Allow-Origin'] = '*';
-	$response['Access-Control-Allow-Methods'] = 'POST';
+	$response['Access-Control-Allow-Methods'] = 'POST, OPTIONS';
+	$response['Access-Control-Allow-Headers'] = 'Content-Type, Token-User, X-Company-Id';
 	$response['Content-Type'] = 'application/json';
 
 	$response->status($status);
+	// Padronizar resposta: sempre incluir chave data como array (para compatibilidade existente)
+	if (!isset($data['data'])) {
+		$data = array_merge(array('data'=>array()), $data);
+	}
 	$response->body(json_encode($data));
 });
 

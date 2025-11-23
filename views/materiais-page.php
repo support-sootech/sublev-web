@@ -446,27 +446,29 @@ function carrega_lista(){
                                 }
                     },
                     { "data": function ( data, type, row ) {
-                                    return data.nm_fornecedor;
-                                }
-                    },
-                    { "data": function ( data, type, row ) {
                                     return data.nm_fabricante;
                                 }
                     },
                     { "data": function ( data, type, row ) {
+                                    return data.nm_fornecedor;
+                                }
+                    },
+                    { "data": function ( data, type, row ) {
 
-                                    var status_desc 	= '';
-                                    var status_label 	= '';
+                                    var status_desc 	= '—';
+                                    var status_class 	= 'badge-secondary';
 
-                                    if(data.status=='I'){
-                                        status_desc 	= 'Inativo';
-                                        status_label 	= 'danger';
-                                    }else{
+                                    if(data.status === 'A'){
                                         status_desc 	= 'Ativo';
-                                        status_label 	= 'success';
+                                        status_class 	= 'badge-success';
+                                    }else if(data.status === 'D' || data.status === 'I'){
+                                        status_desc 	= 'Inativo';
+                                        status_class 	= 'badge-danger';
+                                    }else if(data.status){
+                                        status_desc 	= data.status;
                                     }
 
-                                    var campo = '<span class="badge text-bg-'+status_label+'" title="'+status_desc+'">'+status_desc+'</span>';
+                                    var campo = '<span class="badge '+status_class+'" title="'+status_desc+'">'+status_desc+'</span>';
 
                                     return campo;
                                 }

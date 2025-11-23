@@ -25,9 +25,11 @@ class MateriaisModel extends Connection {
         'fg_embalagem'=>array('type'=>'string', 'requered'=>false, 'max'=>'1', 'default'=>'N', 'key'=>false, 'description'=>'Flag da embalagem'),
         'id_pessoas_fornecedor'=>array('type'=>'integer', 'fk'=>true, 'requered'=>false, 'max'=>'10', 'default'=>null, 'key'=>false, 'description'=>'Informar o fornecedor'),
         'id_pessoas_fabricante'=>array('type'=>'integer', 'fk'=>true, 'requered'=>false, 'max'=>'10', 'default'=>null, 'key'=>false, 'description'=>'Informar o fabricante'),
-        'id_embalagens'=>array('type'=>'integer', 'fk'=>true, 'requered'=>false, 'max'=>'10', 'default'=>'N', 'key'=>false, 'description'=>'Selecionar uma embalagem'),
+        // Embalagem deve aceitar NULL quando não selecionada
+        'id_embalagens'=>array('type'=>'integer', 'fk'=>true, 'requered'=>false, 'max'=>'10', 'default'=>null, 'key'=>false, 'description'=>'Selecionar uma embalagem'),
         'id_materiais_marcas'=>array('type'=>'integer', 'fk'=>true, 'requered'=>false, 'max'=>'10', 'default'=>'', 'key'=>false, 'description'=>'Selecionar uma marca'),
-        'id_materiais_tipos'=>array('type'=>'integer', 'fk'=>true, 'requered'=>false, 'max'=>'10', 'default'=>'N', 'key'=>false, 'description'=>'Selecionar um tipo'),
+        // Tipo pode ficar vazio; enviaremos NULL quando não houver seleção
+        'id_materiais_tipos'=>array('type'=>'integer', 'fk'=>true, 'requered'=>false, 'max'=>'10', 'default'=>null, 'key'=>false, 'description'=>'Selecionar um tipo'),
         'id_unidades_medidas'=>array('type'=>'integer', 'fk'=>true, 'requered'=>false, 'max'=>'10', 'default'=>'N', 'key'=>false, 'description'=>'Selecionar uma unidade de medida'),
         'id_materiais_categorias'=>array('type'=>'integer', 'fk'=>true, 'requered'=>false, 'max'=>'10', 'default'=>'', 'key'=>false, 'description'=>'Selecionar uma categoria'),
         'id_empresas'=>array('type'=>'integer', 'fk'=>true, 'requered'=>false, 'max'=>'10', 'default'=>'N', 'key'=>false, 'description'=>'Selecionar uma empresa'),
@@ -39,15 +41,23 @@ class MateriaisModel extends Connection {
         'nro_nota'=>array('type'=>'string', 'requered'=>false, 'max'=>'100', 'default'=>'', 'key'=>false, 'description'=>'Número da nota fiscal'),
         'id_embalagem_condicoes'=>array('type'=>'integer', 'requered'=>false, 'max'=>'10', 'default'=>'', 'key'=>false, 'description'=>'Embalagem condições'),
         'id_modo_conservacao'=>array('type'=>'integer', 'requered'=>false, 'max'=>'10', 'default'=>'', 'key'=>false, 'description'=>'Modo de conservação'),
+        'fg_avulsa'=>array('type'=>'string', 'requered'=>false, 'max'=>'1', 'default'=>'N', 'key'=>false, 'description'=>'Origem etiqueta avulsa'),
         'id_usuarios'=>array('type'=>'integer', 'requered'=>false, 'max'=>'10', 'default'=>'', 'key'=>false, 'description'=>'Usuário'),
 
     );
     
     private function setFields($arr) {
-        if (count($arr) > 0) {
-            foreach ($this->fields as $key => $value) {
-                $this->newModel[$key] = $value;
-                $this->newModel[$key]['value'] = (isset($arr[$key]) && (!empty($arr[$key]) || $arr[$key]==0) ? $arr[$key] : null);
+        foreach ($this->fields as $key => $value) {
+            $this->newModel[$key] = $value;
+            $hasInput = array_key_exists($key, $arr);
+            $inputVal = $hasInput ? $arr[$key] : null;
+            $isZeroLike = $inputVal === 0 || $inputVal === '0' || $inputVal === 0.0;
+            if ($hasInput && ($isZeroLike || !empty($inputVal))) {
+                $this->newModel[$key]['value'] = $inputVal;
+            } elseif (isset($value['default'])) {
+                $this->newModel[$key]['value'] = $value['default'];
+            } else {
+                $this->newModel[$key]['value'] = null;
             }
         }
     }
@@ -69,9 +79,7 @@ class MateriaisModel extends Connection {
                 }
 
                 if ($value['type']=='integer' && !$value['key']) {
-
                     $value['value'] = $value['value']!=null ? intval($value['value']) : null;
-
                     if ((isset($value['fk']) && $value['fk']) && (empty($value['value']) && $value['requered'])) {
                         throw new Exception('O campo '.$value['description'].' não pode ser vazio.');
                     } else if(!is_int($value['value']) && (isset($value['fk']) && !$value['fk'])) {
@@ -138,8 +146,11 @@ class MateriaisModel extends Connection {
         try {
             $arr[':ID'] = $id;
             
-            $sql = "select p.*
+            $sql = "select p.*, coalesce(p1.nome, e1.nome) as nm_fabricante, p2.nome as nm_fornecedor
                       from ".self::TABLE." p
+                      left join tb_pessoas p1 on p1.id_pessoas = p.id_pessoas_fabricante
+                      left join tb_empresas e1 on e1.id_empresas = p1.id_empresas
+                      left join tb_pessoas p2 on p2.id_pessoas = p.id_pessoas_fornecedor
                      where p.id_materiais = :ID";
             $res = $this->conn->select($sql, $arr);
             
@@ -234,12 +245,32 @@ class MateriaisModel extends Connection {
                            DATE_FORMAT(mf.dt_fracionamento,'%d/%m/%Y') as dt_fracionamento,
                            DATE_FORMAT(mf.dt_vencimento,'%d/%m/%Y') as dt_vencimento,
                            ifnull(mm.descricao, '') as marca,
-                           ifnull(um.descricao, '') as ds_unidade_medida
+                           ifnull(um.descricao, '') as ds_unidade_medida,
+                           coalesce(p1.nome, e1.nome) as nm_fabricante,
+                           p2.nome as nm_fornecedor
                       from ".self::TABLE." p
+                      left join tb_etiquetas et on et.id_materiais = p.id_materiais and et.tipo_etiqueta = 'E' and et.status <> 'D'
                       left join tb_materiais_marcas mm on mm.id_materiais_marcas = p.id_materiais_marcas
                       left join tb_unidades_medidas um on um.id_unidades_medidas = p.id_unidades_medidas
                       left join tb_materiais_fracionados mf on mf.id_materiais = p.id_materiais
+                      left join tb_pessoas p1 on p1.id_pessoas = p.id_pessoas_fabricante
+                      left join tb_empresas e1 on e1.id_empresas = p1.id_empresas
+                      left join tb_pessoas p2 on p2.id_pessoas = p.id_pessoas_fornecedor
                      where p.id_materiais = :ID
+                       and (
+                            et.id_etiquetas is not null
+                            or not exists (
+                                select 1 from tb_etiquetas te
+                                 where te.id_materiais = p.id_materiais
+                                   and te.status <> 'D'
+                            )
+                       )
+                       and not exists (
+                           select 1 from tb_etiquetas ta
+                            where ta.id_materiais = p.id_materiais
+                              and ta.tipo_etiqueta = 'A'
+                              and ta.status <> 'D'
+                       )
                      ".$and."";
             
             $res = $this->conn->select($sql, $arr);
@@ -269,18 +300,28 @@ class MateriaisModel extends Connection {
                 $and .= " and p.status != :STATUS";
             }
 
-            $sql = "select p.*, 
+            $sql = "select distinct p.*, 
                            ifnull(mm.descricao, '') as marca,
                            ifnull(um.descricao, '') as ds_unidade_medida,
+                           coalesce(p1.nome, e1.nome) as nm_fabricante,
+                           p2.nome as nm_fornecedor,
                            (case when datediff(p.dt_vencimento, current_date()) <= 1 then 'danger'
                                 when datediff(p.dt_vencimento, current_date()) > 1 and datediff(p.dt_vencimento, current_date()) < 5 then 'primary'
                                 else 'success'
                             end) as color_dt_vencimento
                       from ".self::TABLE." p
+                      left join tb_etiquetas et on et.id_materiais = p.id_materiais and et.tipo_etiqueta = 'E'
                       left join tb_materiais_marcas mm on mm.id_materiais_marcas = p.id_materiais_marcas
                       left join tb_unidades_medidas um on um.id_unidades_medidas = p.id_unidades_medidas
+                      left join tb_pessoas p1 on p1.id_pessoas = p.id_pessoas_fabricante
+                      left join tb_empresas e1 on e1.id_empresas = p1.id_empresas
+                      left join tb_pessoas p2 on p2.id_pessoas = p.id_pessoas_fornecedor
                      where p.cod_barras = :COD_BARRAS
                        and p.quantidade >= 1
+                       and (
+                            et.id_etiquetas is not null
+                            or not exists (select 1 from tb_etiquetas te where te.id_materiais = p.id_materiais)
+                       )
                      ".$and."
                      order by p.dt_vencimento";
             $res = $this->conn->select($sql, $arr);
@@ -323,20 +364,32 @@ class MateriaisModel extends Connection {
                 $and .= " and p.status != :STATUS";
             }
 
-            $sql = "select p.*, 
-                           ifnull(mm.descricao, '') as marca,
-                           ifnull(um.descricao, '') as ds_unidade_medida,
-                           (case when datediff(p.dt_vencimento, current_date()) <= 1 then 'danger'
-                                when datediff(p.dt_vencimento, current_date()) > 1 and datediff(p.dt_vencimento, current_date()) < 5 then 'primary'
-                                else 'success'
-                            end) as color_dt_vencimento
-                      from ".self::TABLE." p
-                      left join tb_materiais_marcas mm on mm.id_materiais_marcas = p.id_materiais_marcas
-                      left join tb_unidades_medidas um on um.id_unidades_medidas = p.id_unidades_medidas
-                     where (p.cod_barras = :FILTRO or p.descricao like '%".$fil_descricao."%')
-                       and p.quantidade >= 1                       
-                     ".$and."
-                     order by p.dt_vencimento";
+                        // Regra ajustada: incluir materiais com pelo menos uma etiqueta tipo 'E'
+                        // OU sem qualquer etiqueta (apenas em estoque). Excluir materiais que possuem
+                        // somente etiquetas do tipo 'A'. Implementação usando LEFT JOIN restrito a 'E'
+                        // e subconsulta NOT EXISTS para detectar ausência total de etiquetas.
+                        $sql = "select distinct p.*, 
+                                                     ifnull(mm.descricao, '') as marca,
+                                                     ifnull(um.descricao, '') as ds_unidade_medida,
+                                                     coalesce(p1.nome, e1.nome) as nm_fabricante,
+                                                     p2.nome as nm_fornecedor,
+                                                     (case when datediff(p.dt_vencimento, current_date()) <= 1 then 'danger'
+                                                                when datediff(p.dt_vencimento, current_date()) > 1 and datediff(p.dt_vencimento, current_date()) < 5 then 'primary'
+                                                                else 'success'
+                                                        end) as color_dt_vencimento
+                                            from ".self::TABLE." p
+                                            left join tb_etiquetas e on e.id_materiais = p.id_materiais and e.tipo_etiqueta = 'E' and e.status <> 'D'
+                                            left join tb_materiais_marcas mm on mm.id_materiais_marcas = p.id_materiais_marcas
+                                            left join tb_unidades_medidas um on um.id_unidades_medidas = p.id_unidades_medidas
+                                            left join tb_pessoas p1 on p1.id_pessoas = p.id_pessoas_fabricante
+                                            left join tb_empresas e1 on e1.id_empresas = p1.id_empresas
+                                            left join tb_pessoas p2 on p2.id_pessoas = p.id_pessoas_fornecedor
+                                         where (p.cod_barras = :FILTRO or p.descricao like '%".$fil_descricao."%')
+                                             and p.quantidade >= 1
+                                             and ( e.id_etiquetas is not null 
+                                                   or not exists (select 1 from tb_etiquetas t where t.id_materiais = p.id_materiais and t.status <> 'D') )
+                                         ".$and."
+                                         order by p.dt_vencimento";
             $res = $this->conn->select($sql, $arr);
             
             $arr = false;
@@ -369,16 +422,100 @@ class MateriaisModel extends Connection {
             $arr[':ID_EMPRESAS'] = $id_empresas;
             $and .= " and p.id_empresas = :ID_EMPRESAS";
             
-            $sql = "select p.*, p1.nome as nm_fabricante, p2.nome as nm_fornecedor, mm.descricao as marca
-                      from ".self::TABLE." p
-                      left join tb_pessoas p1 on p1.id_pessoas = p.id_pessoas_fabricante
-                      left join tb_pessoas p2 on p2.id_pessoas = p.id_pessoas_fornecedor
-                      left join tb_materiais_marcas mm on mm.id_materiais_marcas = p.id_materiais_marcas
-                     where 1 = 1
-                       and p.quantidade > 0  
+                        // Regra de exibição:
+                        // Mostrar materiais que:
+                        //   - Possuem pelo menos uma etiqueta tipo 'E' (fracionada) OU
+                        //   - Não possuem nenhuma etiqueta (baixa / sem cadastro),
+                        // E ocultar materiais que tenham somente etiquetas do tipo 'A' (avulsas).
+                        // Implementação: excluir materiais onde existem etiquetas 'A' e não existem etiquetas 'E'.
+                        $sql = "select distinct p.*, 
+                                                         coalesce(p1.nome, e1.nome) as nm_fabricante, 
+                                                         p2.nome as nm_fornecedor, 
+                                                         mm.descricao as marca,
+                                                         pr.nome as nm_responsavel
+                                            from ".self::TABLE." p
+                                            left join tb_etiquetas et on et.id_materiais = p.id_materiais and et.tipo_etiqueta = 'E' and et.status <> 'D'
+                                            left join tb_pessoas p1 on p1.id_pessoas = p.id_pessoas_fabricante
+                                            left join tb_empresas e1 on e1.id_empresas = p1.id_empresas
+                                            left join tb_pessoas p2 on p2.id_pessoas = p.id_pessoas_fornecedor
+                                            left join tb_materiais_marcas mm on mm.id_materiais_marcas = p.id_materiais_marcas
+                                            left join tb_usuarios u on u.id_usuarios = p.id_usuarios
+                                            left join tb_pessoas pr on pr.id_pessoas = u.id_pessoas
+                     where p.quantidade > 0
+                       and (
+                           et.id_etiquetas is not null
+                           or not exists (
+                               select 1 from tb_etiquetas te
+                                where te.id_materiais = p.id_materiais
+                                  and te.status <> 'D'
+                           )
+                       )
+                       and not exists (
+                           select 1
+                             from tb_etiquetas ta
+                            where ta.id_materiais = p.id_materiais
+                              and ta.tipo_etiqueta = 'A'
+                              and ta.status <> 'D'
+                       )
+                       and p.fg_avulsa <> 'S'
                        ".$and."";
             $res = $this->conn->select($sql, $arr);
             
+            if (isset($res[0])) {
+                return $res;
+            } else {
+                return false;
+            }
+        } catch (Exception $e) {
+            return $e->getMessage();
+        }
+    }
+
+    /**
+     * Lista materiais que possuem ao menos uma etiqueta do tipo 'E'.
+     * Mantém mesma estrutura de loadAll adicionando o join com tb_etiquetas.
+     */
+    public function loadAllComEtiquetaTipoE($status='', $id_empresas) {
+        try {
+            $arr = array();
+            $and = '';
+
+            if (!empty($status)) {
+                $arr[':STATUS'] = $status;
+                $and .= " and p.status = :STATUS";
+            } else {
+                $arr[':STATUS'] = 'D';
+                $and .= " and p.status != :STATUS";
+            }
+
+            $arr[':ID_EMPRESAS'] = $id_empresas;
+            $and .= " and p.id_empresas = :ID_EMPRESAS";
+
+                        $sql = "select distinct p.*, 
+                                                         coalesce(p1.nome, e1.nome) as nm_fabricante, 
+                                                         p2.nome as nm_fornecedor, 
+                                                         mm.descricao as marca,
+                                                         pr.nome as nm_responsavel
+                                            from ".self::TABLE." p
+                                            inner join tb_etiquetas e on e.id_materiais = p.id_materiais and e.tipo_etiqueta = 'E' and e.status <> 'D'
+                                            left join tb_pessoas p1 on p1.id_pessoas = p.id_pessoas_fabricante
+                                            left join tb_empresas e1 on e1.id_empresas = p1.id_empresas
+                                            left join tb_pessoas p2 on p2.id_pessoas = p.id_pessoas_fornecedor
+                                            left join tb_materiais_marcas mm on mm.id_materiais_marcas = p.id_materiais_marcas
+                                            left join tb_usuarios u on u.id_usuarios = p.id_usuarios
+                                            left join tb_pessoas pr on pr.id_pessoas = u.id_pessoas
+                    where p.quantidade > 0
+                      and not exists (
+                          select 1
+                            from tb_etiquetas ta
+                           where ta.id_materiais = p.id_materiais
+                             and ta.tipo_etiqueta = 'A'
+                             and ta.status <> 'D'
+                      )
+                      and p.fg_avulsa <> 'S'
+                       ".$and."";
+            $res = $this->conn->select($sql, $arr);
+
             if (isset($res[0])) {
                 return $res;
             } else {
@@ -416,30 +553,31 @@ class MateriaisModel extends Connection {
             if ($id_acao == 'btn_vencem_amanha')
                 $and .= " and mf.dt_vencimento = DATE_ADD(CURDATE(), INTERVAL 1 DAY)";
             if ($id_acao == 'btn_vencem_semana')
-                $and .= " and (mf.dt_vencimento BETWEEN DATE_FORMAT(CURDATE(), '%Y-%m-%d') AND DATE_ADD(CURDATE(), INTERVAL 7 DAY))";
+                // Exclusivo: intervalo até 7 dias sem hoje e amanhã
+                $and .= " and (mf.dt_vencimento BETWEEN DATE_FORMAT(CURDATE(), '%Y-%m-%d') AND DATE_ADD(CURDATE(), INTERVAL 7 DAY))\n                          and mf.dt_vencimento not in (DATE_FORMAT(CURDATE(), '%Y-%m-%d'), DATE_ADD(CURDATE(), INTERVAL 1 DAY))";
             if ($id_acao == 'btn_vencem_mais_1_semana')
                 $and .= " and mf.dt_vencimento > DATE_ADD(CURDATE(), INTERVAL 7 DAY)";
 
-            $sql = "select p.*,
-                           mc.descricao as ds_modo_consevacao,
-                           e.id_etiquetas as id_etiquetas, 
-                           mf.id_materiais_fracionados as id_materiais_fracionados,
-                           mf.qtd_fracionada,
-                           mf.id_setor,
-                           s.nome as nm_setor,
-                           DATE_FORMAT(mf.dt_fracionamento,'%d/%m/%Y') as dt_fracionamento,
-                           DATE_FORMAT(mf.dt_vencimento,'%d/%m/%Y') as dt_vencimento,
-                           ifnull(mm.descricao, '') as marca,
-                           ifnull(um.descricao, '') as ds_unidade_medida
-                      from ".self::TABLE." p
-                      inner join tb_materiais_marcas mm on mm.id_materiais_marcas = p.id_materiais_marcas
-                      inner join tb_unidades_medidas um on um.id_unidades_medidas = p.id_unidades_medidas
-                      inner join tb_materiais_fracionados mf on mf.id_materiais = p.id_materiais
-                      inner join tb_etiquetas e on ((e.id_materiais = p.id_materiais) and (e.id_materiais_fracionados = mf.id_materiais_fracionados))
-                      left join tb_setor s on s.id_setor = mf.id_setor
-                      left join tb_modo_conservacao mc on mc.id = p.id_modo_conservacao
-                     where 1=1
-                       ".$and."";
+                        $sql = "select p.*,
+                                                     mc.descricao as ds_modo_consevacao,
+                                                     e.id_etiquetas as id_etiquetas,
+                                                     mf.id_materiais_fracionados as id_materiais_fracionados,
+                                                     mf.qtd_fracionada,
+                                                     mf.id_setor,
+                                                     s.nome as nm_setor,
+                                                     DATE_FORMAT(mf.dt_fracionamento,'%d/%m/%Y') as dt_fracionamento,
+                                                     DATE_FORMAT(mf.dt_vencimento,'%d/%m/%Y') as dt_vencimento,
+                                                     ifnull(mm.descricao, '') as marca,
+                                                     ifnull(um.descricao, '') as ds_unidade_medida
+                                            from ".self::TABLE." p
+                                            inner join tb_materiais_marcas mm on mm.id_materiais_marcas = p.id_materiais_marcas
+                                            inner join tb_unidades_medidas um on um.id_unidades_medidas = p.id_unidades_medidas
+                                            inner join tb_materiais_fracionados mf on mf.id_materiais = p.id_materiais
+                                            inner join tb_etiquetas e on ((e.id_materiais = p.id_materiais) and (e.id_materiais_fracionados = mf.id_materiais_fracionados) and e.status <> 'D')
+                                            left join tb_setor s on s.id_setor = mf.id_setor
+                                            left join tb_modo_conservacao mc on mc.id = p.id_modo_conservacao
+                                         where 1=1
+                                             ".$and."";
             
             $res = $this->conn->select($sql, $arr);
             
@@ -478,18 +616,21 @@ class MateriaisModel extends Connection {
             if ($id_acao == 'texto_vencem_amanha')
                 $and .= " and mf.dt_vencimento = DATE_ADD(CURDATE(), INTERVAL 1 DAY)";
             if ($id_acao == 'texto_vencem_semana')
-                $and .= " and (mf.dt_vencimento BETWEEN DATE_FORMAT(CURDATE(), '%Y-%m-%d') AND DATE_ADD(CURDATE(), INTERVAL 7 DAY))";
+                // Exclusivo: intervalo até 7 dias sem hoje e amanhã
+                $and .= " and (mf.dt_vencimento BETWEEN DATE_FORMAT(CURDATE(), '%Y-%m-%d') AND DATE_ADD(CURDATE(), INTERVAL 7 DAY))\n                          and mf.dt_vencimento not in (DATE_FORMAT(CURDATE(), '%Y-%m-%d'), DATE_ADD(CURDATE(), INTERVAL 1 DAY))";
             if ($id_acao == 'texto_vencem_mais_1_semana')
                 $and .= " and mf.dt_vencimento > DATE_ADD(CURDATE(), INTERVAL 7 DAY)";
 
-            $sql = "select count(*) as quantidade
-                      from ".self::TABLE." p
-                      inner join tb_materiais_marcas mm on mm.id_materiais_marcas = p.id_materiais_marcas
-                      inner join tb_unidades_medidas um on um.id_unidades_medidas = p.id_unidades_medidas
-                      inner join tb_materiais_fracionados mf on mf.id_materiais = p.id_materiais
-                      inner join tb_etiquetas e on ((e.id_materiais = p.id_materiais) and (e.id_materiais_fracionados = mf.id_materiais_fracionados))
-                     where 1=1
-                       ".$and."";
+                        // Ajuste: contar distintas etiquetas para refletir exatamente a quantidade exibida nas listas
+                        // Mantidos filtros atuais (status de p, mf, e) conforme versão mais recente.
+                        $sql = "select count(distinct e.id_etiquetas) as quantidade
+                                            from ".self::TABLE." p
+                                            inner join tb_materiais_marcas mm on mm.id_materiais_marcas = p.id_materiais_marcas
+                                            inner join tb_unidades_medidas um on um.id_unidades_medidas = p.id_unidades_medidas
+                                            inner join tb_materiais_fracionados mf on mf.id_materiais = p.id_materiais
+                                            inner join tb_etiquetas e on ((e.id_materiais = p.id_materiais) and (e.id_materiais_fracionados = mf.id_materiais_fracionados) and e.status <> 'D')
+                                         where 1=1
+                                             ".$and."";
             
             $res = $this->conn->select($sql, $arr);
             
@@ -531,11 +672,27 @@ class MateriaisModel extends Connection {
                             ec.descricao as ds_embalagem_condicoes,
                             p1.nome as nm_responsavel
                     from tb_materiais m
+                    left join tb_etiquetas et on et.id_materiais = m.id_materiais and et.tipo_etiqueta = 'E' and et.status <> 'D'
                     left join tb_pessoas p on p.id_pessoas = m.id_pessoas_fornecedor and p.id_tipos_pessoas = 3
                     left join tb_embalagem_condicoes ec on ec.id = m.id_embalagem_condicoes
                     left join tb_usuarios u on u.id_usuarios = m.id_usuarios
                     left join tb_pessoas p1 on p1.id_pessoas = u.id_pessoas
-                    where 1 = 1                        
+                    where 1 = 1
+                       and (
+                            et.id_etiquetas is not null
+                            or not exists (
+                                select 1 from tb_etiquetas te
+                                 where te.id_materiais = m.id_materiais
+                                   and te.status <> 'D'
+                            )
+                       )
+                       and not exists (
+                            select 1 from tb_etiquetas ta
+                             where ta.id_materiais = m.id_materiais
+                               and ta.tipo_etiqueta = 'A'
+                               and ta.status <> 'D'
+                       )
+                       and m.fg_avulsa <> 'S'
                        ".$and."
                     order by m.dh_cadastro";
             $res = $this->conn->select($sql, $arr);
@@ -608,8 +765,8 @@ class MateriaisModel extends Connection {
     ): int {
     $pdo = $GLOBALS['pdo'];
 
-    $cols = "descricao, peso, quantidade, status, dt_vencimento, id_unidades_medidas, id_modo_conservacao, id_empresas, id_usuarios";
-    $vals = ":d, :p, :q, 'A', :v, :um, :mc, :e, :u";
+    $cols = "descricao, peso, quantidade, status, dt_vencimento, id_unidades_medidas, id_modo_conservacao, id_empresas, id_usuarios, fg_avulsa";
+    $vals = ":d, :p, :q, 'A', :v, :um, :mc, :e, :u, 'S'";
     $params = [
         ':d'  => $descricao,
         ':p'  => $peso,

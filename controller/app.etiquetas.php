@@ -1,6 +1,4 @@
 <?php
-// routes/app.etiquetas.php
-// Rotas do APP (mobile). Padrão Slim v2 + JSON { success, data, msg }.
 
 if (!class_exists('UnidadesMedidasModel')) {
   require_once __DIR__ . '/../model/UnidadesMedidasModel.php';
@@ -11,56 +9,54 @@ if (!class_exists('MateriaisModel')) {
 if (!class_exists('EtiquetasModel')) {
   require_once __DIR__ . '/../model/EtiquetasModel.php';
 }
+if (!class_exists('MateriaisFracionadosModel')) {
+  require_once __DIR__ . '/../model/MateriaisFracionadosModel.php';
+}
+if (!class_exists('EtiquetasController')) {
+  require_once __DIR__ . '/../controller/EtiquetasController.php';
+}
 
-/** Auth para App: aceita sessão OU header Token-User; resolve id_empresas via sessão/header/param */
+// helpers
+function _parseDateYmd($s) {
+  $s = trim((string)$s);
+  if ($s === '') return null;
+  if (preg_match('/^\d{4}-\d{2}-\d{2}$/', $s)) return $s;
+  if (preg_match('/^(\d{2})\/(\d{2})\/(\d{4})$/', $s, $m)) {
+    return "{$m[3]}-{$m[2]}-{$m[1]}";
+  }
+  return null;
+}
 function _authAppOrPanel($app, &$id_empresas_out) {
-    $id_empresas_out = 0;
-    $uid = null;
-
-    // 1) Se tiver sessão do painel
-    if (function_exists('valida_logado') && valida_logado()) {
-        $uid = $_SESSION['usuario']['id_usuarios'] ?? null;
-        $id_empresas_out = (int)($_SESSION['usuario']['id_empresas'] ?? 0);
-    }
-
-    // 2) Se não tiver sessão, tentar Token-User (hash do tb_usuarios)
-    if (!$uid) {
-        try {
-            $token = $app->request->headers->get('Token-User');
-            if ($token) {
-                $pdo = $GLOBALS['pdo'];
-                $st = $pdo->prepare("
-                    SELECT u.id_usuarios
-                    FROM tb_usuarios u
-                    WHERE u.hash = :h AND u.status = 'A'
-                    LIMIT 1
-                ");
-                $st->execute([':h' => $token]);
-                if ($row = $st->fetch(PDO::FETCH_ASSOC)) {
-                    $uid = (int)$row['id_usuarios'];
-                }
-            }
-        } catch (Exception $e) {}
-    }
-
-    // 3) Resolver empresa: sessão -> header -> query/post
-    if ($id_empresas_out <= 0) {
-        $hdr = (int)($app->request->headers->get('X-Company-Id') ?: 0);
-        $id_empresas_out = $hdr ?: (int)($app->request->params('id_empresas') ?: 0);
-    }
-    return $uid ?: 0;
+  $id_empresas_out = 0; $uid = null;
+  if (function_exists('valida_logado') && valida_logado()) {
+    $uid = $_SESSION['usuario']['id_usuarios'] ?? null;
+    $id_empresas_out = (int)($_SESSION['usuario']['id_empresas'] ?? 0);
+  }
+  if (!$uid) {
+    try {
+      $token = $app->request->headers->get('Token-User');
+      if ($token) {
+        $pdo = $GLOBALS['pdo'];
+        $st = $pdo->prepare("SELECT u.id_usuarios FROM tb_usuarios u WHERE u.hash = :h AND u.status = 'A' LIMIT 1");
+        $st->execute([':h'=>$token]);
+        if ($row = $st->fetch(PDO::FETCH_ASSOC)) $uid = (int)$row['id_usuarios'];
+      }
+    } catch (Exception $e) {}
+  }
+  if ($id_empresas_out <= 0) {
+    $hdr = (int)($app->request->headers->get('X-Company-Id') ?: 0);
+    $id_empresas_out = $hdr ?: (int)($app->request->params('id_empresas') ?: 0);
+  }
+  return $uid ?: 0;
 }
-
-/** Util: envia resposta JSON padronizada */
 function _json($app, $status, $arr) {
-    $r = $app->response();
-    $r['Access-Control-Allow-Origin']  = '*';
-    $r['Access-Control-Allow-Methods'] = 'GET, POST, OPTIONS';
-    $r['Content-Type'] = 'application/json';
-    $r->status($status);
-    $r->body(json_encode($arr));
+  $r = $app->response();
+  $r['Access-Control-Allow-Origin']  = '*';
+  $r['Access-Control-Allow-Methods'] = 'GET, POST, OPTIONS';
+  $r['Content-Type'] = 'application/json';
+  $r->status($status);
+  $r->body(json_encode($arr));
 }
-
 if (!function_exists('_app_getUsuarioByToken')) {
   function _app_getUsuarioByToken($app) {
     try {
@@ -87,10 +83,9 @@ if (!function_exists('_app_getEmpresaFromContext')) {
   }
 }
 
-// GET/POST /app-unidades-medidas (mantido)
+// GET/POST /app-unidades-medidas
 $app->map('/app-unidades-medidas', function() use ($app) {
-  $status = 200;
-  $ret = ['success'=>false, 'data'=>[]];
+  $status = 200; $ret = ['success'=>false, 'data'=>[]];
   try {
     $logado = function_exists('valida_logado') ? valida_logado() : false;
     $id_usuario = $logado ? ($_SESSION['usuario']['id_usuarios'] ?? null) : null;
@@ -120,85 +115,82 @@ $app->map('/app-unidades-medidas', function() use ($app) {
   $resp->body(json_encode($ret));
 })->via('GET','POST');
 
+// POST /app-etiqueta-avulsa
 $app->post('/app-etiqueta-avulsa', function() use ($app) {
-  $status = 400;
-  $ret = ['success'=>false];
+  // 1) Usuário
+  $id_usuario = null;
+  if (function_exists('valida_logado') && valida_logado()) {
+    $id_usuario = $_SESSION['usuario']['id_usuarios'] ?? null;
+  }
+  if (!$id_usuario) {
+    try {
+      $token = $app->request->headers->get('Token-User');
+      if ($token) {
+        $pdo = $GLOBALS['pdo'];
+        $st = $pdo->prepare("SELECT id_usuarios FROM tb_usuarios WHERE hash = :h AND status = 'A' LIMIT 1");
+        $st->execute([':h' => $token]);
+        if ($row = $st->fetch(PDO::FETCH_ASSOC)) $id_usuario = (int)$row['id_usuarios'];
+      }
+    } catch (Exception $e) {}
+  }
+  if (!$id_usuario) return _json($app, 401, ['success'=>false,'msg'=>'Não autorizado (token/usuário)']);
 
-  try {
-    if (!valida_logado()) {
-      $status = 401; throw new Exception('Não autorizado');
-    }
+  // 2) Empresa
+  $id_empresas = 0;
+  if (isset($_SESSION['usuario']['id_empresas'])) {
+    $id_empresas = (int)$_SESSION['usuario']['id_empresas'];
+  }
+  if ($id_empresas <= 0) {
+    $hdr = $app->request->headers->get('X-Company-Id');
+    if (!empty($hdr)) $id_empresas = (int)$hdr;
+  }
+  if ($id_empresas <= 0) {
+    $param = $app->request->params('id_empresas');
+    if (!empty($param)) $id_empresas = (int)$param;
+  }
+  if ($id_empresas <= 0) $id_empresas = 1; // default local
 
-    $payload = json_decode($app->request->getBody(), true) ?: [];
+  // 3) Body
+  $raw = $app->request->getBody();
+  $payload = json_decode($raw, true);
+  if (!is_array($payload) || empty($payload)) { $payload = $app->request->post(); }
 
-    $descricao  = trim((string)($payload['descricao'] ?? $payload['produto'] ?? ''));
-    $validade   = !empty($payload['validade']) ? (string)$payload['validade'] : null; // 'YYYY-MM-DD'
-    $peso       = isset($payload['peso']) ? (float)$payload['peso'] : 0.0;
-    $idUM       = isset($payload['idUnidadesMedidas']) ? (int)$payload['idUnidadesMedidas'] : null;
-    $idMC       = isset($payload['idModoConservacao']) ? (int)$payload['idModoConservacao'] : null;
-    $qtd        = isset($payload['quantidade']) ? (int)$payload['quantidade'] : 1;
-
-    if ($descricao === '') throw new Exception('Descrição é obrigatória');
-    if ($qtd <= 0) $qtd = 1;
-
-    $id_empresas = getIdEmpresasLogado();
-    $id_usuarios = getUsuario();
-    $id_setor    = getIdSetorLogado();
-
-    $pdo = $GLOBALS['pdo'];
-    $pdo->beginTransaction();
-
-    // 1) Cria material AVULSO com quantidade = tela
-    $id_mat = MateriaisModel::createFromAvulsa(
-      $descricao, $validade, $peso, $idUM, $idMC, $id_empresas, $id_usuarios, $qtd
-    );
-
-    // 2) Base do número sequencial (por empresa)
-    $st = $pdo->prepare("SELECT COALESCE(MAX(num_etiqueta),0) AS mx FROM tb_etiquetas WHERE id_empresas = :e");
-    $st->execute([':e' => $id_empresas]);
-    $seqBase = (int)($st->fetch(PDO::FETCH_ASSOC)['mx'] ?? 0);
-
-    $idsEtiquetas = [];
-
-    // 3) Para cada unidade:
-    for ($i = 1; $i <= $qtd; $i++) {
-      // 3a) fracionado (qtd_fracionada SEMPRE 1)
-      $sqlF = "INSERT INTO tb_materiais_fracionados
-                 (id_materiais, qtd_fracionada, dt_vencimento, status, id_usuarios, id_setor, id_unidades_medidas)
-               VALUES
-                 (:m, 1, :v, 'A', :u, :s, :um)";
-      $stF = $pdo->prepare($sqlF);
-      $stF->execute([
-        ':m' => $id_mat,
-        ':v' => $validade ?: null,
-        ':u' => $id_usuarios,
-        ':s' => $id_setor,
-        ':e' => $id_empresas,
-        ':um'=> $idUM,
-      ]);
-      $id_mf = (int)$pdo->lastInsertId();
-
-      // 3b) etiqueta (tipo A) com número sequencial
-      $numero = $seqBase + $i;
-      $id_etq = EtiquetasModel::criarAvulsaUnit(
-        $id_mat, $id_mf, $descricao, $id_usuarios, $id_empresas, $numero
-      );
-      $idsEtiquetas[] = $id_etq;
-    }
-
-    $pdo->commit();
-    $status = 200;
-    $ret = ['success'=>true, 'data'=>['id_materiais'=>$id_mat, 'ids_etiquetas'=>$idsEtiquetas]];
-  } catch (Exception $e) {
-    if (isset($pdo) && $pdo->inTransaction()) $pdo->rollBack();
-    $ret = ['success'=>false, 'msg'=>$e->getMessage()];
-    $status = $status === 400 ? 500 : $status;
+  // Normaliza peso: aceita "0,8" ou "0.8"
+  $peso = null;
+  if (isset($payload['peso'])) {
+    $peso = (float)str_replace(',', '.', (string)$payload['peso']);
   }
 
-  $resp = $app->response();
-  $resp['Access-Control-Allow-Origin']  = '*';
-  $resp['Access-Control-Allow-Methods'] = 'POST';
-  $resp['Content-Type'] = 'application/json';
-  $resp->status($status);
-  $resp->body(json_encode($ret));
+  // Normaliza chaves
+  $data = [
+    'descricao'             => trim($payload['descricao'] ?? ''),
+    'quantidade'            => (int)($payload['quantidade'] ?? 0),
+    'validade'              => $payload['validade'] ?? null,
+    'peso'                  => $peso,
+    'id_unidades_medidas'   => isset($payload['idUnidadesMedidas']) ? (int)$payload['idUnidadesMedidas'] : (isset($payload['id_unidades_medidas']) ? (int)$payload['id_unidades_medidas'] : null),
+    'id_modo_conservacao'   => isset($payload['idModoConservacao']) ? (int)$payload['idModoConservacao'] : (isset($payload['id_modo_conservacao']) ? (int)$payload['id_modo_conservacao'] : null),
+  ];
+
+  if ($data['descricao'] === '' || $data['quantidade'] <= 0 || empty($data['id_unidades_medidas']) || empty($data['id_modo_conservacao']) || ($data['peso'] ?? 0) <= 0) {
+    return _json($app, 400, ['success'=>false,'msg'=>'Campos obrigatórios faltando (descrição, quantidade, UM, modo, peso)']);
+  }
+
+  // 4) Controller
+  $controller = new EtiquetasController();
+  $ret = $controller->criarAvulsa($data, $id_usuario, $id_empresas);
+
+  if (!($ret['ok'] ?? false)) {
+    return _json($app, 500, ['success'=>false,'msg'=>'Erro ao gerar etiquetas','detail'=>$ret['detail'] ?? $ret['message'] ?? '']);
+  }
+
+  return _json($app, 200, ['success'=>true, 'ids'=>$ret['ids'], 'data'=>$ret['data']]);
+});
+
+// Debug
+$app->post('/app-etiqueta-avulsa-debug', function() use ($app) {
+  $headers = [];
+  foreach ($app->request->headers as $k => $v) { $headers[$k] = $v; }
+  $raw = $app->request->getBody();
+  $params = $app->request->params();
+  _json($app, 200, ['headers'=>$headers,'params'=>$params,'raw'=>$raw]);
 });

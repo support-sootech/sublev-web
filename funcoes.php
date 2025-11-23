@@ -132,13 +132,22 @@ function numberFormatBanco($valor){
 }
 
 function dt_banco($dt){
-	if ($dt) {
-		$dt = explode('/', $dt);
-		$data = $dt[2].'-'.$dt[1].'-'.$dt[0];
-	} else {
-		$data = '';
+	if (!$dt) {
+		return '';
 	}
-	return $data;
+	// Se já estiver no formato ISO (YYYY-MM-DD) retorna direto
+	if (preg_match('/^\d{4}-\d{2}-\d{2}$/', $dt)) {
+		return $dt;
+	}
+	// Espera formato brasileiro d/m/Y; valida quantidade de partes
+	if (strpos($dt, '/') !== false) {
+		$parts = explode('/', $dt);
+		if (count($parts) === 3 && strlen($parts[2]) === 4) {
+			return $parts[2].'-'.$parts[1].'-'.$parts[0];
+		}
+	}
+	// Formato inesperado: retorna original para evitar notices
+	return $dt;
 }
 
 function dh_banco($dh){

@@ -95,6 +95,76 @@ $app->post('/materiais-categorias-json', function() use ($app){
 	$response->body(json_encode($data));
 });
 
+// API compat (mobile app) - /app-categorias (GET|POST)
+$app->map('/app-categorias', function() use ($app){
+    $status = 200;
+    $ret = ['success'=>false, 'data'=>[]];
+
+    // resolve usuário por sessão ou header Token-User
+    $logado = function_exists('valida_logado') ? valida_logado() : false;
+    $id_usuario = null;
+    if ($logado) {
+        $id_usuario = $_SESSION['usuario']['id_usuarios'] ?? null;
+    }
+    if (!$id_usuario) {
+        // tenta header Token-User
+        if (function_exists('_getHeaderValue')) {
+            $token = _getHeaderValue('Token-User');
+            if ($token) {
+                try {
+                    $pdo = $GLOBALS['pdo'];
+                    $st = $pdo->prepare("SELECT id_usuarios FROM tb_usuarios WHERE hash = :h AND status = 'A' LIMIT 1");
+                    $st->execute([':h' => $token]);
+                    $row = $st->fetch(PDO::FETCH_ASSOC);
+                    if ($row) $id_usuario = (int)$row['id_usuarios'];
+                } catch (Exception $e) {}
+            }
+        }
+    }
+
+    if (!$id_usuario) {
+        $status = 401;
+        $ret = ['success'=>false, 'msg'=>'Não autorizado'];
+    } else {
+        // resolver empresa: sessão -> header -> param
+        $id_empresas = 0;
+        if (function_exists('getIdEmpresasLogado')) {
+            $id_empresas = getIdEmpresasLogado();
+        }
+        if (empty($id_empresas)) {
+            $hdr = function_exists('_getHeaderValue') ? _getHeaderValue('X-Company-Id') : null;
+            if (!empty($hdr)) $id_empresas = (int)$hdr;
+        }
+        if (empty($id_empresas)) {
+            $param = $app->request->params('id_empresas');
+            if (!empty($param)) $id_empresas = (int)$param;
+        }
+
+        if ($id_empresas <= 0) {
+            $status = 400;
+            $ret = ['success'=>false, 'msg'=>'Empresa não informada'];
+        } else {
+            try {
+                $statusParam = $app->request->params('status') ?: 'A';
+                $class_materiais_categorias = new MateriaisCategoriasModel();
+                $arr = $class_materiais_categorias->loadAll($id_empresas, $statusParam);
+                $ret = ['success'=>true, 'data'=>($arr ?: [])];
+            } catch (Exception $e) {
+                $status = 500;
+                $ret = ['success'=>false, 'msg'=>'Erro ao listar categorias', 'detail'=>$e->getMessage()];
+            }
+        }
+    }
+
+    while (ob_get_level()) { ob_end_clean(); }
+    $response = $app->response();
+    $response['Access-Control-Allow-Origin'] = '*';
+    $response['Access-Control-Allow-Methods'] = 'GET, POST';
+    $response['Content-Type'] = 'application/json';
+    $response->status($status);
+    $response->body(json_encode($ret));
+})->via('GET','POST');
+
 $app->post('/materiais-categorias-save', function() use ($app){
 	$status = 400;
 	$data = array();

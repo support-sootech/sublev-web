@@ -95,6 +95,42 @@ $app->post('/embalagens-tipos-json', function() use ($app){
 	$response->body(json_encode($data));
 });
 
+// API compat (mobile app) - /app-embalagens-tipos (GET|POST)
+$app->map('/app-embalagens-tipos', function() use ($app){
+    $status = 200;
+    $ret = ['success'=>false, 'data'=>[]];
+    if ($app->request->isOptions()) {
+        $status = 200;
+        $ret = ['success'=>true, 'data'=>[]];
+    } else {
+        if (valida_logado() || (function_exists('_getHeaderValue') && _getHeaderValue('Token-User'))) {
+            try {
+                $id_empresas = isset($_SESSION['usuario']['id_empresas']) ? $_SESSION['usuario']['id_empresas'] : 0;
+                if (empty($id_empresas) && function_exists('_getHeaderValue')) {
+                    $hdr = _getHeaderValue('X-Company-Id'); if (!empty($hdr)) $id_empresas = (int)$hdr;
+                }
+                $statusParam = $app->request->params('status') ?: $app->request->post('status');
+                $class_embalagens_tipos = new EmbalagensTiposModel();
+                $arr = $class_embalagens_tipos->loadAll($id_empresas, $statusParam);
+                $ret = ['success'=>true, 'data'=>($arr?:[])];
+            } catch (Exception $e) {
+                $status = 500;
+                $ret = ['success'=>false, 'msg'=>'Erro ao listar tipos de embalagens', 'detail'=>$e->getMessage()];
+            }
+        } else {
+            $status = 401;
+            $ret = ['success'=>false, 'msg'=>'Não autorizado'];
+        }
+    }
+    while (ob_get_level()) { ob_end_clean(); }
+    $response = $app->response();
+    $response['Access-Control-Allow-Origin'] = '*';
+    $response['Access-Control-Allow-Methods'] = 'GET, POST, OPTIONS';
+    $response['Content-Type'] = 'application/json';
+    $response->status($status);
+    $response->body(json_encode($ret));
+})->via('GET','POST','OPTIONS');
+
 $app->post('/embalagens-tipos-save', function() use ($app){
 	$status = 400;
 	$data = array();

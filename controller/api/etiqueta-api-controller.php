@@ -175,17 +175,18 @@ $app->post('/api/etiquetas/avulsas', function() use ($app) {
         // 1) Cria 1 registro em tb_materiais
         //    campos esperados (ajuste se necessário ao seu fields do MateriaisModel):
         //    descricao, cod_barras, id_unidades_medidas, id_modo_conservacao, peso, quantidade, status, id_empresas
-        $materialArr = [
-            'descricao'             => mb_substr($descricaoProd, 0, 255),
-            'cod_barras'            => '',       // avulso: vazio
-            'id_unidades_medidas'   => $idUM,
-            'id_modo_conservacao'   => $idModoCons,
-            'peso'                  => $peso,
-            'quantidade'            => $qtdItens,
-            'status'                => 'A',
-            'id_empresas'           => $idEmpresa,
-        ];
-        $idMateriais = $mdlMat->add($materialArr);
+        // Marca o material como criado via etiqueta avulsa (fg_avulsa = 'S')
+        // Usamos o método estático para garantir o flag consistente
+        $idMateriais = MateriaisModel::createFromAvulsa(
+            mb_substr($descricaoProd, 0, 255),
+            $dtValidadeDb,
+            $peso,
+            $idUM,
+            $idModoCons,
+            $idEmpresa,
+            $idUsuario,
+            $qtdItens
+        );
         if (!$idMateriais) { throw new Exception('Falha ao inserir material.'); }
 
         $resp['material'] = (int)$idMateriais;
