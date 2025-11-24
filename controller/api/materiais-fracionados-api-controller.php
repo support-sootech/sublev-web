@@ -234,8 +234,11 @@ $app->map('/app-materiais-fracionados-baixa', function() use ($app){
                 try {
                     if (isset($GLOBALS['pdo']) && $GLOBALS['pdo'] instanceof PDO) {
                         $pdo = $GLOBALS['pdo'];
-                        $st = $pdo->prepare("UPDATE tb_etiquetas SET status = 'D' WHERE id_materiais_fracionados = :mf AND status <> 'D'");
-                        $st->execute([':mf' => (int)$params['id_materiais_fracionados']]);
+                        $st = $pdo->prepare("UPDATE tb_etiquetas SET status = :st WHERE id_materiais_fracionados = :mf AND status <> :st");
+                        $st->execute([
+                            ':mf' => (int)$params['id_materiais_fracionados'],
+                            ':st' => $params['status'],
+                        ]);
                     }
                 } catch (\Throwable $t) {
                     // Não falha a operação principal por causa deste ajuste; apenas ignora erro da atualização auxiliar.
