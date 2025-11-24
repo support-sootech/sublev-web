@@ -249,7 +249,7 @@ class MateriaisModel extends Connection {
                            coalesce(p1.nome, e1.nome) as nm_fabricante,
                            p2.nome as nm_fornecedor
                       from ".self::TABLE." p
-                      left join tb_etiquetas et on et.id_materiais = p.id_materiais and et.tipo_etiqueta = 'E' and et.status <> 'D'
+                      left join tb_etiquetas et on et.id_materiais = p.id_materiais and et.tipo_etiqueta = 'E' and et.status = 'A'
                       left join tb_materiais_marcas mm on mm.id_materiais_marcas = p.id_materiais_marcas
                       left join tb_unidades_medidas um on um.id_unidades_medidas = p.id_unidades_medidas
                       left join tb_materiais_fracionados mf on mf.id_materiais = p.id_materiais
@@ -262,14 +262,14 @@ class MateriaisModel extends Connection {
                             or not exists (
                                 select 1 from tb_etiquetas te
                                  where te.id_materiais = p.id_materiais
-                                   and te.status <> 'D'
+                                   and te.status = 'A'
                             )
                        )
                        and not exists (
                            select 1 from tb_etiquetas ta
                             where ta.id_materiais = p.id_materiais
                               and ta.tipo_etiqueta = 'A'
-                              and ta.status <> 'D'
+                              and ta.status = 'A'
                        )
                      ".$and."";
             
@@ -378,7 +378,7 @@ class MateriaisModel extends Connection {
                                                                 else 'success'
                                                         end) as color_dt_vencimento
                                             from ".self::TABLE." p
-                                            left join tb_etiquetas e on e.id_materiais = p.id_materiais and e.tipo_etiqueta = 'E' and e.status <> 'D'
+                                            left join tb_etiquetas e on e.id_materiais = p.id_materiais and e.tipo_etiqueta = 'E' and e.status = 'A'
                                             left join tb_materiais_marcas mm on mm.id_materiais_marcas = p.id_materiais_marcas
                                             left join tb_unidades_medidas um on um.id_unidades_medidas = p.id_unidades_medidas
                                             left join tb_pessoas p1 on p1.id_pessoas = p.id_pessoas_fabricante
@@ -388,7 +388,7 @@ class MateriaisModel extends Connection {
                                              and p.quantidade >= 1
                                              and ifnull(p.fg_avulsa,'N') <> 'S'
                                              and ( e.id_etiquetas is not null 
-                                                   or not exists (select 1 from tb_etiquetas t where t.id_materiais = p.id_materiais and t.status <> 'D') )
+                                                   or not exists (select 1 from tb_etiquetas t where t.id_materiais = p.id_materiais and t.status = 'A') )
                                          ".$and."
                                          order by p.dt_vencimento";
             $res = $this->conn->select($sql, $arr);
@@ -435,7 +435,7 @@ class MateriaisModel extends Connection {
                                                          mm.descricao as marca,
                                                          pr.nome as nm_responsavel
                                             from ".self::TABLE." p
-                                            left join tb_etiquetas et on et.id_materiais = p.id_materiais and et.tipo_etiqueta = 'E' and et.status <> 'D'
+                                            left join tb_etiquetas et on et.id_materiais = p.id_materiais and et.tipo_etiqueta = 'E' and et.status = 'A'
                                             left join tb_pessoas p1 on p1.id_pessoas = p.id_pessoas_fabricante
                                             left join tb_empresas e1 on e1.id_empresas = p1.id_empresas
                                             left join tb_pessoas p2 on p2.id_pessoas = p.id_pessoas_fornecedor
@@ -448,7 +448,7 @@ class MateriaisModel extends Connection {
                            or not exists (
                                select 1 from tb_etiquetas te
                                 where te.id_materiais = p.id_materiais
-                                  and te.status <> 'D'
+                                  and te.status = 'A'
                            )
                        )
                        and not exists (
@@ -456,7 +456,7 @@ class MateriaisModel extends Connection {
                              from tb_etiquetas ta
                             where ta.id_materiais = p.id_materiais
                               and ta.tipo_etiqueta = 'A'
-                              and ta.status <> 'D'
+                              and ta.status = 'A'
                        )
                        and p.fg_avulsa <> 'S'
                        ".$and."";
@@ -498,7 +498,7 @@ class MateriaisModel extends Connection {
                                                          mm.descricao as marca,
                                                          pr.nome as nm_responsavel
                                             from ".self::TABLE." p
-                                            inner join tb_etiquetas e on e.id_materiais = p.id_materiais and e.tipo_etiqueta = 'E' and e.status <> 'D'
+                                            inner join tb_etiquetas e on e.id_materiais = p.id_materiais and e.tipo_etiqueta = 'E' and e.status = 'A'
                                             left join tb_pessoas p1 on p1.id_pessoas = p.id_pessoas_fabricante
                                             left join tb_empresas e1 on e1.id_empresas = p1.id_empresas
                                             left join tb_pessoas p2 on p2.id_pessoas = p.id_pessoas_fornecedor
@@ -511,7 +511,7 @@ class MateriaisModel extends Connection {
                             from tb_etiquetas ta
                            where ta.id_materiais = p.id_materiais
                              and ta.tipo_etiqueta = 'A'
-                             and ta.status <> 'D'
+                             and ta.status = 'A'
                       )
                       and p.fg_avulsa <> 'S'
                        ".$and."";
@@ -574,7 +574,7 @@ class MateriaisModel extends Connection {
                                             inner join tb_materiais_marcas mm on mm.id_materiais_marcas = p.id_materiais_marcas
                                             inner join tb_unidades_medidas um on um.id_unidades_medidas = p.id_unidades_medidas
                                             inner join tb_materiais_fracionados mf on mf.id_materiais = p.id_materiais
-                                            inner join tb_etiquetas e on ((e.id_materiais = p.id_materiais) and (e.id_materiais_fracionados = mf.id_materiais_fracionados) and e.status <> 'D')
+                                            inner join tb_etiquetas e on ((e.id_materiais = p.id_materiais) and (e.id_materiais_fracionados = mf.id_materiais_fracionados) and e.status = 'A')
                                             left join tb_setor s on s.id_setor = mf.id_setor
                                             left join tb_modo_conservacao mc on mc.id = p.id_modo_conservacao
                                          where 1=1
@@ -629,7 +629,7 @@ class MateriaisModel extends Connection {
                                             inner join tb_materiais_marcas mm on mm.id_materiais_marcas = p.id_materiais_marcas
                                             inner join tb_unidades_medidas um on um.id_unidades_medidas = p.id_unidades_medidas
                                             inner join tb_materiais_fracionados mf on mf.id_materiais = p.id_materiais
-                                            inner join tb_etiquetas e on ((e.id_materiais = p.id_materiais) and (e.id_materiais_fracionados = mf.id_materiais_fracionados) and e.status <> 'D')
+                                            inner join tb_etiquetas e on ((e.id_materiais = p.id_materiais) and (e.id_materiais_fracionados = mf.id_materiais_fracionados) and e.status = 'A')
                                          where 1=1
                                              ".$and."";
             
@@ -673,7 +673,7 @@ class MateriaisModel extends Connection {
                             ec.descricao as ds_embalagem_condicoes,
                             p1.nome as nm_responsavel
                     from tb_materiais m
-                    left join tb_etiquetas et on et.id_materiais = m.id_materiais and et.tipo_etiqueta = 'E' and et.status <> 'D'
+                    left join tb_etiquetas et on et.id_materiais = m.id_materiais and et.tipo_etiqueta = 'E' and et.status = 'A'
                     left join tb_pessoas p on p.id_pessoas = m.id_pessoas_fornecedor and p.id_tipos_pessoas = 3
                     left join tb_embalagem_condicoes ec on ec.id = m.id_embalagem_condicoes
                     left join tb_usuarios u on u.id_usuarios = m.id_usuarios
@@ -684,14 +684,14 @@ class MateriaisModel extends Connection {
                             or not exists (
                                 select 1 from tb_etiquetas te
                                  where te.id_materiais = m.id_materiais
-                                   and te.status <> 'D'
+                                   and te.status = 'A'
                             )
                        )
                        and not exists (
                             select 1 from tb_etiquetas ta
                              where ta.id_materiais = m.id_materiais
                                and ta.tipo_etiqueta = 'A'
-                               and ta.status <> 'D'
+                               and ta.status = 'A'
                        )
                        and m.fg_avulsa <> 'S'
                        ".$and."
