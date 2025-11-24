@@ -22,7 +22,8 @@ class EtiquetasModel extends Connection {
         'id_materiais_fracionados'=>array('type'=>'integer', 'fk'=>true, 'requered'=>true, 'max'=>'11', 'default'=>'', 'key'=>false, 'description'=>'Material Fracionado'),
         'id_materiais'=>array('type'=>'integer', 'fk'=>true, 'requered'=>true, 'max'=>'11', 'default'=>'', 'key'=>false, 'description'=>'Material'),
         'status'=>array('type'=>'string', 'requered'=>false, 'max'=>'1', 'default'=>'A', 'key'=>false, 'description'=>'status'),
-        'tipo_etiqueta'=>array('type'=>'string', 'requered'=>false, 'max'=>'1', 'default'=>'A', 'key'=>false, 'description'=>'Tipo (A/E)'),
+        // Padrão do banco continua "E" (etiqueta padrão). Para avulsas forçamos "A" durante o insert.
+        'tipo_etiqueta'=>array('type'=>'string', 'requered'=>false, 'max'=>'1', 'default'=>'E', 'key'=>false, 'description'=>'Tipo (A/E)'),
         'id_usuarios'=>array('type'=>'integer', 'fk'=>true, 'requered'=>true, 'max'=>'11', 'default'=>'', 'key'=>false, 'description'=>'Usuário'),
         'id_empresas'=>array('type'=>'integer', 'fk'=>true, 'requered'=>true, 'max'=>'11', 'default'=>'', 'key'=>false, 'description'=>'ID EMPRESAS'),
         'num_etiqueta'=>array('type'=>'integer','requered'=>false,'max'=>20,'default'=>null,'key'=>false,'description'=>'Número Etiqueta')

@@ -209,10 +209,12 @@ $app->post('/api/etiquetas/avulsas', function() use ($app) {
             // tb_etiquetas: usa seu próprio add() via EtiquetasModel
             $etArr = [
                 'descricao'                 => 'Etiqueta avulsa',
-                'codigo'                    => '',
+                // Mantém null para respeitar default do banco 
+                'codigo'                    => null,
                 'id_materiais_fracionados'  => (int)$idFrac,
                 'id_materiais'              => (int)$idMateriais,
                 'status'                    => 'A',
+                'tipo_etiqueta'             => 'A',
                 'id_usuarios'               => $idUsuario,
                 'id_empresas'               => $idEmpresa,
             ];

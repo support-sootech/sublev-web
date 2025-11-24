@@ -386,6 +386,7 @@ class MateriaisModel extends Connection {
                                             left join tb_pessoas p2 on p2.id_pessoas = p.id_pessoas_fornecedor
                                          where (p.cod_barras = :FILTRO or p.descricao like '%".$fil_descricao."%')
                                              and p.quantidade >= 1
+                                             and ifnull(p.fg_avulsa,'N') <> 'S'
                                              and ( e.id_etiquetas is not null 
                                                    or not exists (select 1 from tb_etiquetas t where t.id_materiais = p.id_materiais and t.status <> 'D') )
                                          ".$and."
