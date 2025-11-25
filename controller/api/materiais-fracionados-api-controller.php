@@ -212,11 +212,38 @@ $app->map('/app-materiais-fracionados-baixa', function() use ($app){
                 throw new Exception('Material fracionado não localizado!');
             }
 
-            $material_fracionado['status'] = $params['status'];
-            $material_fracionado['id_usuarios'] = $usuario['id_usuarios'];
-            $material_fracionado['motivo_descarte'] = $params['motivo_descarte'];
-    
-            $salvar = $class_materiais->edit($material_fracionado, array('id_materiais_fracionados'=>$params['id_materiais_fracionados']));
+            // Atualiza direto via PDO para evitar efeitos colaterais do model
+            $pdo = $GLOBALS['pdo'];
+            $stUp = $pdo->prepare("UPDATE tb_materiais_fracionados
+                                      SET status = :s,
+                                          motivo_descarte = :m,
+                                          id_usuarios = :u
+                                    WHERE id_materiais_fracionados = :id");
+            $stUp->execute([
+                ':s'  => $params['status'],
+                ':m'  => ($params['status']==='D' ? (string)$params['motivo_descarte'] : null),
+                ':u'  => (int)$usuario['id_usuarios'],
+                ':id' => (int)$params['id_materiais_fracionados'],
+            ]);
+
+            // Regra: ao dar baixa (V) ou descartar (D) o fracionado,
+            // a(s) etiqueta(s) associada(s) não devem mais aparecer na lista.
+            // Portanto, marcamos tb_etiquetas.status = 'D' para o id_materiais_fracionados informado.
+            // Observação: não alteramos para outros status (ex.: 'C').
+            if (in_array($params['status'], ['V','D'])) {
+                try {
+                    if (isset($GLOBALS['pdo']) && $GLOBALS['pdo'] instanceof PDO) {
+                        $pdo = $GLOBALS['pdo'];
+                        $st = $pdo->prepare("UPDATE tb_etiquetas SET status = :st WHERE id_materiais_fracionados = :mf AND status <> :st");
+                        $st->execute([
+                            ':mf' => (int)$params['id_materiais_fracionados'],
+                            ':st' => $params['status'],
+                        ]);
+                    }
+                } catch (\Throwable $t) {
+                    // Não falha a operação principal por causa deste ajuste; apenas ignora erro da atualização auxiliar.
+                }
+            }
             $response_status = 200;
             $data = array('success'=>true, 'type'=>'success', 'msg'=>'Registro alterado com sucesso!');
 
@@ -267,16 +294,54 @@ $app->map('/app-materiais-fracionados-vencimento-json(/:acao)', function($acao='
                 throw new Exception("Nenhum material fracionado localizado!");
             }
 
-            $class_etiquetas = new EtiquetasModel();            
-            foreach ($lista as $key => $value) {                
-                $value['etiqueta'] = $class_etiquetas->loadIdEtiquetaInfo($value['id_etiquetas']);
-                if ($value['etiqueta']) {
-                    $arr[] = $value['etiqueta'];
+            // Em alguns casos foi reportada diferença entre a contagem (endpoint /app-materiais-fracionados-vencimento)
+            // e a lista retornada aqui (faltando 1 item em "Até 7 dias"). A lógica abaixo evita possíveis perdas por
+            // falha pontual em loadIdEtiquetaInfo (ex.: status alterado entre as duas requisições) fazendo um fetch em lote.
+            require_once __DIR__ . '/../../model/EtiquetasModel.php';
+            $ids = [];
+            foreach ($lista as $row) {
+                if (isset($row['id_etiquetas'])) {
+                    $ids[] = (int)$row['id_etiquetas'];
+                }
+            }
+            $ids = array_values(array_unique(array_filter($ids))); // remove duplicados e zeros
+
+            $etiquetas = [];
+            if (!empty($ids)) {
+                $etiquetas = EtiquetasModel::buscarPorIds($ids); // já formata datas/peso/responsável abreviado
+            }
+
+            // Se por algum motivo a busca em lote retornar menos que o esperado, fazemos fallback pontual
+            if (count($etiquetas) < count($ids)) {
+                $class_etiquetas = new EtiquetasModel();
+                $existentes = [];
+                foreach ($etiquetas as $e) { $existentes[(int)$e['id_etiquetas']] = true; }
+                foreach ($ids as $id) {
+                    if (!isset($existentes[$id])) {
+                        $one = $class_etiquetas->loadIdEtiquetaInfo($id);
+                        if ($one) { $etiquetas[] = $one; }
+                    }
                 }
             }
 
+            // Ordena por id decrescente como outros endpoints
+            usort($etiquetas, function($a,$b){ return ($b['id_etiquetas'] <=> $a['id_etiquetas']); });
+
+            // Opcional: incluir metadados de depuração quando ?debug=1
+            $debugInfo = null;
+            if (isset($_GET['debug']) && $_GET['debug']=='1') {
+                $debugInfo = [
+                    'raw_rows' => count($lista),
+                    'distinct_ids' => count($ids),
+                    'returned_etiquetas' => count($etiquetas),
+                    'ids' => $ids,
+                ];
+            }
+
             $response_status = 200;
-            $data = array('success'=>true, 'type'=>'success', 'msg'=>'OK', 'data'=>$arr);
+            $payload = ['success'=>true, 'type'=>'success', 'msg'=>'OK', 'data'=>$etiquetas];
+            if ($debugInfo) { $payload['debug'] = $debugInfo; }
+            $data = $payload;
 
         } catch (Exception $e) {
             $data = array('error'=>true, 'type'=>'danger', 'msg'=>$e->getMessage());

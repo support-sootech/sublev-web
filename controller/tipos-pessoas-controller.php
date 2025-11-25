@@ -82,6 +82,37 @@ $app->post('/tipos-pessoas-json', function() use ($app){
 	$response->body(json_encode($data));
 });
 
+// API compat (mobile app) - /app-tipos-pessoas (GET|POST)
+$app->map('/app-tipos-pessoas', function() use ($app){
+    $status = 200;
+    $ret = ['success'=>false, 'data'=>[]];
+    if ($app->request->isOptions()) {
+        $status = 200;
+        $ret = ['success'=>true, 'data'=>[]];
+    } else {
+        if (valida_logado() || (function_exists('_getHeaderValue') && _getHeaderValue('Token-User'))) {
+            try {
+                $class_tipos_pessoas = new TiposPessoasModel();
+                $arr = $class_tipos_pessoas->loadAll();
+                $ret = ['success'=>true, 'data'=>($arr?:[])];
+            } catch (Exception $e) {
+                $status = 500;
+                $ret = ['success'=>false, 'msg'=>'Erro ao listar tipos de pessoas', 'detail'=>$e->getMessage()];
+            }
+        } else {
+            $status = 401;
+            $ret = ['success'=>false, 'msg'=>'Não autorizado'];
+        }
+    }
+    while (ob_get_level()) { ob_end_clean(); }
+    $response = $app->response();
+    $response['Access-Control-Allow-Origin'] = '*';
+    $response['Access-Control-Allow-Methods'] = 'GET, POST, OPTIONS';
+    $response['Content-Type'] = 'application/json';
+    $response->status($status);
+    $response->body(json_encode($ret));
+})->via('GET','POST','OPTIONS');
+
 $app->post('/tipos-pessoas-save', function() use ($app){
 	$status = 400;
 	$data = array();

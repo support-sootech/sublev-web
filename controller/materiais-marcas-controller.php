@@ -95,6 +95,63 @@ $app->post('/materiais-marcas-json', function() use ($app){
 	$response->body(json_encode($data));
 });
 
+// API compat (mobile app) - /app-marcas (GET|POST)
+$app->map('/app-marcas', function() use ($app){
+    $status = 200;
+    $ret = ['success'=>false, 'data'=>[]];
+
+    $logado = function_exists('valida_logado') ? valida_logado() : false;
+    $id_usuario = null;
+    if ($logado) {
+        $id_usuario = $_SESSION['usuario']['id_usuarios'] ?? null;
+    }
+    if (!$id_usuario) {
+        if (function_exists('_getHeaderValue')) {
+            $token = _getHeaderValue('Token-User');
+            if ($token) {
+                try {
+                    $pdo = $GLOBALS['pdo'];
+                    $st = $pdo->prepare("SELECT id_usuarios FROM tb_usuarios WHERE hash = :h AND status = 'A' LIMIT 1");
+                    $st->execute([':h' => $token]);
+                    $row = $st->fetch(PDO::FETCH_ASSOC);
+                    if ($row) $id_usuario = (int)$row['id_usuarios'];
+                } catch (Exception $e) {}
+            }
+        }
+    }
+
+    if (!$id_usuario) {
+        $status = 401;
+        $ret = ['success'=>false, 'msg'=>'Não autorizado'];
+    } else {
+        try {
+            $class_materiais_marcas = new MateriaisMarcasModel();
+
+            $id_empresas = 0;
+            if (function_exists('getIdEmpresasLogado')) $id_empresas = getIdEmpresasLogado();
+            if (empty($id_empresas) && function_exists('_getHeaderValue')) $id_empresas = (int)_getHeaderValue('X-Company-Id');
+            if (empty($id_empresas)) $id_empresas = (int)$app->request->params('id_empresas');
+
+            $statusParam = $app->request->params('status') ?: '';
+
+            $arr = $class_materiais_marcas->loadAll($id_empresas, $statusParam);
+            $ret = ['success'=>true, 'data'=>($arr?:[])];
+        } catch (Exception $e) {
+            $status = 500;
+            $ret = ['success'=>false, 'msg'=>'Erro ao listar marcas', 'detail'=>$e->getMessage()];
+        }
+    }
+
+    while (ob_get_level()) { ob_end_clean(); }
+    $response = $app->response();
+    $response['Access-Control-Allow-Origin'] = '*';
+    $response['Access-Control-Allow-Methods'] = 'GET, POST';
+    $response['Content-Type'] = 'application/json';
+
+    $response->status($status);
+    $response->body(json_encode($ret));
+})->via('GET','POST');
+
 $app->post('/materiais-marcas-save', function() use ($app){
 	$status = 400;
 	$data = array();

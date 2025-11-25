@@ -88,25 +88,6 @@ class MateriaisFracionadosModel extends Connection {
         return $data;
     }
 
-    public function loadId($id) {
-        try {
-            $arr[':ID'] = $id;
-            
-            $sql = "select p.*
-                      from ".self::TABLE." p
-                     where p.id_materiais_fracionados = :ID";
-            $res = $this->conn->select($sql, $arr);
-            
-            if (isset($res[0])) {
-                return $this->getFieldsView($res[0]);
-            } else {
-                return false;
-            }
-        } catch (Exception $e) {
-            throw $e->getMessage();
-        }
-    }
-
     public function loadIdMateriais($id_materiais) {
         try {
             $arr[':ID_MATERIAIS'] = $id_materiais;
@@ -175,7 +156,7 @@ class MateriaisFracionadosModel extends Connection {
                       inner join tb_unidades_medidas um on um.id_unidades_medidas = x.id_unidades_medidas
                       inner join tb_setor s on s.id_setor = x.id_setor
                       inner join tb_etiquetas e on e.id_materiais_fracionados = x.id_materiais_fracionados
-                     where m.id_empresas = :ID_EMPRESAS ".$and;
+                     where m.id_empresas = :ID_EMPRESAS and m.fg_avulsa <> 'S' ".$and;
             $res = $this->conn->select($sql, $arr);
             
             if (isset($res[0])) {
@@ -188,7 +169,7 @@ class MateriaisFracionadosModel extends Connection {
                 return false;
             }
         } catch (Exception $e) {
-            throw $e->getMessage();
+            throw $e; // repropaga a exceção corretamente
         }
     }
 
@@ -203,7 +184,7 @@ class MateriaisFracionadosModel extends Connection {
         return $save;
         /*try {
         } catch (Exception $e) {
-            throw $e->getMessage();
+            throw $e; // repropaga a exceção corretamente
         }
             */
     }
@@ -226,7 +207,7 @@ class MateriaisFracionadosModel extends Connection {
             $save = $this->conn->update(self::TABLE, $values, $w);
             return $save;
         } catch (Exception $e) {
-            throw $e->getMessage();
+            throw $e; // repropaga a exceção corretamente
         }
         
     }
@@ -242,5 +223,80 @@ class MateriaisFracionadosModel extends Connection {
             throw $e->getMessage();
         }
     }
-}
+
+   
+  public static function addUnit(
+        int $id_materiais,
+        ?string $dt_vencimento,          // 'YYYY-MM-DD' ou null
+        int $id_usuarios,
+        ?int $id_setor = null,
+        ?int $id_unidades_medidas = null,
+        ?float $qtd_fracionada = 1.0      // << peso por etiqueta (vai em tb_materiais_fracionados.qtd_fracionada)
+    ): int {
+        $pdo = $GLOBALS['pdo'];
+
+        // saneamento: garante número válido e com 2 casas (double(10,2))
+        if (!is_numeric($qtd_fracionada) || $qtd_fracionada <= 0) {
+            $qtd_fracionada = 1.0; // fallback seguro
+        }
+        $qtd_fracionada = round((float)$qtd_fracionada, 2);
+
+        // Monta INSERT respeitando tipos (dt_fracionamento = CURDATE())
+        $sql = "
+            INSERT INTO tb_materiais_fracionados (
+                qtd_fracionada,
+                dt_vencimento,
+                dt_fracionamento,
+                status,
+                motivo_descarte,
+                id_materiais,
+                id_embalagens,
+                id_unidades_medidas,
+                id_usuarios,
+                id_setor
+            ) VALUES (
+                :QTD,
+                :DT_V,
+                CURDATE(),
+                'A',
+                NULL,
+                :ID_MAT,
+                NULL,
+                :UM,
+                :ID_USER,
+                :ID_SETOR
+            )
+        ";
+
+        $st = $pdo->prepare($sql);
+        $st->execute([
+            ':QTD'      => $qtd_fracionada,                         // << grava o peso informado pela tela
+            ':DT_V'     => $dt_vencimento ?: null,                  // 'YYYY-MM-DD' ou NULL
+            ':ID_MAT'   => $id_materiais,
+            ':UM'       => $id_unidades_medidas,                    // pode ser NULL (tabela aceita)
+            ':ID_USER'  => $id_usuarios,
+            ':ID_SETOR' => $id_setor,                               // pode ser NULL
+        ]);
+
+        return (int) $pdo->lastInsertId();
+    }
+
+        public static function loadId(int $id): array|false {
+            $pdo = $GLOBALS['pdo'];
+            $st = $pdo->prepare("SELECT * FROM ".self::TABLE." WHERE id_materiais_fracionados = :id LIMIT 1");
+            $st->execute([':id' => $id]);
+            $row = $st->fetch(PDO::FETCH_ASSOC);
+            return $row ?: false;
+        }
+
+        public static function updateStatus(int $id, string $status): bool {
+            $pdo = $GLOBALS['pdo'];
+            $st = $pdo->prepare("UPDATE ".self::TABLE." SET status = :s WHERE id_materiais_fracionados = :id");
+            return $st->execute([':s'=>$status, ':id'=>$id]);
+        }
+
+        public static function softDelete(int $id): bool {
+            return self::updateStatus($id, 'D');
+        }
+    }
 ?>

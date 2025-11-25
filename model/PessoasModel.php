@@ -133,14 +133,14 @@ class PessoasModel extends Connection {
         try {
             $arr[':ID'] = $id;
             
-            $sql = "select u.*,
-                           e.id_empresas as id_empresa,
-                           e.nome as nm_empresa,
-                           tp.descricao as ds_tipos_pessoas
-                      from ".self::TABLE." u                      
-                      inner join tb_empresas e on e.id_empresas = u.id_empresas
-                      inner join tb_tipos_pessoas tp on tp.id_tipos_pessoas = u.id_tipos_pessoas
-                     where u.id_usuarios = :ID";
+          $sql = "select u.*,
+                      e.id_empresas as id_empresa,
+                      e.nome as nm_empresa,
+                      tp.descricao as ds_tipos_pessoas
+                  from ".self::TABLE." u                      
+                  inner join tb_empresas e on e.id_empresas = u.id_empresas
+                  inner join tb_tipos_pessoas tp on tp.id_tipos_pessoas = u.id_tipos_pessoas
+                 where u.id_pessoas = :ID";
             $res = $this->conn->select($sql, $arr);
             
             if (isset($res[0])) {
@@ -187,13 +187,36 @@ class PessoasModel extends Connection {
 
     public function add($arr) {
         
-        try {            
-            $this->setFields($arr);            
+        try {
+            $this->setFields($arr);
             $values = $this->getFields();
+
+            // Verifica duplicidade de CPF/CNPJ antes de tentar inserir
+            if (isset($values[':CPF_CNPJ']) && !empty($values[':CPF_CNPJ'])) {
+                $dupCheck = $this->conn->select(
+                    "SELECT id_pessoas FROM " . self::TABLE . " WHERE cpf_cnpj = :CPF LIMIT 1",
+                    [':CPF' => $values[':CPF_CNPJ']]
+                );
+                if (isset($dupCheck[0]['id_pessoas'])) {
+                    // Já existe registro para este CPF/CNPJ
+                    throw new Exception('CPF/CNPJ já cadastrado');
+                }
+            }
+
             if (isset($values[':ID_PESSOAS'])) {
                 unset($values[':ID_PESSOAS']);
             }
-            $save = $this->conn->insert(self::TABLE, $values);
+
+            try {
+                $save = $this->conn->insert(self::TABLE, $values);
+            } catch (Exception $e) {
+                $msg = $e->getMessage();
+                // Captura violação de chave única (MySQL 1062) se ocorrer em corrida
+                if (stripos($msg, '1062') !== false) {
+                    throw new Exception('CPF/CNPJ já cadastrado');
+                }
+                throw $e;
+            }
             return $save;
         } catch (Exception $e) {
             throw new Exception($e->getMessage());

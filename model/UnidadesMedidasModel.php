@@ -78,39 +78,33 @@ class UnidadesMedidasModel extends Connection {
         }
     }
 
-    public function loadAll($id_empresas='', $status='') {
+    public function loadAll(int $id_empresas, string $status = 'A') {
         try {
-            $arr = array();
-            $and = '';
+            $arr = [':EMP' => $id_empresas];
+            $where = " WHERE id_empresas = :EMP ";
 
-            if (!empty($status)) {
+            if ($status !== '') {
+                $where .= " AND status = :STATUS ";
                 $arr[':STATUS'] = $status;
-                $and .= " and status = :STATUS";
-            } else {
-                $arr[':STATUS'] = 'D';
-                $and .= " and status != :STATUS";
             }
 
-            if (!empty($id_empresas)) {
-                $arr[':ID_EMPRESAS'] = $id_empresas;
-                $and .= " and id_empresas = :ID_EMPRESAS";
-            }
-            
-            $sql = "select p.*
-                      from ".self::TABLE." p
-                     where 1 = 1 
-                       ".$and."";
+            $sql = "
+                SELECT
+                    id_unidades_medidas,
+                    descricao,
+                    status,
+                    id_empresas
+                FROM tb_unidades_medidas
+                $where
+                ORDER BY descricao
+            ";
             $res = $this->conn->select($sql, $arr);
-            
-            if (isset($res[0])) {
-                return $res;
-            } else {
-                return false;
-            }
-        } catch (Exception $e) {
-            return $e->getMessage();
+            return isset($res[0]) ? $res : [];
+        } catch (\Throwable $e) {
+            return [];
         }
-    }
+    }   
+
 
     public function add($arr) {
         try {
