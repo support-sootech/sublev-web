@@ -788,6 +788,8 @@ $app->map('/app-relatorio-materiais-recebimento', function() use ($app){
                 $dt_ini = isset($params['dt_ini']) ? $params['dt_ini'] : '';
                 $dt_fim = isset($params['dt_fim']) ? $params['dt_fim'] : '';
                 $statusFiltro = isset($params['status']) ? $params['status'] : '';
+                $tipoSaida = isset($params['tipo']) ? $params['tipo'] : '';
+                $busca = isset($params['busca']) ? $params['busca'] : '';
 
                 // Default range: últimos 7 dias se não informado
                 if (empty($dt_ini) || empty($dt_fim)) {
@@ -803,7 +805,7 @@ $app->map('/app-relatorio-materiais-recebimento', function() use ($app){
                 }
 
                 $class_materiais = new MateriaisModel();
-                $dados = $class_materiais->loadRelatorioMateriaisRecebimento($id_empresas, $dt_ini, $dt_fim, $statusFiltro);
+                $dados = $class_materiais->loadRelatorioMateriaisRecebimento($id_empresas, $dt_ini, $dt_fim, $statusFiltro, $busca);
                 if ($dados) {
                     // Normalizações leves para app
                     foreach ($dados as &$row) {
@@ -816,6 +818,66 @@ $app->map('/app-relatorio-materiais-recebimento', function() use ($app){
                             $row['nm_responsavel'] = ''; // manter chave presente
                         }
                     }
+                    if ($tipoSaida === 'pdf') {
+                        $usuarioInfo = getUsuario($app);
+                        $nmEmpresa = '';
+                        $nmResponsavel = '';
+                        if (is_array($usuarioInfo)) {
+                            $nmEmpresa = $usuarioInfo['nm_empresa'] ?? '';
+                            $nmResponsavel = $usuarioInfo['nm_pessoa'] ?? '';
+                        } else if (isset($_SESSION['usuario'])) {
+                            $nmEmpresa = $_SESSION['usuario']['nm_empresa'] ?? '';
+                            $nmResponsavel = $_SESSION['usuario']['nm_pessoa'] ?? '';
+                        }
+
+                        $table = '<h4 style="text-align:center">PLANILHA DE CONTROLE DE RECEBIMENTO DE PRODUTOS PERECÍVEIS (CONGELADOS / RESFRIADOS)</h4>';
+                        $table.= '<h5 style="text-align:center">ESTABELECIMENTO: '.$nmEmpresa.' - RESPONSÁVEL: '.$nmResponsavel.' - PERÍODO '.$dt_ini.' até '.$dt_fim.' </h5>';
+                        $table.= '<h6 style="text-align:center">gerado: '.date('d/m/Y H:i:s').'</h6>';
+                        $table.= '<table style="width:100%;border: 1px solid black;border-collapse: collapse; font-size:12px">';
+                        $table.= '<thead><tr>';
+                        $table.= '<th style="border:1px solid">DATA / HORA</th>';
+                        $table.= '<th style="border:1px solid">MATERIAL</th>';
+                        $table.= '<th style="border:1px solid">FORNECEDOR</th>';
+                        $table.= '<th style="border:1px solid">VALIDADE</th>';
+                        $table.= '<th style="border:1px solid">QTDE</th>';
+                        $table.= '<th style="border:1px solid">TEMPERATURA</th>';
+                        $table.= '<th style="border:1px solid">SIF</th>';
+                        $table.= '<th style="border:1px solid">LOTE</th>';
+                        $table.= '<th style="border:1px solid">Nº NOTA</th>';
+                        $table.= '<th style="border:1px solid">CONDIÇÕES EMB.</th>';
+                        $table.= '<th style="border:1px solid">RESPONSÁVEL</th>';
+                        $table.= '</tr></thead><tbody>';
+                        foreach ($dados as $value) {
+                            $table.= '<tr>';
+                            $table.= '<td style="border:1px solid">'.($value['dh_cadastro'] ?? '').'</td>';
+                            $table.= '<td style="border:1px solid">'.($value['descricao'] ?? '').'</td>';
+                            $table.= '<td style="border:1px solid">'.($value['nm_fornecedor'] ?? '').'</td>';
+                            $table.= '<td style="border:1px solid">'.($value['dt_vencimento'] ?? '').'</td>';
+                            $table.= '<td style="border:1px solid; text-align:center">'.($value['quantidade'] ?? '').'</td>';
+                            $table.= '<td style="border:1px solid; text-align:center">'.(!empty($value['temperatura']) ? $value['temperatura'].'ºC' : '').'</td>';
+                            $table.= '<td style="border:1px solid; text-align:center">'.($value['sif'] ?? '').'</td>';
+                            $table.= '<td style="border:1px solid">'.($value['lote'] ?? '').'</td>';
+                            $table.= '<td style="border:1px solid">'.($value['nro_nota'] ?? '').'</td>';
+                            $table.= '<td style="border:1px solid">'.($value['ds_embalagem_condicoes'] ?? '').'</td>';
+                            $table.= '<td style="border:1px solid">'.($value['nm_responsavel'] ?? '').'</td>';
+                            $table.= '</tr>';
+                        }
+                        $table.= '</tbody></table>';
+
+                        while (ob_get_level()) { ob_end_clean(); }
+                        $app->response['Content-Type'] = 'application/pdf';
+                        $mpdf = new \Mpdf\Mpdf([
+                            'mode' => 'utf-8',
+                            'format' => 'A4-L',
+                            'orientation' => 'L',
+                            'tempDir' =>'/tmp',
+                            'default_font' => 'arial'
+                        ]);
+                        $mpdf->WriteHTML($table, 2);
+                        $mpdf->Output('relatorio_materiais_recebimento_'.date('dmYHis').'.pdf', \Mpdf\Output\Destination::INLINE);
+                        return;
+                    }
+
                     $status = 200;
                     $ret = ['success'=>true, 'data'=>$dados];
                 } else {

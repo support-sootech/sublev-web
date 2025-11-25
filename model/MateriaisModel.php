@@ -554,31 +554,30 @@ class MateriaisModel extends Connection {
             if ($id_acao == 'btn_vencem_amanha')
                 $and .= " and mf.dt_vencimento = DATE_ADD(CURDATE(), INTERVAL 1 DAY)";
             if ($id_acao == 'btn_vencem_semana')
-                // Exclusivo: intervalo até 7 dias sem hoje e amanhã
-                $and .= " and (mf.dt_vencimento BETWEEN DATE_FORMAT(CURDATE(), '%Y-%m-%d') AND DATE_ADD(CURDATE(), INTERVAL 7 DAY))\n                          and mf.dt_vencimento not in (DATE_FORMAT(CURDATE(), '%Y-%m-%d'), DATE_ADD(CURDATE(), INTERVAL 1 DAY))";
+                $and .= " and (mf.dt_vencimento BETWEEN DATE_FORMAT(CURDATE(), '%Y-%m-%d') AND DATE_ADD(CURDATE(), INTERVAL 7 DAY))";
             if ($id_acao == 'btn_vencem_mais_1_semana')
                 $and .= " and mf.dt_vencimento > DATE_ADD(CURDATE(), INTERVAL 7 DAY)";
 
-                        $sql = "select p.*,
-                                                     mc.descricao as ds_modo_consevacao,
-                                                     e.id_etiquetas as id_etiquetas,
-                                                     mf.id_materiais_fracionados as id_materiais_fracionados,
-                                                     mf.qtd_fracionada,
-                                                     mf.id_setor,
-                                                     s.nome as nm_setor,
-                                                     DATE_FORMAT(mf.dt_fracionamento,'%d/%m/%Y') as dt_fracionamento,
-                                                     DATE_FORMAT(mf.dt_vencimento,'%d/%m/%Y') as dt_vencimento,
-                                                     ifnull(mm.descricao, '') as marca,
-                                                     ifnull(um.descricao, '') as ds_unidade_medida
-                                            from ".self::TABLE." p
-                                            inner join tb_materiais_marcas mm on mm.id_materiais_marcas = p.id_materiais_marcas
-                                            inner join tb_unidades_medidas um on um.id_unidades_medidas = p.id_unidades_medidas
-                                            inner join tb_materiais_fracionados mf on mf.id_materiais = p.id_materiais
-                                            inner join tb_etiquetas e on ((e.id_materiais = p.id_materiais) and (e.id_materiais_fracionados = mf.id_materiais_fracionados) and e.status = 'A')
-                                            left join tb_setor s on s.id_setor = mf.id_setor
-                                            left join tb_modo_conservacao mc on mc.id = p.id_modo_conservacao
-                                         where 1=1
-                                             ".$and."";
+            $sql = "select p.*,
+                           mc.descricao as ds_modo_consevacao,
+                           e.id_etiquetas as id_etiquetas,
+                           mf.id_materiais_fracionados as id_materiais_fracionados,
+                           mf.qtd_fracionada,
+                           mf.id_setor,
+                           s.nome as nm_setor,
+                           DATE_FORMAT(mf.dt_fracionamento,'%d/%m/%Y') as dt_fracionamento,
+                           DATE_FORMAT(mf.dt_vencimento,'%d/%m/%Y') as dt_vencimento,
+                           ifnull(mm.descricao, '') as marca,
+                           ifnull(um.descricao, '') as ds_unidade_medida
+                      from ".self::TABLE." p
+                      inner join tb_materiais_marcas mm on mm.id_materiais_marcas = p.id_materiais_marcas
+                      inner join tb_unidades_medidas um on um.id_unidades_medidas = p.id_unidades_medidas
+                      inner join tb_materiais_fracionados mf on mf.id_materiais = p.id_materiais
+                      inner join tb_etiquetas e on ((e.id_materiais = p.id_materiais) and (e.id_materiais_fracionados = mf.id_materiais_fracionados))
+                      left join tb_setor s on s.id_setor = mf.id_setor
+                      left join tb_modo_conservacao mc on mc.id = p.id_modo_conservacao
+                     where 1=1
+                       ".$and."";
             
             $res = $this->conn->select($sql, $arr);
             
@@ -617,21 +616,18 @@ class MateriaisModel extends Connection {
             if ($id_acao == 'texto_vencem_amanha')
                 $and .= " and mf.dt_vencimento = DATE_ADD(CURDATE(), INTERVAL 1 DAY)";
             if ($id_acao == 'texto_vencem_semana')
-                // Exclusivo: intervalo até 7 dias sem hoje e amanhã
-                $and .= " and (mf.dt_vencimento BETWEEN DATE_FORMAT(CURDATE(), '%Y-%m-%d') AND DATE_ADD(CURDATE(), INTERVAL 7 DAY))\n                          and mf.dt_vencimento not in (DATE_FORMAT(CURDATE(), '%Y-%m-%d'), DATE_ADD(CURDATE(), INTERVAL 1 DAY))";
+                $and .= " and (mf.dt_vencimento BETWEEN DATE_FORMAT(CURDATE(), '%Y-%m-%d') AND DATE_ADD(CURDATE(), INTERVAL 7 DAY))";
             if ($id_acao == 'texto_vencem_mais_1_semana')
                 $and .= " and mf.dt_vencimento > DATE_ADD(CURDATE(), INTERVAL 7 DAY)";
 
-                        // Ajuste: contar distintas etiquetas para refletir exatamente a quantidade exibida nas listas
-                        // Mantidos filtros atuais (status de p, mf, e) conforme versão mais recente.
-                        $sql = "select count(distinct e.id_etiquetas) as quantidade
-                                            from ".self::TABLE." p
-                                            inner join tb_materiais_marcas mm on mm.id_materiais_marcas = p.id_materiais_marcas
-                                            inner join tb_unidades_medidas um on um.id_unidades_medidas = p.id_unidades_medidas
-                                            inner join tb_materiais_fracionados mf on mf.id_materiais = p.id_materiais
-                                            inner join tb_etiquetas e on ((e.id_materiais = p.id_materiais) and (e.id_materiais_fracionados = mf.id_materiais_fracionados) and e.status = 'A')
-                                         where 1=1
-                                             ".$and."";
+            $sql = "select count(*) as quantidade
+                      from ".self::TABLE." p
+                      inner join tb_materiais_marcas mm on mm.id_materiais_marcas = p.id_materiais_marcas
+                      inner join tb_unidades_medidas um on um.id_unidades_medidas = p.id_unidades_medidas
+                      inner join tb_materiais_fracionados mf on mf.id_materiais = p.id_materiais
+                      inner join tb_etiquetas e on ((e.id_materiais = p.id_materiais) and (e.id_materiais_fracionados = mf.id_materiais_fracionados))
+                     where 1=1
+                       ".$and."";
             
             $res = $this->conn->select($sql, $arr);
             
@@ -645,7 +641,7 @@ class MateriaisModel extends Connection {
         }
     }
 
-    public function loadRelatorioMateriaisRecebimento($id_empresas="", $dt_ini, $dt_fim, $status='') {
+    public function loadRelatorioMateriaisRecebimento($id_empresas="", $dt_ini, $dt_fim, $status='', $busca='') {
         try {
             $arr = array();
             $and = '';
@@ -667,7 +663,25 @@ class MateriaisModel extends Connection {
             $arr[':DT_INI'] = dt_banco($dt_ini);
             $arr[':DT_FIM'] = dt_banco($dt_fim);
 
-            
+            if (!empty($busca)) {
+                $buscaLower = function_exists('mb_strtolower') ? mb_strtolower($busca, 'UTF-8') : strtolower($busca);
+                $like = '%'.$buscaLower.'%';
+                $arr[':BUSCA_DESC'] = $like;
+                $arr[':BUSCA_FORN'] = $like;
+                $arr[':BUSCA_LOTE'] = $like;
+                $arr[':BUSCA_NOTA'] = $like;
+                $arr[':BUSCA_COND'] = $like;
+                $arr[':BUSCA_RESP'] = $like;
+                $and .= " and (
+                            lower(m.descricao) like :BUSCA_DESC
+                            or lower(p.nome) like :BUSCA_FORN
+                            or lower(m.lote) like :BUSCA_LOTE
+                            or lower(m.nro_nota) like :BUSCA_NOTA
+                            or lower(ec.descricao) like :BUSCA_COND
+                            or lower(p1.nome) like :BUSCA_RESP
+                        )";
+            }
+
             $sql = "select m.dh_cadastro, m.descricao, m.dt_vencimento, m.quantidade, m.temperatura, m.sif, m.lote, m.nro_nota,
                             p.nome as nm_fornecedor,
                             ec.descricao as ds_embalagem_condicoes,
