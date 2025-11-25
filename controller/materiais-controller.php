@@ -463,6 +463,45 @@ $app->map('/app-materiais-save', function() use ($app){
     $response->body(json_encode($retorno));
 })->via('POST','OPTIONS');
 
+$app->map('/app-materiais-json', function() use ($app){
+    $status = 200;
+    $ret = ['success'=>false, 'data'=>[]];
+
+    if ($app->request->isOptions()) {
+        $status = 200;
+        $ret = ['success'=>true, 'data'=>[]];
+    } else {
+        if (valida_logado() || (function_exists('_getHeaderValue') && _getHeaderValue('Token-User'))) {
+            try {
+                $statusParam = $app->request->params('status') ?: ($app->request->post('status') ?: '');
+                $id_empresas = function_exists('getIdEmpresasLogado') ? getIdEmpresasLogado() : 0;
+                if (empty($id_empresas) && function_exists('_getHeaderValue')) {
+                    $hdr = _getHeaderValue('X-Company-Id');
+                    if (!empty($hdr)) $id_empresas = (int)$hdr;
+                }
+
+                $class_materiais = new MateriaisModel();
+                $arr = $class_materiais->loadAll($statusParam, $id_empresas);
+                $ret = ['success'=>true, 'data'=>($arr?:[])];
+            } catch (Exception $e) {
+                $status = 500;
+                $ret = ['success'=>false, 'msg'=>'Erro ao listar materiais', 'detail'=>$e->getMessage()];
+            }
+        } else {
+            $status = 401;
+            $ret = ['success'=>false, 'msg'=>'Não autorizado'];
+        }
+    }
+
+    while (ob_get_level()) { ob_end_clean(); }
+    $response = $app->response();
+    $response['Access-Control-Allow-Origin'] = '*';
+    $response['Access-Control-Allow-Methods'] = 'GET, POST, OPTIONS';
+    $response['Content-Type'] = 'application/json';
+    $response->status($status);
+    $response->body(json_encode($ret));
+})->via('GET','POST','OPTIONS');
+
 $app->post('/materiais-da-categoria-json', function() use ($app){
     $status = 200;
 	$data['data'] = array();
