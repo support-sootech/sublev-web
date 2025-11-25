@@ -33,7 +33,7 @@ class MateriaisModel extends Connection {
         'id_unidades_medidas'=>array('type'=>'integer', 'fk'=>true, 'requered'=>false, 'max'=>'10', 'default'=>'N', 'key'=>false, 'description'=>'Selecionar uma unidade de medida'),
         'id_materiais_categorias'=>array('type'=>'integer', 'fk'=>true, 'requered'=>false, 'max'=>'10', 'default'=>'', 'key'=>false, 'description'=>'Selecionar uma categoria'),
         'id_empresas'=>array('type'=>'integer', 'fk'=>true, 'requered'=>false, 'max'=>'10', 'default'=>'N', 'key'=>false, 'description'=>'Selecionar uma empresa'),
-        'cod_barras'=>array('type'=>'string', 'requered'=>false, 'max'=>'50', 'default'=>'N', 'key'=>false, 'description'=>'Código barras'),
+        'cod_barras'=>array('type'=>'string', 'requered'=>false, 'max'=>'50', 'default'=>null, 'key'=>false, 'description'=>'Código barras'),
         'dias_vencimento'=>array('type'=>'integer', 'requered'=>false, 'max'=>'2', 'default'=>'', 'key'=>false, 'description'=>'Qtd dias vencimento'),
         'dias_vencimento_aberto'=>array('type'=>'integer', 'requered'=>false, 'max'=>'2', 'default'=>'', 'key'=>false, 'description'=>'Qtd dias vencimento aberto'),
         'temperatura'=>array('type'=>'integer', 'requered'=>false, 'max'=>'3', 'default'=>'', 'key'=>false, 'description'=>'Temperatura'),
