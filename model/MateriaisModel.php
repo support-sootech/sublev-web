@@ -566,7 +566,7 @@ class MateriaisModel extends Connection
             if ($id_acao == 'btn_vencem_amanha')
                 $and .= " and mf.dt_vencimento = DATE_ADD(CURDATE(), INTERVAL 1 DAY)";
             if ($id_acao == 'btn_vencem_semana')
-                $and .= " and (mf.dt_vencimento BETWEEN DATE_FORMAT(CURDATE(), '%Y-%m-%d') AND DATE_ADD(CURDATE(), INTERVAL 7 DAY))";
+                $and .= " and (mf.dt_vencimento BETWEEN DATE_ADD(CURDATE(), INTERVAL 2 DAY) AND DATE_ADD(CURDATE(), INTERVAL 7 DAY))";
             if ($id_acao == 'btn_vencem_mais_1_semana')
                 $and .= " and mf.dt_vencimento > DATE_ADD(CURDATE(), INTERVAL 7 DAY)";
 
@@ -578,7 +578,7 @@ class MateriaisModel extends Connection
                            mf.id_setor,
                            s.nome as nm_setor,
                            DATE_FORMAT(mf.dt_fracionamento,'%d/%m/%Y') as dt_fracionamento,
-                           DATE_FORMAT(mf.dt_vencimento,'%d/%m/%Y') as dt_vencimento,
+                           DATE_FORMAT(mf.dt_vencimento,'%d/%m/%Y') as dt_vencimento_frac,
                            ifnull(mm.descricao, '') as marca,
                            ifnull(um.descricao, '') as ds_unidade_medida
                       from " . self::TABLE . " p
@@ -594,6 +594,13 @@ class MateriaisModel extends Connection
             $res = $this->conn->select($sql, $arr);
 
             if (isset($res[0])) {
+                // Iterar para garantir que o campo dt_vencimento seja o do fracionado (dt_vencimento_frac)
+                // pois o p.* traz o dt_vencimento do produto pai, que pode sobrescrever o alias.
+                foreach ($res as &$linha) {
+                    if (isset($linha['dt_vencimento_frac'])) {
+                        $linha['dt_vencimento'] = $linha['dt_vencimento_frac'];
+                    }
+                }
                 return $res;
             } else {
                 return false;
@@ -626,7 +633,7 @@ class MateriaisModel extends Connection
             if ($id_acao == 'texto_vencem_amanha')
                 $and .= " and mf.dt_vencimento = DATE_ADD(CURDATE(), INTERVAL 1 DAY)";
             if ($id_acao == 'texto_vencem_semana')
-                $and .= " and (mf.dt_vencimento BETWEEN DATE_FORMAT(CURDATE(), '%Y-%m-%d') AND DATE_ADD(CURDATE(), INTERVAL 7 DAY))";
+                $and .= " and (mf.dt_vencimento BETWEEN DATE_ADD(CURDATE(), INTERVAL 2 DAY) AND DATE_ADD(CURDATE(), INTERVAL 7 DAY))";
             if ($id_acao == 'texto_vencem_mais_1_semana')
                 $and .= " and mf.dt_vencimento > DATE_ADD(CURDATE(), INTERVAL 7 DAY)";
 
