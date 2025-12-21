@@ -13,7 +13,7 @@ require_once __DIR__ . "/controller/_headers-helper.php";
 
 \Slim\Slim::registerAutoloader();
 $app = new \Slim\Slim(array(
-    'debug'=>TRUE,
+    'debug' => TRUE,
     'templates.path' => './views'
 ));
 
@@ -21,11 +21,11 @@ $app = new \Slim\Slim(array(
 $GLOBALS['app'] = $app;
 
 // ROTAS
-$app->get('/', function() use ($app){
+$app->get('/', function () use ($app) {
     $app->render('/login-page.php', array());
 });
 
-$app->get('/home', function() use ($app){
+$app->get('/home', function () use ($app) {
     if (valida_logado()) {
         $app->render('/home-page.php', array());
     } else {
@@ -33,7 +33,7 @@ $app->get('/home', function() use ($app){
     }
 });
 
-$app->get('/dashboard', function() use ($app){
+$app->get('/dashboard', function () use ($app) {
     if (valida_logado()) {
         $app->render('/dashboard.php', array());
     } else {
@@ -41,29 +41,29 @@ $app->get('/dashboard', function() use ($app){
     }
 });
 
-$app->get('/forgot-password', function() use ($app){
+$app->get('/forgot-password', function () use ($app) {
     //$app->render('/forgot-password-page.php', array());
     $app->render('/reset-password-page.php', array());
 });
 
-$app->get('/logout', function() use ($app){
+$app->get('/logout', function () use ($app) {
     $app->redirect('/');
 });
 
-$app->get('/materiais-marcas', function() use ($app){
+$app->get('/materiais-marcas', function () use ($app) {
     $app->render('/materiais-marcas-page.php', array());
 });
 
-$app->get('/info', function() use ($app){
+$app->get('/info', function () use ($app) {
     echo phpinfo();
 });
 
-$app->get('/teste', function() use ($app){
-    $arr = array('1','1','1');
+$app->get('/teste', function () use ($app) {
+    $arr = array('1', '1', '1');
 
     $data = array();
     try {
-        $data = fracionarMateriais(27,'12/06/2025',$arr,'UNIDADE',true,2);
+        $data = fracionarMateriais(27, '12/06/2025', $arr, 'UNIDADE', true, 2);
     } catch (Exception $e) {
         $data = $e->getMessage();
     }
@@ -111,5 +111,6 @@ include_once('controller/api/login-api-controller.php');
 include_once('controller/api/etiqueta-api-controller.php');
 include_once('controller/api/materiais-api-controller.php');
 include_once('controller/api/materiais-fracionados-api-controller.php');
+include_once('controller/app.catalogo-avulso.php');
 
 $app->run();

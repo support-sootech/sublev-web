@@ -3,7 +3,6 @@
 .ini
 /model/Connection.php
 vendor/
-.gitignore
 apache-conf
 docker-compose.yaml
 Dockerfile
@@ -14,4 +13,4 @@ info/
 /node/client.js
 /node/client1.js
 /app/
-.gitignore
+log_debug.txt

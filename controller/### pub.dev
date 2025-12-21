@@ -1,0 +1,176 @@
+### pub.dev
+[Searching for packages](https://pub.dev/help/search)
+[Package scoring and pub points](https://pub.dev/help/scoring)
+
+### Flutter
+[Using packages](https://flutter.dev/using-packages/)
+[Developing packages and plugins](https://flutter.dev/developing-packages/)
+[Publishing a package](https://dart.dev/tools/pub/publishing)
+
+### Dart
+[Using packages](https://dart.dev/guides/packages)
+[Publishing a package](https://dart.dev/tools/pub/publishing)
+
+### pub.dev
+[Searching for packages](https://pub.dev/help/search)
+[Package scoring and pub points](https://pub.dev/help/scoring)
+
+### Flutter
+[Using packages](https://flutter.dev/using-packages/)
+[Developing packages and plugins](https://flutter.dev/developing-packages/)
+[Publishing a package](https://dart.dev/tools/pub/publishing)
+
+### Dart
+[Using packages](https://dart.dev/guides/packages)
+[Publishing a package](https://dart.dev/tools/pub/publishing)
+
+# niimbot_print 0.0.5 niimbot_print: ^0.0.5 copied to clipboard
+
+[58 days ago](https://pub.dev/packages/niimbot_print)
+[Flutter](https://pub.dev/packages?q=sdk%3Aflutter)
+[Android](https://pub.dev/packages?q=platform%3Aandroid)
+[iOS](https://pub.dev/packages?q=platform%3Aios)
+
+### Metadata
+
+Niimbot Printer Integration
+[More...](https://pub.dev/packages/niimbot_print)
+- Readme
+- [Changelog](https://pub.dev/packages/niimbot_print/changelog)
+- [Example](https://pub.dev/packages/niimbot_print/example)
+- [Installing](https://pub.dev/packages/niimbot_print/install)
+- [Versions](https://pub.dev/packages/niimbot_print/versions)
+- [Scores](https://pub.dev/packages/niimbot_print/score)
+[Changelog](https://pub.dev/packages/niimbot_print/changelog)
+[Example](https://pub.dev/packages/niimbot_print/example)
+[Installing](https://pub.dev/packages/niimbot_print/install)
+[Versions](https://pub.dev/packages/niimbot_print/versions)
+[Scores](https://pub.dev/packages/niimbot_print/score)
+
+# Niimbot Printer Flutter Plugin [#](https://pub.dev/packages/niimbot_print#niimbot-printer-flutter-plugin)
+
+[#](https://pub.dev/packages/niimbot_print#niimbot-printer-flutter-plugin)
+
+## 📖 Introduction [#](https://pub.dev/packages/niimbot_print#-introduction)
+[#](https://pub.dev/packages/niimbot_print#-introduction)
+Niimbot-Printer is a Flutter plugin that integrates with Niimbot Hardware Printers, allowing you to print text labels directly from your Flutter application.
+
+## ⚙️ Setup [#](https://pub.dev/packages/niimbot_print#-setup)
+[#](https://pub.dev/packages/niimbot_print#-setup)
+
+### iOS Permissions [#](https://pub.dev/packages/niimbot_print#ios-permissions)
+
+[#](https://pub.dev/packages/niimbot_print#ios-permissions)
+Add the following permissions to your Info.plist:
+
+```
+<key>NSBluetoothAlwaysUsageDescription</key> <string>This app requires Bluetooth access to connect to Niimbot printers.</string> <key>NSBluetoothPeripheralUsageDescription</key> <string>This app requires Bluetooth access to communicate with Niimbot printers.</string>
+```
+
+
+```
+<key>NSBluetoothAlwaysUsageDescription</key> <string>This app requires Bluetooth access to connect to Niimbot printers.</string> <key>NSBluetoothPeripheralUsageDescription</key> <string>This app requires Bluetooth access to communicate with Niimbot printers.</string>
+```
+
+## 🚀 Getting Started [#](https://pub.dev/packages/niimbot_print#-getting-started)
+
+[#](https://pub.dev/packages/niimbot_print#-getting-started)
+
+### 1. Scan for nearby Niimbot printers [#](https://pub.dev/packages/niimbot_print#1-scan-for-nearby-niimbot-printers)
+[#](https://pub.dev/packages/niimbot_print#1-scan-for-nearby-niimbot-printers)
+
+```
+var value = await niimbotPrint.onStartScan( whiteListDevices: [NiimbotModelEnum.b1], onError: (errorMessage) { LogHelper.error(errorMessage, event: 'initializeData'); }, );
+```
+
+
+```
+var value = await niimbotPrint.onStartScan( whiteListDevices: [NiimbotModelEnum.b1], onError: (errorMessage) { LogHelper.error(errorMessage, event: 'initializeData'); }, );
+```
+
+### 2. Connect to a scanned device [#](https://pub.dev/packages/niimbot_print#2-connect-to-a-scanned-device)
+[#](https://pub.dev/packages/niimbot_print#2-connect-to-a-scanned-device)
+
+```
+if (blueDeviceInfoModel.value.connectionState != null) { await niimbotPrint.onDisconnect(); blueDeviceInfoModel.value = BlueDeviceInfoModel(); } else { await niimbotPrint.onStartConnect( model: device, onResult: (isSuccess, message) { if (isSuccess) { blueDeviceInfoModel.value = device; } else { LogHelper.error(message, event: 'onConnectDevice'); blueDeviceInfoModel.value = BlueDeviceInfoModel(); } }, ); }
+```
+
+
+```
+if (blueDeviceInfoModel.value.connectionState != null) { await niimbotPrint.onDisconnect(); blueDeviceInfoModel.value = BlueDeviceInfoModel(); } else { await niimbotPrint.onStartConnect( model: device, onResult: (isSuccess, message) { if (isSuccess) { blueDeviceInfoModel.value = device; } else { LogHelper.error(message, event: 'onConnectDevice'); blueDeviceInfoModel.value = BlueDeviceInfoModel(); } }, ); }
+```
+
+### 3. Start printing [#](https://pub.dev/packages/niimbot_print#3-start-printing)
+[#](https://pub.dev/packages/niimbot_print#3-start-printing)
+
+```
+await niimbotPrint.onStartPrintText( printLabelModelList: [ PrintLabelModel(text: 'Gerzha Hayat Prakarsha', fontSize: 16), PrintLabelModel( text: 'https://www.linkedin.com/in/gerzha-hayat-prakarsha-09974899/', fontSize: 14, ), ], onResult: (isSuccess, message) async { await Future.delayed(const Duration(seconds: 2)); isLoadingPrinting.value = false; if (isSuccess) { Get.snackbar( MessageConstant.printSucceed, message, snackPosition: SnackPosition.BOTTOM, colorText: Colors.white, borderRadius: BorderRadiusConstant.low, backgroundColor: Get.theme.primaryColor, margin: const EdgeInsets.only( left: MarginSizeConstant.medium, right: MarginSizeConstant.medium, bottom: MarginSizeConstant.medium, ), ); } else { LogHelper.error(message, event: 'onStartPrint'); } }, );
+```
+
+
+```
+await niimbotPrint.onStartPrintText( printLabelModelList: [ PrintLabelModel(text: 'Gerzha Hayat Prakarsha', fontSize: 16), PrintLabelModel( text: 'https://www.linkedin.com/in/gerzha-hayat-prakarsha-09974899/', fontSize: 14, ), ], onResult: (isSuccess, message) async { await Future.delayed(const Duration(seconds: 2)); isLoadingPrinting.value = false; if (isSuccess) { Get.snackbar( MessageConstant.printSucceed, message, snackPosition: SnackPosition.BOTTOM, colorText: Colors.white, borderRadius: BorderRadiusConstant.low, backgroundColor: Get.theme.primaryColor, margin: const EdgeInsets.only( left: MarginSizeConstant.medium, right: MarginSizeConstant.medium, bottom: MarginSizeConstant.medium, ), ); } else { LogHelper.error(message, event: 'onStartPrint'); } }, );
+```
+
+## 📦 About this project [#](https://pub.dev/packages/niimbot_print#-about-this-project)
+[#](https://pub.dev/packages/niimbot_print#-about-this-project)
+This project is a starting point for a Flutter [plugin package](https://flutter.dev/developing-packages/), a specialized package that includes platform-specific implementation code for Android and/or iOS.
+
+## 👤 Author [#](https://pub.dev/packages/niimbot_print#-author)
+[#](https://pub.dev/packages/niimbot_print#-author)
+- Created By: Gerzha Hayat Prakarsha
+- Portfolio: [https://zh4.dev/](https://zh4.dev/)
+- GitHub: [https://github.com/zh4dev](https://github.com/zh4dev)
+[https://zh4.dev/](https://zh4.dev/)
+[https://github.com/zh4dev](https://github.com/zh4dev)
+[2likes130points32downloads](https://pub.dev/packages/niimbot_print/score)
+
+### Publisher
+unverified uploader
+
+### Metadata
+Niimbot Printer Integration
+[Homepage](https://zh4.dev/)
+
+### Documentation
+[API reference](https://pub.dev/documentation/niimbot_print/latest/)
+
+### License
+MIT ([license](https://pub.dev/packages/niimbot_print/license))
+
+### Dependencies
+[collection](https://pub.dev/packages/collection), [flutter](https://api.flutter.dev/), [flutter_blue_plus](https://pub.dev/packages/flutter_blue_plus), [permission_handler](https://pub.dev/packages/permission_handler), [plugin_platform_interface](https://pub.dev/packages/plugin_platform_interface)
+
+### More
+[Packages that depend on niimbot_print](https://pub.dev/packages?q=dependency%3Aniimbot_print)[Packages that implement niimbot_print](https://pub.dev/packages?q=implements-federated-plugin%3Aniimbot_print)
+
+### ← Metadata
+[2likes130points32downloads](https://pub.dev/packages/niimbot_print/score)
+
+### Publisher
+unverified uploader
+
+### Metadata
+Niimbot Printer Integration
+[Homepage](https://zh4.dev/)
+
+### Documentation
+[API reference](https://pub.dev/documentation/niimbot_print/latest/)
+
+### License
+MIT ([license](https://pub.dev/packages/niimbot_print/license))
+
+### Dependencies
+[collection](https://pub.dev/packages/collection), [flutter](https://api.flutter.dev/), [flutter_blue_plus](https://pub.dev/packages/flutter_blue_plus), [permission_handler](https://pub.dev/packages/permission_handler), [plugin_platform_interface](https://pub.dev/packages/plugin_platform_interface)
+
+### More
+[Packages that depend on niimbot_print](https://pub.dev/packages?q=dependency%3Aniimbot_print)[Packages that implement niimbot_print](https://pub.dev/packages?q=implements-federated-plugin%3Aniimbot_print)
+[Back](https://pub.dev/packages/niimbot_print)
+[Dart language](https://dart.dev/)
+[Report package](https://pub.dev/report?subject=package%3Aniimbot_print&url=https%3A%2F%2Fpub.dev%2Fpackages%2Fniimbot_print)
+[Policy](https://pub.dev/policy)
+[Terms](https://www.google.com/intl/en/policies/terms/)
+[API Terms](https://developers.google.com/terms/)
+[Security](https://pub.dev/security)
+[Privacy](https://www.google.com/intl/en/policies/privacy/)
+[Help](https://pub.dev/help)

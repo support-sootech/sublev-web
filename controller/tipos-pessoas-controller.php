@@ -173,4 +173,94 @@ $app->post('/tipos-pessoas-save', function() use ($app){
 	$response->body(json_encode($retorno));
 });
 
+// API compat (mobile app) - /app-tipos-pessoas-save (POST)
+$app->post('/app-tipos-pessoas-save', function() use ($app){
+    $status = 400;
+    $ret = ['success'=>false, 'msg'=>''];
+    
+    if (valida_logado() || (function_exists('_getHeaderValue') && _getHeaderValue('Token-User'))) {
+        try {
+            // Tenta ler JSON do body
+            $input = json_decode($app->request->getBody(), true);
+            if (!$input) {
+                // Fallback para form-data
+                $input = $app->request->post();
+            }
+            
+            $id_tipos_pessoas = $input['id_tipos_pessoas'] ?? $input['tipos-pessoas_id_tipos_pessoas'] ?? null;
+            $descricao = $input['descricao'] ?? $input['tipos-pessoas_descricao'] ?? null;
+            $statusField = $input['status'] ?? $input['tipos-pessoas_status'] ?? 'A';
+            
+            if (empty($descricao)) {
+                $ret = ['success'=>false, 'msg'=>'Descrição é obrigatória'];
+            } else {
+                $class_tipos_pessoas = new TiposPessoasModel();
+                $post = ['descricao'=>$descricao, 'status'=>$statusField];
+                
+                if (!empty($id_tipos_pessoas)) {
+                    $data = $class_tipos_pessoas->edit($post, ['id_tipos_pessoas'=>$id_tipos_pessoas]);
+                } else {
+                    $data = $class_tipos_pessoas->add($post);
+                }
+                
+                if ($data) {
+                    $status = 200;
+                    $ret = ['success'=>true, 'msg'=>'Salvo com sucesso', 'data'=>$data];
+                } else {
+                    $ret = ['success'=>false, 'msg'=>'Falha ao salvar'];
+                }
+            }
+        } catch (Exception $e) {
+            $ret = ['success'=>false, 'msg'=>$e->getMessage()];
+        }
+    } else {
+        $status = 401;
+        $ret = ['success'=>false, 'msg'=>'Não autorizado'];
+    }
+    
+    while (ob_get_level()) { ob_end_clean(); }
+    $response = $app->response();
+    $response['Access-Control-Allow-Origin'] = '*';
+    $response['Access-Control-Allow-Methods'] = 'POST, OPTIONS';
+    $response['Content-Type'] = 'application/json';
+    $response->status($status);
+    $response->body(json_encode($ret));
+});
+
+// API compat (mobile app) - /app-tipos-pessoas-del/:id (GET)
+$app->get('/app-tipos-pessoas-del/:id', function($id='') use ($app){
+    $status = 400;
+    $ret = ['success'=>false, 'msg'=>''];
+    
+    if (valida_logado() || (function_exists('_getHeaderValue') && _getHeaderValue('Token-User'))) {
+        if (!empty($id)) {
+            try {
+                $class_tipos_pessoas = new TiposPessoasModel();
+                $del = $class_tipos_pessoas->del($id);
+                if ($del) {
+                    $status = 200;
+                    $ret = ['success'=>true, 'msg'=>'Excluído com sucesso'];
+                } else {
+                    $ret = ['success'=>false, 'msg'=>'Registro não encontrado'];
+                }
+            } catch (Exception $e) {
+                $ret = ['success'=>false, 'msg'=>$e->getMessage()];
+            }
+        } else {
+            $ret = ['success'=>false, 'msg'=>'ID não informado'];
+        }
+    } else {
+        $status = 401;
+        $ret = ['success'=>false, 'msg'=>'Não autorizado'];
+    }
+    
+    while (ob_get_level()) { ob_end_clean(); }
+    $response = $app->response();
+    $response['Access-Control-Allow-Origin'] = '*';
+    $response['Access-Control-Allow-Methods'] = 'GET';
+    $response['Content-Type'] = 'application/json';
+    $response->status($status);
+    $response->body(json_encode($ret));
+});
+
 ?>
