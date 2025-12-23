@@ -22,46 +22,41 @@ class EtiquetasController
       // DEBUG
       file_put_contents('log_debug.txt', print_r($data, true), FILE_APPEND);
 
-      // Logica de Favorito: Se salvar_catalogo = true, insere como favorito (1).
-      // Se nao, NÃO INSERE nada no catalogo (apenas gera etiqueta avulsa normal).
-      // Isso permite reimprimir favorito sem duplicar, ou criar variacao sem salvar.
-      $saveCatalog = !empty($data['salvar_catalogo']);
+      // Logica: SEMPRE insere no catalogo (conforme solicitado pelo cliente).
+      // O campo 'salvar_catalogo' (ou favorito do app) agora define somente se eh favorito (1) ou nao (0).
+      $isFavorito = !empty($data['salvar_catalogo']) ? 1 : 0;
 
-      if ($saveCatalog) {
-        $isFavorito = 1; // Se mandou salvar, eh pq quer favorito (checkbox do app agora eh explicito "Salvar novo favorito")
-
-        $diasVencimento = 0;
-        if (!empty($validade)) {
-          try {
-            $dtValidade = new DateTime($validade);
-            $dtHoje = new DateTime('now');
-            $dtValidade->setTime(0, 0, 0);
-            $dtHoje->setTime(0, 0, 0);
-            if ($dtValidade > $dtHoje) {
-              $diff = $dtHoje->diff($dtValidade);
-              $diasVencimento = (int) $diff->days;
-            }
-          } catch (Exception $e) {
+      $diasVencimento = 0;
+      if (!empty($validade)) {
+        try {
+          $dtValidade = new DateTime($validade);
+          $dtHoje = new DateTime('now');
+          $dtValidade->setTime(0, 0, 0);
+          $dtHoje->setTime(0, 0, 0);
+          if ($dtValidade > $dtHoje) {
+            $diff = $dtHoje->diff($dtValidade);
+            $diasVencimento = (int) $diff->days;
           }
+        } catch (Exception $e) {
         }
-
-        $sqlCat = "INSERT INTO tb_catalogo_avulso 
-                       (descricao, qtde_dias_vencimento, peso, id_unidades_medidas, id_modo_conservacao, favorito, id_empresas, id_usuarios, status)
-                       VALUES 
-                       (:desc, :dias, :peso, :idum, :idmc, :fav, :emp, :usu, 'A')";
-
-        $stmtCat = $pdo->prepare($sqlCat);
-        $stmtCat->execute([
-          ':desc' => $descricao,
-          ':dias' => $diasVencimento,
-          ':peso' => $peso,
-          ':idum' => $idUM,
-          ':idmc' => $idMC,
-          ':fav' => $isFavorito,
-          ':emp' => $idEmpresa,
-          ':usu' => $idUsuario
-        ]);
       }
+
+      $sqlCat = "INSERT INTO tb_catalogo_avulso 
+                     (descricao, qtde_dias_vencimento, peso, id_unidades_medidas, id_modo_conservacao, favorito, id_empresas, id_usuarios, status)
+                     VALUES 
+                     (:desc, :dias, :peso, :idum, :idmc, :fav, :emp, :usu, 'A')";
+
+      $stmtCat = $pdo->prepare($sqlCat);
+      $stmtCat->execute([
+        ':desc' => $descricao,
+        ':dias' => $diasVencimento,
+        ':peso' => $peso,
+        ':idum' => $idUM,
+        ':idmc' => $idMC,
+        ':fav' => $isFavorito,
+        ':emp' => $idEmpresa,
+        ':usu' => $idUsuario
+      ]);
 
       $idMat = MateriaisModel::createFromAvulsa(
         descricao: $descricao,
