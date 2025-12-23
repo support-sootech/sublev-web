@@ -582,8 +582,8 @@ class MateriaisModel extends Connection
                            ifnull(mm.descricao, '') as marca,
                            ifnull(um.descricao, '') as ds_unidade_medida
                       from " . self::TABLE . " p
-                      inner join tb_materiais_marcas mm on mm.id_materiais_marcas = p.id_materiais_marcas
-                      inner join tb_unidades_medidas um on um.id_unidades_medidas = p.id_unidades_medidas
+                      left join tb_materiais_marcas mm on mm.id_materiais_marcas = p.id_materiais_marcas
+                      left join tb_unidades_medidas um on um.id_unidades_medidas = p.id_unidades_medidas
                       inner join tb_materiais_fracionados mf on mf.id_materiais = p.id_materiais
                       inner join tb_etiquetas e on ((e.id_materiais = p.id_materiais) and (e.id_materiais_fracionados = mf.id_materiais_fracionados))
                       left join tb_setor s on s.id_setor = mf.id_setor
@@ -639,8 +639,8 @@ class MateriaisModel extends Connection
 
             $sql = "select count(*) as quantidade
                       from " . self::TABLE . " p
-                      inner join tb_materiais_marcas mm on mm.id_materiais_marcas = p.id_materiais_marcas
-                      inner join tb_unidades_medidas um on um.id_unidades_medidas = p.id_unidades_medidas
+                      left join tb_materiais_marcas mm on mm.id_materiais_marcas = p.id_materiais_marcas
+                      left join tb_unidades_medidas um on um.id_unidades_medidas = p.id_unidades_medidas
                       inner join tb_materiais_fracionados mf on mf.id_materiais = p.id_materiais
                       inner join tb_etiquetas e on ((e.id_materiais = p.id_materiais) and (e.id_materiais_fracionados = mf.id_materiais_fracionados))
                      where 1=1
