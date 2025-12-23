@@ -58,7 +58,7 @@ function sendPrintCommand(computerKey, fileUrl) {
 console.log('Servidor WebSocket rodando na porta 8080.');
 
 app.post('/imprimir', async (req,res) => {
-    //const fileUrl = 'https://ootech.com.br/fracionar-imprimir-material?id=6&dt_venc=06/10/2024';
+    //const fileUrl = 'https://www.ootech.com.br/fracionar-imprimir-material?id=6&dt_venc=06/10/2024';
     //sendPrintCommand('12345', fileUrl);
     let obj = {};
     const computer = req.body.computador;

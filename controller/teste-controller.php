@@ -7,7 +7,7 @@ $app->get('/teste-pdf', function() use ($app){
 	$response['Access-Control-Allow-Methods'] = 'GET';
 	$response['Content-Type'] = 'application/pdf';
 
-    $url = "https://ootech.com.br";
+    $url = "https://www.ootech.com.br";
     $qr = '<barcode code="'.$url.'" type="QR" class="barcode" size="0.8" error="M" disableborder="1" />';
     $html = "<table><tr><td>'.$qr.'</td><td>Teste</td></tr></table>";
     
