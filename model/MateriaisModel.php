@@ -566,7 +566,7 @@ class MateriaisModel extends Connection
             if ($id_acao == 'btn_vencem_amanha')
                 $and .= " and mf.dt_vencimento = DATE_ADD(CURDATE(), INTERVAL 1 DAY)";
             if ($id_acao == 'btn_vencem_semana')
-                $and .= " and (mf.dt_vencimento BETWEEN CURDATE() AND DATE_ADD(CURDATE(), INTERVAL 7 DAY))";
+                $and .= " and (mf.dt_vencimento BETWEEN DATE_ADD(CURDATE(), INTERVAL 2 DAY) AND DATE_ADD(CURDATE(), INTERVAL 7 DAY))";
             if ($id_acao == 'btn_vencem_mais_1_semana')
                 $and .= " and mf.dt_vencimento > DATE_ADD(CURDATE(), INTERVAL 7 DAY)";
 
@@ -633,7 +633,7 @@ class MateriaisModel extends Connection
             if ($id_acao == 'texto_vencem_amanha')
                 $and .= " and mf.dt_vencimento = DATE_ADD(CURDATE(), INTERVAL 1 DAY)";
             if ($id_acao == 'texto_vencem_semana')
-                $and .= " and (mf.dt_vencimento BETWEEN CURDATE() AND DATE_ADD(CURDATE(), INTERVAL 7 DAY))";
+                $and .= " and (mf.dt_vencimento BETWEEN DATE_ADD(CURDATE(), INTERVAL 2 DAY) AND DATE_ADD(CURDATE(), INTERVAL 7 DAY))";
             if ($id_acao == 'texto_vencem_mais_1_semana')
                 $and .= " and mf.dt_vencimento > DATE_ADD(CURDATE(), INTERVAL 7 DAY)";
 
