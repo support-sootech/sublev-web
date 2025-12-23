@@ -562,13 +562,13 @@ class MateriaisModel extends Connection
             }
 
             if ($id_acao == 'btn_vencem_hoje')
-                $and .= " and mf.dt_vencimento = DATE_FORMAT(CURDATE(), '%Y-%m-%d')";
+                $and .= " and COALESCE(mf.dt_vencimento, p.dt_vencimento) = DATE_FORMAT(CURDATE(), '%Y-%m-%d')";
             if ($id_acao == 'btn_vencem_amanha')
-                $and .= " and mf.dt_vencimento = DATE_ADD(CURDATE(), INTERVAL 1 DAY)";
+                $and .= " and COALESCE(mf.dt_vencimento, p.dt_vencimento) = DATE_ADD(CURDATE(), INTERVAL 1 DAY)";
             if ($id_acao == 'btn_vencem_semana')
-                $and .= " and (mf.dt_vencimento BETWEEN DATE_ADD(CURDATE(), INTERVAL 2 DAY) AND DATE_ADD(CURDATE(), INTERVAL 7 DAY))";
+                $and .= " and (COALESCE(mf.dt_vencimento, p.dt_vencimento) BETWEEN DATE_ADD(CURDATE(), INTERVAL 2 DAY) AND DATE_ADD(CURDATE(), INTERVAL 7 DAY))";
             if ($id_acao == 'btn_vencem_mais_1_semana')
-                $and .= " and mf.dt_vencimento > DATE_ADD(CURDATE(), INTERVAL 7 DAY)";
+                $and .= " and COALESCE(mf.dt_vencimento, p.dt_vencimento) > DATE_ADD(CURDATE(), INTERVAL 7 DAY)";
 
             $sql = "select p.*,
                            mc.descricao as ds_modo_consevacao,
@@ -629,13 +629,13 @@ class MateriaisModel extends Connection
             $and .= " and p.id_empresas = :ID_EMPRESAS";
 
             if ($id_acao == 'texto_vencem_hoje')
-                $and .= " and mf.dt_vencimento = DATE_FORMAT(CURDATE(), '%Y-%m-%d')";
+                $and .= " and COALESCE(mf.dt_vencimento, p.dt_vencimento) = DATE_FORMAT(CURDATE(), '%Y-%m-%d')";
             if ($id_acao == 'texto_vencem_amanha')
-                $and .= " and mf.dt_vencimento = DATE_ADD(CURDATE(), INTERVAL 1 DAY)";
+                $and .= " and COALESCE(mf.dt_vencimento, p.dt_vencimento) = DATE_ADD(CURDATE(), INTERVAL 1 DAY)";
             if ($id_acao == 'texto_vencem_semana')
-                $and .= " and (mf.dt_vencimento BETWEEN DATE_ADD(CURDATE(), INTERVAL 2 DAY) AND DATE_ADD(CURDATE(), INTERVAL 7 DAY))";
+                $and .= " and (COALESCE(mf.dt_vencimento, p.dt_vencimento) BETWEEN DATE_ADD(CURDATE(), INTERVAL 2 DAY) AND DATE_ADD(CURDATE(), INTERVAL 7 DAY))";
             if ($id_acao == 'texto_vencem_mais_1_semana')
-                $and .= " and mf.dt_vencimento > DATE_ADD(CURDATE(), INTERVAL 7 DAY)";
+                $and .= " and COALESCE(mf.dt_vencimento, p.dt_vencimento) > DATE_ADD(CURDATE(), INTERVAL 7 DAY)";
 
             $sql = "select count(*) as quantidade
                       from " . self::TABLE . " p
