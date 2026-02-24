@@ -233,78 +233,44 @@ $app->post('/app-catalogo-avulso-del', function () use ($app) {
     }
 });
 
-// FIX - corrigir id_empresas do usuario Bagarelli
-// Acesse: https://sublev.sootech.com.br/app-fix-empresa-bagarelli
-// REMOVER APOS CORRECAO
-$app->get('/app-fix-empresa-bagarelli', function () use ($app) {
+// DIAGNOSTICO - mostra dados do usuario Bagarelli e todas as empresas
+// Acesse: https://sublev.sootech.com.br/app-diagnostico-empresas
+// SOMENTE LEITURA - nao altera nada no banco
+// REMOVER APOS ANALISE
+$app->get('/app-diagnostico-empresas', function () use ($app) {
     try {
         $pdo = $GLOBALS['pdo'];
-        $cnpjBagarelli = '60946985000174'; // CNPJ limpo
 
-        $resultado = ['etapas' => []];
+        $resultado = [];
 
-        // 1) Encontrar a empresa Bagarelli
-        $st = $pdo->prepare("SELECT id_empresas, razao_social, cnpj FROM tb_empresas WHERE REPLACE(REPLACE(REPLACE(cnpj,'.',''),'/',''),'-','') = :cnpj LIMIT 1");
-        $st->execute([':cnpj' => $cnpjBagarelli]);
-        $empresa = $st->fetch(PDO::FETCH_ASSOC);
-        $resultado['etapas'][] = ['busca_empresa' => $empresa ?: 'NAO ENCONTRADA'];
+        // 1) Listar TODAS as empresas cadastradas
+        $st1 = $pdo->query("SELECT id_empresas, razao_social, nome, cnpj FROM tb_empresas ORDER BY id_empresas");
+        $resultado['todas_empresas'] = $st1->fetchAll(PDO::FETCH_ASSOC);
 
-        if (!$empresa) {
-            // Tentar por razao social
-            $st2 = $pdo->prepare("SELECT id_empresas, razao_social, cnpj FROM tb_empresas WHERE razao_social LIKE '%bagarelli%' LIMIT 5");
-            $st2->execute();
-            $empresas = $st2->fetchAll(PDO::FETCH_ASSOC);
-            $resultado['etapas'][] = ['busca_por_nome' => $empresas ?: 'NENHUMA'];
-
-            // Listar todas empresas para referencia
-            $st3 = $pdo->query("SELECT id_empresas, razao_social, cnpj FROM tb_empresas ORDER BY id_empresas");
-            $resultado['todas_empresas'] = $st3->fetchAll(PDO::FETCH_ASSOC);
-
-            return _json_response($app, 200, $resultado);
-        }
-
-        $idEmpresaCorreta = (int) $empresa['id_empresas'];
-        $resultado['empresa_correta'] = $idEmpresaCorreta;
-
-        // 2) Encontrar usuario(s) com o CNPJ da Bagarelli
-        $st4 = $pdo->prepare("
-            SELECT u.id_usuarios, u.id_pessoas, p.nome, p.cpf_cnpj, p.id_empresas as empresa_atual, e.razao_social as empresa_atual_nome
+        // 2) Buscar usuario Bagarelli (CNPJ 60946985000174)
+        $st2 = $pdo->prepare("
+            SELECT u.id_usuarios, u.id_pessoas, u.status, p.nome, p.cpf_cnpj, p.id_empresas,
+                   e.razao_social as empresa_nome, e.cnpj as empresa_cnpj
             FROM tb_usuarios u
             INNER JOIN tb_pessoas p ON p.id_pessoas = u.id_pessoas
             LEFT JOIN tb_empresas e ON e.id_empresas = p.id_empresas
-            WHERE REPLACE(REPLACE(REPLACE(p.cpf_cnpj,'.',''),'/',''),'-','') = :cnpj
+            WHERE REPLACE(REPLACE(REPLACE(p.cpf_cnpj,'.',''),'/',''),'-','') = '60946985000174'
         ");
-        $st4->execute([':cnpj' => $cnpjBagarelli]);
-        $usuarios = $st4->fetchAll(PDO::FETCH_ASSOC);
-        $resultado['etapas'][] = ['usuarios_encontrados' => $usuarios];
+        $st2->execute();
+        $resultado['usuario_bagarelli'] = $st2->fetchAll(PDO::FETCH_ASSOC);
 
-        if (empty($usuarios)) {
-            return _json_response($app, 200, array_merge($resultado, ['msg' => 'Nenhum usuario com esse CNPJ']));
-        }
+        // 3) Catalogo avulso por empresa
+        $st3 = $pdo->query("
+            SELECT c.id_empresas, e.razao_social, COUNT(*) as total_produtos
+            FROM tb_catalogo_avulso c
+            LEFT JOIN tb_empresas e ON e.id_empresas = c.id_empresas
+            WHERE c.status = 'A'
+            GROUP BY c.id_empresas
+            ORDER BY c.id_empresas
+        ");
+        $resultado['catalogo_por_empresa'] = $st3->fetchAll(PDO::FETCH_ASSOC);
 
-        // 3) Corrigir: atualizar id_empresas de cada usuario
-        $corrigidos = [];
-        foreach ($usuarios as $u) {
-            if ((int) $u['empresa_atual'] !== $idEmpresaCorreta) {
-                $stUp = $pdo->prepare("UPDATE tb_pessoas SET id_empresas = :emp WHERE id_pessoas = :id");
-                $stUp->execute([':emp' => $idEmpresaCorreta, ':id' => $u['id_pessoas']]);
-                $corrigidos[] = [
-                    'id_pessoas' => $u['id_pessoas'],
-                    'nome' => $u['nome'],
-                    'empresa_anterior' => $u['empresa_atual'] . ' (' . $u['empresa_atual_nome'] . ')',
-                    'empresa_nova' => $idEmpresaCorreta . ' (' . $empresa['razao_social'] . ')',
-                ];
-            } else {
-                $corrigidos[] = [
-                    'id_pessoas' => $u['id_pessoas'],
-                    'nome' => $u['nome'],
-                    'msg' => 'JA ESTAVA CORRETO (empresa ' . $idEmpresaCorreta . ')',
-                ];
-            }
-        }
-        $resultado['corrigidos'] = $corrigidos;
-
-        return _json_response($app, 200, array_merge($resultado, ['success' => true, 'msg' => 'Correcao aplicada!']));
+        return _json_response($app, 200, $resultado);
     } catch (\Throwable $e) {
         return _json_response($app, 500, ['error' => $e->getMessage()]);
     }
