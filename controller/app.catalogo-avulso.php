@@ -249,7 +249,7 @@ $app->get('/app-diagnostico-empresas', function () use ($app) {
 
         // 2) Buscar usuario Bagarelli (CNPJ 60946985000174)
         $st2 = $pdo->prepare("
-            SELECT u.id_usuarios, u.id_pessoas, u.status, p.nome, p.cpf_cnpj, p.id_empresas,
+            SELECT u.id_usuarios, u.id_pessoas, u.status, u.hash, p.nome, p.cpf_cnpj, p.id_empresas,
                    e.nome as empresa_nome
             FROM tb_usuarios u
             INNER JOIN tb_pessoas p ON p.id_pessoas = u.id_pessoas
@@ -258,6 +258,17 @@ $app->get('/app-diagnostico-empresas', function () use ($app) {
         ");
         $st2->execute();
         $resultado['usuario_bagarelli'] = $st2->fetchAll(PDO::FETCH_ASSOC);
+
+        // 2b) Simular o que _app_getEmpresaByToken faria com o hash desse usuario
+        if (!empty($resultado['usuario_bagarelli'][0]['hash'])) {
+            $hashUser = $resultado['usuario_bagarelli'][0]['hash'];
+            $st2b = $pdo->prepare("SELECT p.id_empresas FROM tb_usuarios u INNER JOIN tb_pessoas p ON p.id_pessoas = u.id_pessoas WHERE u.hash = :h AND u.status = 'A' LIMIT 1");
+            $st2b->execute([':h' => $hashUser]);
+            $row2b = $st2b->fetch(PDO::FETCH_ASSOC);
+            $resultado['simulacao_getEmpresaByToken'] = $row2b ? (int) $row2b['id_empresas'] : 'FALHOU (0)';
+        } else {
+            $resultado['simulacao_getEmpresaByToken'] = 'HASH VAZIO - token lookup vai falhar!';
+        }
 
         // 3) Catalogo avulso por empresa
         $st3 = $pdo->query("
