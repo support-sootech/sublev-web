@@ -83,18 +83,30 @@ $app->get('/app-catalogo-avulso', function () use ($app) {
         if (!$id_usuario) {
             return _json_response($app, 401, ['success' => false, 'msg' => 'Não autorizado']);
         }
+
+        // 1) Busca empresa pelo token do usuario no banco (mais confiavel)
         $id_empresas = _app_getEmpresaByToken($app);
-        if ($id_empresas <= 0)
+        $fonte = 'db';
+        // 2) Fallback: header X-Company-Id
+        if ($id_empresas <= 0) {
             $id_empresas = (int) ($app->request->headers->get('X-Company-Id') ?: 0);
-        if ($id_empresas <= 0)
+            $fonte = 'header';
+        }
+        // 3) Fallback: context (session/param)
+        if ($id_empresas <= 0) {
+            $id_empresas = _app_getEmpresaFromContext($app);
+            $fonte = 'context';
+        }
+        if ($id_empresas <= 0) {
             return _json_response($app, 400, ['success' => false, 'msg' => 'Empresa não identificada']);
+        }
 
         $filtro = $app->request->params('busca'); // parametro da query string
 
         $ctrl = new CatalogoAvulsoController();
         $lista = $ctrl->loadAll($filtro, $id_empresas);
 
-        return _json_response($app, 200, ['success' => true, 'data' => $lista]);
+        return _json_response($app, 200, ['success' => true, 'data' => $lista, '_empresa' => $id_empresas, '_fonte' => $fonte]);
     } catch (\Throwable $e) {
         return _json_response($app, 500, ['success' => false, 'msg' => 'Erro interno', 'detail' => $e->getMessage()]);
     }
@@ -111,6 +123,8 @@ $app->post('/app-catalogo-avulso-save', function () use ($app) {
         $id_empresas = _app_getEmpresaByToken($app);
         if ($id_empresas <= 0)
             $id_empresas = (int) ($app->request->headers->get('X-Company-Id') ?: 0);
+        if ($id_empresas <= 0)
+            $id_empresas = _app_getEmpresaFromContext($app);
         if ($id_empresas <= 0)
             return _json_response($app, 400, ['success' => false, 'msg' => 'Empresa não identificada']);
 
