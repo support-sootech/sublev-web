@@ -225,3 +225,44 @@ $app->post('/app-catalogo-avulso-del', function () use ($app) {
     }
 });
 
+// DIAGNOSTICO TEMPORARIO - REMOVER DEPOIS
+$app->get('/app-diagnostico-empresas', function () use ($app) {
+    try {
+        $pdo = $GLOBALS['pdo'];
+        $cpf = $app->request->params('cpf') ?: '38637814816';
+
+        $resultado = [];
+
+        // Buscar usuario por CPF
+        $st = $pdo->prepare("
+            SELECT u.id_usuarios, u.id_pessoas, u.status, u.hash,
+                   p.nome, p.cpf_cnpj, p.id_empresas, e.nome as empresa_nome
+            FROM tb_usuarios u
+            INNER JOIN tb_pessoas p ON p.id_pessoas = u.id_pessoas
+            LEFT JOIN tb_empresas e ON e.id_empresas = p.id_empresas
+            WHERE REPLACE(REPLACE(REPLACE(p.cpf_cnpj,'.',''),'/',''),'-','') = :cpf
+        ");
+        $st->execute([':cpf' => preg_replace('/\D/', '', $cpf)]);
+        $resultado['usuario'] = $st->fetchAll(PDO::FETCH_ASSOC);
+
+        // Simular token lookup
+        if (!empty($resultado['usuario'][0]['hash'])) {
+            $h = $resultado['usuario'][0]['hash'];
+            $st2 = $pdo->prepare("SELECT p.id_empresas FROM tb_usuarios u INNER JOIN tb_pessoas p ON p.id_pessoas = u.id_pessoas WHERE u.hash = :h AND u.status = 'A' LIMIT 1");
+            $st2->execute([':h' => $h]);
+            $r = $st2->fetch(PDO::FETCH_ASSOC);
+            $resultado['empresa_by_token'] = $r ? (int) $r['id_empresas'] : 'FALHOU';
+        } else {
+            $resultado['empresa_by_token'] = 'HASH VAZIO!';
+        }
+
+        // Catalogo por empresa
+        $st3 = $pdo->query("SELECT c.id_empresas, e.nome as empresa_nome, COUNT(*) as total FROM tb_catalogo_avulso c LEFT JOIN tb_empresas e ON e.id_empresas = c.id_empresas WHERE c.status = 'A' GROUP BY c.id_empresas");
+        $resultado['catalogo_por_empresa'] = $st3->fetchAll(PDO::FETCH_ASSOC);
+
+        return _json_response($app, 200, $resultado);
+    } catch (\Throwable $e) {
+        return _json_response($app, 500, ['error' => $e->getMessage()]);
+    }
+});
+
