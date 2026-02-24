@@ -36,6 +36,34 @@ if (!function_exists('_app_getEmpresaFromContext')) {
         return !empty($id) ? (int) $id : 0;
     }
 }
+
+/**
+ * Busca o id_empresas diretamente do banco pelo token do usuário autenticado.
+ * Mais confiável que depender do header X-Company-Id enviado pelo app.
+ */
+if (!function_exists('_app_getEmpresaByToken')) {
+    function _app_getEmpresaByToken($app)
+    {
+        try {
+            $token = $app->request->headers->get('Token-User');
+            if (!$token)
+                return 0;
+            $pdo = $GLOBALS['pdo'];
+            $st = $pdo->prepare(
+                "SELECT p.id_empresas
+                   FROM tb_usuarios u
+                   INNER JOIN tb_pessoas p ON p.id_pessoas = u.id_pessoas
+                  WHERE u.hash = :h AND u.status = 'A'
+                  LIMIT 1"
+            );
+            $st->execute([':h' => $token]);
+            $row = $st->fetch(PDO::FETCH_ASSOC);
+            return $row ? (int) $row['id_empresas'] : 0;
+        } catch (\Throwable $e) {
+            return 0;
+        }
+    }
+}
 if (!function_exists('_json_response')) {
     function _json_response($app, $status, $arr)
     {
@@ -55,9 +83,11 @@ $app->get('/app-catalogo-avulso', function () use ($app) {
         if (!$id_usuario) {
             return _json_response($app, 401, ['success' => false, 'msg' => 'Não autorizado']);
         }
-        $id_empresas = _app_getEmpresaFromContext($app);
+        $id_empresas = _app_getEmpresaByToken($app);
         if ($id_empresas <= 0)
-            $id_empresas = 1; // fallback local
+            $id_empresas = (int) ($app->request->headers->get('X-Company-Id') ?: 0);
+        if ($id_empresas <= 0)
+            return _json_response($app, 400, ['success' => false, 'msg' => 'Empresa não identificada']);
 
         $filtro = $app->request->params('busca'); // parametro da query string
 
@@ -78,9 +108,11 @@ $app->post('/app-catalogo-avulso-save', function () use ($app) {
         if (!$id_usuario)
             return _json_response($app, 401, ['success' => false, 'msg' => 'Auth required']);
 
-        $id_empresas = _app_getEmpresaFromContext($app);
+        $id_empresas = _app_getEmpresaByToken($app);
         if ($id_empresas <= 0)
-            $id_empresas = 1;
+            $id_empresas = (int) ($app->request->headers->get('X-Company-Id') ?: 0);
+        if ($id_empresas <= 0)
+            return _json_response($app, 400, ['success' => false, 'msg' => 'Empresa não identificada']);
 
         $raw = $app->request->getBody();
         $data = json_decode($raw, true);
