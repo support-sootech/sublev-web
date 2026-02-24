@@ -84,9 +84,14 @@ $app->get('/app-catalogo-avulso', function () use ($app) {
             return _json_response($app, 401, ['success' => false, 'msg' => 'Não autorizado']);
         }
 
+        $debug = ['id_usuario' => $id_usuario];
+
         // 1) Busca empresa pelo token do usuario no banco (mais confiavel)
         $id_empresas = _app_getEmpresaByToken($app);
         $fonte = 'db';
+        $debug['empresa_db'] = $id_empresas;
+        $debug['header_x_company'] = $app->request->headers->get('X-Company-Id');
+
         // 2) Fallback: header X-Company-Id
         if ($id_empresas <= 0) {
             $id_empresas = (int) ($app->request->headers->get('X-Company-Id') ?: 0);
@@ -98,7 +103,7 @@ $app->get('/app-catalogo-avulso', function () use ($app) {
             $fonte = 'context';
         }
         if ($id_empresas <= 0) {
-            return _json_response($app, 400, ['success' => false, 'msg' => 'Empresa não identificada']);
+            return _json_response($app, 400, ['success' => false, 'msg' => 'Empresa não identificada', '_debug' => $debug]);
         }
 
         $filtro = $app->request->params('busca'); // parametro da query string
@@ -106,7 +111,7 @@ $app->get('/app-catalogo-avulso', function () use ($app) {
         $ctrl = new CatalogoAvulsoController();
         $lista = $ctrl->loadAll($filtro, $id_empresas);
 
-        return _json_response($app, 200, ['success' => true, 'data' => $lista, '_empresa' => $id_empresas, '_fonte' => $fonte]);
+        return _json_response($app, 200, ['success' => true, 'data' => $lista, '_empresa' => $id_empresas, '_fonte' => $fonte, '_debug' => $debug]);
     } catch (\Throwable $e) {
         return _json_response($app, 500, ['success' => false, 'msg' => 'Erro interno', 'detail' => $e->getMessage()]);
     }
@@ -225,5 +230,61 @@ $app->post('/app-catalogo-avulso-del', function () use ($app) {
         }
     } catch (\Throwable $e) {
         return _json_response($app, 500, ['success' => false, 'detail' => $e->getMessage()]);
+    }
+});
+
+// DEBUG - endpoint temporario para diagnosticar problema de empresa
+$app->get('/app-catalogo-avulso-debug', function () use ($app) {
+    try {
+        $token = $app->request->headers->get('Token-User');
+        $headerEmpresa = $app->request->headers->get('X-Company-Id');
+        $pdo = $GLOBALS['pdo'];
+
+        $info = [
+            'token_recebido' => $token ? substr($token, 0, 8) . '...' : null,
+            'header_x_company_id' => $headerEmpresa,
+        ];
+
+        if ($token) {
+            // Buscar usuario pelo token
+            $st = $pdo->prepare("SELECT u.id_usuarios, u.hash, u.status, u.id_pessoas FROM tb_usuarios u WHERE u.hash = :h LIMIT 1");
+            $st->execute([':h' => $token]);
+            $user = $st->fetch(PDO::FETCH_ASSOC);
+            $info['usuario_encontrado'] = $user ? true : false;
+
+            if ($user) {
+                $info['id_usuarios'] = (int) $user['id_usuarios'];
+                $info['id_pessoas'] = (int) $user['id_pessoas'];
+                $info['user_status'] = $user['status'];
+
+                // Buscar pessoa e empresa
+                $st2 = $pdo->prepare("SELECT p.id_empresas, p.nome, p.cpf_cnpj, e.razao_social FROM tb_pessoas p LEFT JOIN tb_empresas e ON e.id_empresas = p.id_empresas WHERE p.id_pessoas = :id");
+                $st2->execute([':id' => $user['id_pessoas']]);
+                $pessoa = $st2->fetch(PDO::FETCH_ASSOC);
+
+                if ($pessoa) {
+                    $info['pessoa_nome'] = $pessoa['nome'];
+                    $info['pessoa_cpf_cnpj'] = $pessoa['cpf_cnpj'];
+                    $info['pessoa_id_empresas'] = $pessoa['id_empresas'];
+                    $info['empresa_razao_social'] = $pessoa['razao_social'];
+                }
+
+                // Contar produtos no catalogo para essa empresa
+                $idEmp = $pessoa ? (int) $pessoa['id_empresas'] : 0;
+                if ($idEmp > 0) {
+                    $st3 = $pdo->prepare("SELECT COUNT(*) as total FROM tb_catalogo_avulso WHERE id_empresas = :e AND status = 'A'");
+                    $st3->execute([':e' => $idEmp]);
+                    $info['catalogo_count_empresa'] = (int) $st3->fetch(PDO::FETCH_ASSOC)['total'];
+                }
+
+                // Contar total de produtos ativos
+                $st4 = $pdo->query("SELECT id_empresas, COUNT(*) as total FROM tb_catalogo_avulso WHERE status = 'A' GROUP BY id_empresas");
+                $info['catalogo_por_empresa'] = $st4->fetchAll(PDO::FETCH_ASSOC);
+            }
+        }
+
+        return _json_response($app, 200, $info);
+    } catch (\Throwable $e) {
+        return _json_response($app, 500, ['error' => $e->getMessage()]);
     }
 });
