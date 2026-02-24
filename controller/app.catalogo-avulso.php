@@ -244,13 +244,13 @@ $app->get('/app-diagnostico-empresas', function () use ($app) {
         $resultado = [];
 
         // 1) Listar TODAS as empresas cadastradas
-        $st1 = $pdo->query("SELECT id_empresas, razao_social, nome, cnpj FROM tb_empresas ORDER BY id_empresas");
+        $st1 = $pdo->query("SELECT e.* FROM tb_empresas e ORDER BY id_empresas");
         $resultado['todas_empresas'] = $st1->fetchAll(PDO::FETCH_ASSOC);
 
         // 2) Buscar usuario Bagarelli (CNPJ 60946985000174)
         $st2 = $pdo->prepare("
             SELECT u.id_usuarios, u.id_pessoas, u.status, p.nome, p.cpf_cnpj, p.id_empresas,
-                   e.razao_social as empresa_nome, e.cnpj as empresa_cnpj
+                   e.nome as empresa_nome
             FROM tb_usuarios u
             INNER JOIN tb_pessoas p ON p.id_pessoas = u.id_pessoas
             LEFT JOIN tb_empresas e ON e.id_empresas = p.id_empresas
@@ -261,7 +261,7 @@ $app->get('/app-diagnostico-empresas', function () use ($app) {
 
         // 3) Catalogo avulso por empresa
         $st3 = $pdo->query("
-            SELECT c.id_empresas, e.razao_social, COUNT(*) as total_produtos
+            SELECT c.id_empresas, e.nome as empresa_nome, COUNT(*) as total_produtos
             FROM tb_catalogo_avulso c
             LEFT JOIN tb_empresas e ON e.id_empresas = c.id_empresas
             WHERE c.status = 'A'
