@@ -84,26 +84,18 @@ $app->get('/app-catalogo-avulso', function () use ($app) {
             return _json_response($app, 401, ['success' => false, 'msg' => 'Não autorizado']);
         }
 
-        $debug = ['id_usuario' => $id_usuario];
-
         // 1) Busca empresa pelo token do usuario no banco (mais confiavel)
         $id_empresas = _app_getEmpresaByToken($app);
-        $fonte = 'db';
-        $debug['empresa_db'] = $id_empresas;
-        $debug['header_x_company'] = $app->request->headers->get('X-Company-Id');
-
         // 2) Fallback: header X-Company-Id
         if ($id_empresas <= 0) {
             $id_empresas = (int) ($app->request->headers->get('X-Company-Id') ?: 0);
-            $fonte = 'header';
         }
         // 3) Fallback: context (session/param)
         if ($id_empresas <= 0) {
             $id_empresas = _app_getEmpresaFromContext($app);
-            $fonte = 'context';
         }
         if ($id_empresas <= 0) {
-            return _json_response($app, 400, ['success' => false, 'msg' => 'Empresa não identificada', '_debug' => $debug]);
+            return _json_response($app, 400, ['success' => false, 'msg' => 'Empresa não identificada']);
         }
 
         $filtro = $app->request->params('busca'); // parametro da query string
@@ -111,7 +103,7 @@ $app->get('/app-catalogo-avulso', function () use ($app) {
         $ctrl = new CatalogoAvulsoController();
         $lista = $ctrl->loadAll($filtro, $id_empresas);
 
-        return _json_response($app, 200, ['success' => true, 'data' => $lista, '_empresa' => $id_empresas, '_fonte' => $fonte, '_debug' => $debug]);
+        return _json_response($app, 200, ['success' => true, 'data' => $lista]);
     } catch (\Throwable $e) {
         return _json_response($app, 500, ['success' => false, 'msg' => 'Erro interno', 'detail' => $e->getMessage()]);
     }
@@ -233,112 +225,3 @@ $app->post('/app-catalogo-avulso-del', function () use ($app) {
     }
 });
 
-// DIAGNOSTICO - mostra dados do usuario Bagarelli e todas as empresas
-// Acesse: https://sublev.sootech.com.br/app-diagnostico-empresas
-// SOMENTE LEITURA - nao altera nada no banco
-// REMOVER APOS ANALISE
-$app->get('/app-diagnostico-empresas', function () use ($app) {
-    try {
-        $pdo = $GLOBALS['pdo'];
-
-        $resultado = [];
-
-        // 1) Listar TODAS as empresas cadastradas
-        $st1 = $pdo->query("SELECT e.* FROM tb_empresas e ORDER BY id_empresas");
-        $resultado['todas_empresas'] = $st1->fetchAll(PDO::FETCH_ASSOC);
-
-        // 2) Buscar usuario Bagarelli (CNPJ 60946985000174)
-        $st2 = $pdo->prepare("
-            SELECT u.id_usuarios, u.id_pessoas, u.status, u.hash, p.nome, p.cpf_cnpj, p.id_empresas,
-                   e.nome as empresa_nome
-            FROM tb_usuarios u
-            INNER JOIN tb_pessoas p ON p.id_pessoas = u.id_pessoas
-            LEFT JOIN tb_empresas e ON e.id_empresas = p.id_empresas
-            WHERE REPLACE(REPLACE(REPLACE(p.cpf_cnpj,'.',''),'/',''),'-','') = '60946985000174'
-        ");
-        $st2->execute();
-        $resultado['usuario_bagarelli'] = $st2->fetchAll(PDO::FETCH_ASSOC);
-
-        // 2b) Simular o que _app_getEmpresaByToken faria com o hash desse usuario
-        if (!empty($resultado['usuario_bagarelli'][0]['hash'])) {
-            $hashUser = $resultado['usuario_bagarelli'][0]['hash'];
-            $st2b = $pdo->prepare("SELECT p.id_empresas FROM tb_usuarios u INNER JOIN tb_pessoas p ON p.id_pessoas = u.id_pessoas WHERE u.hash = :h AND u.status = 'A' LIMIT 1");
-            $st2b->execute([':h' => $hashUser]);
-            $row2b = $st2b->fetch(PDO::FETCH_ASSOC);
-            $resultado['simulacao_getEmpresaByToken'] = $row2b ? (int) $row2b['id_empresas'] : 'FALHOU (0)';
-        } else {
-            $resultado['simulacao_getEmpresaByToken'] = 'HASH VAZIO - token lookup vai falhar!';
-        }
-
-        // 3) Catalogo avulso por empresa
-        $st3 = $pdo->query("
-            SELECT c.id_empresas, e.nome as empresa_nome, COUNT(*) as total_produtos
-            FROM tb_catalogo_avulso c
-            LEFT JOIN tb_empresas e ON e.id_empresas = c.id_empresas
-            WHERE c.status = 'A'
-            GROUP BY c.id_empresas
-            ORDER BY c.id_empresas
-        ");
-        $resultado['catalogo_por_empresa'] = $st3->fetchAll(PDO::FETCH_ASSOC);
-
-        return _json_response($app, 200, $resultado);
-    } catch (\Throwable $e) {
-        return _json_response($app, 500, ['error' => $e->getMessage()]);
-    }
-});
-
-// DEBUG - endpoint temporario para diagnosticar problema de empresa
-$app->get('/app-catalogo-avulso-debug', function () use ($app) {
-    try {
-        $token = $app->request->headers->get('Token-User');
-        $headerEmpresa = $app->request->headers->get('X-Company-Id');
-        $pdo = $GLOBALS['pdo'];
-
-        $info = [
-            'token_recebido' => $token ? substr($token, 0, 8) . '...' : null,
-            'header_x_company_id' => $headerEmpresa,
-        ];
-
-        if ($token) {
-            // Buscar usuario pelo token
-            $st = $pdo->prepare("SELECT u.id_usuarios, u.hash, u.status, u.id_pessoas FROM tb_usuarios u WHERE u.hash = :h LIMIT 1");
-            $st->execute([':h' => $token]);
-            $user = $st->fetch(PDO::FETCH_ASSOC);
-            $info['usuario_encontrado'] = $user ? true : false;
-
-            if ($user) {
-                $info['id_usuarios'] = (int) $user['id_usuarios'];
-                $info['id_pessoas'] = (int) $user['id_pessoas'];
-                $info['user_status'] = $user['status'];
-
-                // Buscar pessoa e empresa
-                $st2 = $pdo->prepare("SELECT p.id_empresas, p.nome, p.cpf_cnpj, e.razao_social FROM tb_pessoas p LEFT JOIN tb_empresas e ON e.id_empresas = p.id_empresas WHERE p.id_pessoas = :id");
-                $st2->execute([':id' => $user['id_pessoas']]);
-                $pessoa = $st2->fetch(PDO::FETCH_ASSOC);
-
-                if ($pessoa) {
-                    $info['pessoa_nome'] = $pessoa['nome'];
-                    $info['pessoa_cpf_cnpj'] = $pessoa['cpf_cnpj'];
-                    $info['pessoa_id_empresas'] = $pessoa['id_empresas'];
-                    $info['empresa_razao_social'] = $pessoa['razao_social'];
-                }
-
-                // Contar produtos no catalogo para essa empresa
-                $idEmp = $pessoa ? (int) $pessoa['id_empresas'] : 0;
-                if ($idEmp > 0) {
-                    $st3 = $pdo->prepare("SELECT COUNT(*) as total FROM tb_catalogo_avulso WHERE id_empresas = :e AND status = 'A'");
-                    $st3->execute([':e' => $idEmp]);
-                    $info['catalogo_count_empresa'] = (int) $st3->fetch(PDO::FETCH_ASSOC)['total'];
-                }
-
-                // Contar total de produtos ativos
-                $st4 = $pdo->query("SELECT id_empresas, COUNT(*) as total FROM tb_catalogo_avulso WHERE status = 'A' GROUP BY id_empresas");
-                $info['catalogo_por_empresa'] = $st4->fetchAll(PDO::FETCH_ASSOC);
-            }
-        }
-
-        return _json_response($app, 200, $info);
-    } catch (\Throwable $e) {
-        return _json_response($app, 500, ['error' => $e->getMessage()]);
-    }
-});
