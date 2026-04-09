@@ -109,8 +109,13 @@ $app->post('/auto-fracionar-material', function() use ($app){
 
 $app->get('/fracionar-imprimir-material/:id_etiquetas', function($id_etiquetas='') use ($app){
 
-    if (!empty($id_etiquetas)) {        
-        
+    if (!valida_logado()) {
+        $app->notFound();
+        return;
+    }
+
+    if (!empty($id_etiquetas)) {
+
         try {
 
             $id_empresas = getIdEmpresasLogado();
