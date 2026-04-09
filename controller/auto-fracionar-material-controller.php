@@ -115,7 +115,7 @@ $app->get('/fracionar-imprimir-material/:id_etiquetas', function($id_etiquetas='
 
             $id_empresas = getIdEmpresasLogado();
             $class_etiquetas = new EtiquetasModel();
-            $etiqueta = $class_etiquetas->loadId($id_etiquetas);
+            $etiqueta = $class_etiquetas->loadId($id_etiquetas, $id_empresas);
     
             $class_usuarios = new UsuariosModel();
             $usuario = $class_usuarios->loadId($etiqueta['id_usuarios']);

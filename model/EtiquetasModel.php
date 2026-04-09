@@ -93,13 +93,18 @@ class EtiquetasModel extends Connection {
         return $data;
     }
 
-    public function loadId($id) {
+    public function loadId($id, $id_empresas = null) {
         try {
             $arr[':ID'] = $id;
-            
+            $andEmpresa = '';
+            if (!empty($id_empresas)) {
+                $arr[':ID_EMPRESAS'] = $id_empresas;
+                $andEmpresa = ' and p.id_empresas = :ID_EMPRESAS';
+            }
+
             $sql = "select p.*
                       from ".self::TABLE." p
-                     where p.id_etiquetas = :ID";
+                     where p.id_etiquetas = :ID".$andEmpresa;
             $res = $this->conn->select($sql, $arr);
             
             if (isset($res[0])) {
@@ -112,17 +117,22 @@ class EtiquetasModel extends Connection {
         }
     }
 
-    public function loadIdEtiquetaInfo($id_etiquetas) {
+    public function loadIdEtiquetaInfo($id_etiquetas, $id_empresas = null) {
 
         $arr[':ID_ETIQUETAS'] = $id_etiquetas;
-        $sql = "select e.*, 
+        $andEmpresa = '';
+        if (!empty($id_empresas)) {
+            $arr[':ID_EMPRESAS'] = $id_empresas;
+            $andEmpresa = ' and e.id_empresas = :ID_EMPRESAS';
+        }
+        $sql = "select e.*,
                     m.descricao as ds_material, m.lote, m.dt_fabricacao, m.cod_barras,
                     um.descricao as ds_unidades_medidas,
                     mc.descricao as ds_modo_conservacao,
                     mf.qtd_fracionada, mf.dt_fracionamento, mf.dt_vencimento,
                     p.nome as nm_pessoa,
                     s.nome as nm_setor
-                from tb_etiquetas e 
+                from tb_etiquetas e
                 inner join tb_materiais_fracionados mf on mf.id_materiais_fracionados = e.id_materiais_fracionados
                 inner join tb_materiais m on m.id_materiais = e.id_materiais
                 inner join tb_unidades_medidas um on um.id_unidades_medidas = m.id_unidades_medidas
@@ -130,7 +140,7 @@ class EtiquetasModel extends Connection {
                 inner join tb_usuarios u on u.id_usuarios = mf.id_usuarios
                 inner join tb_pessoas p on p.id_pessoas = u.id_pessoas
                 left join tb_setor s on s.id_setor = mf.id_setor
-                where e.id_etiquetas = :ID_ETIQUETAS and e.status = 'A'";
+                where e.id_etiquetas = :ID_ETIQUETAS and e.status = 'A'".$andEmpresa;
         $res = $this->conn->select($sql, $arr);
 
         if (isset($res[0])) {
@@ -143,17 +153,22 @@ class EtiquetasModel extends Connection {
         
     }
 
-    public function loadNumEtiquetaInfo($num_etiqueta) {
+    public function loadNumEtiquetaInfo($num_etiqueta, $id_empresas = null) {
 
         $arr[':NUM_ETIQUETA'] = $num_etiqueta;
-        $sql = "select e.*, 
+        $andEmpresa = '';
+        if (!empty($id_empresas)) {
+            $arr[':ID_EMPRESAS'] = $id_empresas;
+            $andEmpresa = ' and e.id_empresas = :ID_EMPRESAS';
+        }
+        $sql = "select e.*,
                     m.descricao as ds_material, m.lote, m.dt_fabricacao, m.cod_barras,
                     um.descricao as ds_unidades_medidas,
                     mc.descricao as ds_modo_conservacao,
                     mf.qtd_fracionada, mf.dt_fracionamento, mf.dt_vencimento,
                     p.nome as nm_pessoa,
                     s.nome as nm_setor
-                from tb_etiquetas e 
+                from tb_etiquetas e
                 inner join tb_materiais_fracionados mf on mf.id_materiais_fracionados = e.id_materiais_fracionados
                 inner join tb_materiais m on m.id_materiais = e.id_materiais
                 inner join tb_unidades_medidas um on um.id_unidades_medidas = m.id_unidades_medidas
@@ -161,7 +176,7 @@ class EtiquetasModel extends Connection {
                 inner join tb_usuarios u on u.id_usuarios = mf.id_usuarios
                 inner join tb_pessoas p on p.id_pessoas = u.id_pessoas
                 left join tb_setor s on s.id_setor = mf.id_setor
-                where e.num_etiqueta = :NUM_ETIQUETA and e.status = 'A'";
+                where e.num_etiqueta = :NUM_ETIQUETA".$andEmpresa." and e.status = 'A'";
         $res = $this->conn->select($sql, $arr);
 
        if (isset($res[0])) {
@@ -174,10 +189,15 @@ class EtiquetasModel extends Connection {
 
     }
 
-    public function loadEtiquetaDetalhes($id) {
+    public function loadEtiquetaDetalhes($id, $id_empresas = null) {
         try {
             $arr[':ID'] = $id;
-            
+            $andEmpresa = '';
+            if (!empty($id_empresas)) {
+                $arr[':ID_EMPRESAS'] = $id_empresas;
+                $andEmpresa = ' and p.id_empresas = :ID_EMPRESAS';
+            }
+
             $sql = "select p.*,
                            m.descricao as desc_material,
                            m.lote,
@@ -188,6 +208,7 @@ class EtiquetasModel extends Connection {
                            tb_materiais m,
                            tb_materiais_fracionados mf
                      where p.id_etiquetas = :ID
+                           ".$andEmpresa."
                            and p.id_materiais = mf.id_materiais
                            and p.id_materiais_fracionados = mf.id_materiais_fracionados
                            and mf.id_materiais = m.id_materiais";
@@ -244,13 +265,18 @@ class EtiquetasModel extends Connection {
         }
     }
 
-    public function loadCodigoBarras($codigo) {
+    public function loadCodigoBarras($codigo, $id_empresas = null) {
         try {
             $arr[':CODIGO'] = $codigo;
-            
+            $andEmpresa = '';
+            if (!empty($id_empresas)) {
+                $arr[':ID_EMPRESAS'] = $id_empresas;
+                $andEmpresa = ' and p.id_empresas = :ID_EMPRESAS';
+            }
+
             $sql = "select p.*
                       from ".self::TABLE." p
-                     where p.codigo = :CODIGO";
+                     where p.codigo = :CODIGO".$andEmpresa;
             $res = $this->conn->select($sql, $arr);
             
             return isset($res[0]) ? $res[0] : false;
@@ -259,7 +285,7 @@ class EtiquetasModel extends Connection {
         }
     }
 
-    public function loadAll($status='') {
+    public function loadAll($status='', $id_empresas = null) {
         try {
             $arr = array();
             $and = '';
@@ -271,10 +297,15 @@ class EtiquetasModel extends Connection {
                 $arr[':STATUS'] = 'D';
                 $and .= " and status != :STATUS";
             }
-            
+
+            if (!empty($id_empresas)) {
+                $arr[':ID_EMPRESAS'] = $id_empresas;
+                $and .= " and p.id_empresas = :ID_EMPRESAS";
+            }
+
             $sql = "select p.*
                       from ".self::TABLE." p
-                     where 1 = 1 
+                     where 1 = 1
                        ".$and."";
             $res = $this->conn->select($sql, $arr);
             
@@ -351,11 +382,15 @@ class EtiquetasModel extends Connection {
     /**
      * Busca etiquetas por IDs (LEFT JOINs pois podem ser avulsas).
      */
-    public static function buscarPorIds(array $ids): array {
+    public static function buscarPorIds(array $ids, ?int $id_empresas = null): array {
         if (empty($ids)) return [];
         $pdo = $GLOBALS['pdo'];
 
         $in = implode(',', array_map('intval', $ids));
+        $andEmpresa = '';
+        if (!empty($id_empresas)) {
+            $andEmpresa = ' AND e.id_empresas = ' . intval($id_empresas);
+        }
         $sql = "
         SELECT
             e.id_etiquetas,
@@ -389,7 +424,7 @@ class EtiquetasModel extends Connection {
         LEFT JOIN tb_usuarios u               ON u.id_usuarios = mf.id_usuarios
         LEFT JOIN tb_pessoas p                ON p.id_pessoas = u.id_pessoas
         LEFT JOIN tb_setor s                  ON s.id_setor = mf.id_setor
-        WHERE e.id_etiquetas IN ($in)
+        WHERE e.id_etiquetas IN ($in)$andEmpresa
         ORDER BY e.id_etiquetas DESC";
         $st = $pdo->query($sql);
         $rows = $st ? $st->fetchAll(\PDO::FETCH_ASSOC) : [];

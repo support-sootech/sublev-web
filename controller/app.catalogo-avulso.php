@@ -154,7 +154,12 @@ $app->post('/app-catalogo-avulso-save', function () use ($app) {
         }
 
         if (!empty($data['id'])) {
-            // EDIT
+            // EDIT - valida que o registro pertence à empresa do usuário
+            $model = new CatalogoAvulsoModel();
+            $existing = $model->loadById($data['id']);
+            if (!$existing || (int)$existing['id_empresas'] !== $id_empresas) {
+                return _json_response($app, 403, ['success' => false, 'msg' => 'Registro não pertence à sua empresa']);
+            }
             $res = $ctrl->edit($saveData, ['id' => $data['id']]);
         } else {
             // INSERT
@@ -186,6 +191,15 @@ $app->post('/app-catalogo-avulso-favorito', function () use ($app) {
         if (empty($data['id']))
             return _json_response($app, 400, ['success' => false, 'msg' => 'ID obrigatorio']);
 
+        $id_empresas = _app_getEmpresaByToken($app);
+        if ($id_empresas <= 0) $id_empresas = (int)($app->request->headers->get('X-Company-Id') ?: 0);
+        if ($id_empresas <= 0) $id_empresas = _app_getEmpresaFromContext($app);
+        $model = new CatalogoAvulsoModel();
+        $existing = $model->loadById($data['id']);
+        if (!$existing || (int)$existing['id_empresas'] !== $id_empresas) {
+            return _json_response($app, 403, ['success' => false, 'msg' => 'Registro não pertence à sua empresa']);
+        }
+
         $ctrl = new CatalogoAvulsoController();
         $isFav = !empty($data['favorito']);
 
@@ -211,6 +225,15 @@ $app->post('/app-catalogo-avulso-del', function () use ($app) {
 
         if (empty($id))
             return _json_response($app, 400, ['success' => false, 'msg' => 'ID obrigatorio']);
+
+        $id_empresas = _app_getEmpresaByToken($app);
+        if ($id_empresas <= 0) $id_empresas = (int)($app->request->headers->get('X-Company-Id') ?: 0);
+        if ($id_empresas <= 0) $id_empresas = _app_getEmpresaFromContext($app);
+        $model = new CatalogoAvulsoModel();
+        $existing = $model->loadById($id);
+        if (!$existing || (int)$existing['id_empresas'] !== $id_empresas) {
+            return _json_response($app, 403, ['success' => false, 'msg' => 'Registro não pertence à sua empresa']);
+        }
 
         $ctrl = new CatalogoAvulsoController();
         $res = $ctrl->del($id);

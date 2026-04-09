@@ -95,7 +95,7 @@ class EtiquetasController
         qtd_por_etiqueta: $peso
       );
 
-      $rows = EtiquetasModel::buscarPorIds($ids);
+      $rows = EtiquetasModel::buscarPorIds($ids, $idEmpresa);
 
       $pdo->commit();
       return ['ok' => true, 'ids' => $ids, 'data' => $rows, 'message' => 'Etiquetas criadas'];

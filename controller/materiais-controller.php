@@ -195,6 +195,13 @@ $app->map('/app-materiais-edit/:id_materiais', function($id_materiais='') use ($
                 $class_materiais = new MateriaisModel();
                 if (!empty($id_materiais)) {
                     $arr = $class_materiais->loadId($id_materiais);
+                    // Valida que o material pertence à empresa do usuário
+                    $usuario_mat = getUsuario($app);
+                    if ($arr && $usuario_mat && isset($arr['id_empresas']) && isset($usuario_mat['id_empresas'])) {
+                        if ((int)$arr['id_empresas'] !== (int)$usuario_mat['id_empresas']) {
+                            $arr = false;
+                        }
+                    }
                     if ($arr) {
                         $ret = ['success'=>true, 'data'=>$arr];
                     } else {
@@ -237,13 +244,21 @@ $app->map('/app-materiais-del/:id_materiais', function($id_materiais='') use ($a
             try {
                 if (!empty($id_materiais)) {
                     $class_materiais = new MateriaisModel();
-                    $del = $class_materiais->del($id_materiais);
-                    if ($del) {
-                        $status = 200;
-                        $ret = ['success'=>true, 'msg'=>messagesDefault('delete')];
+                    // Valida que o material pertence à empresa do usuário antes de deletar
+                    $mat_check = $class_materiais->loadId($id_materiais);
+                    $usuario_del = getUsuario($app);
+                    if (!$mat_check || !$usuario_del || (int)$mat_check['id_empresas'] !== (int)$usuario_del['id_empresas']) {
+                        $status = 403;
+                        $ret = ['success'=>false, 'msg'=>'Material não pertence à sua empresa'];
                     } else {
-                        $status = 404;
-                        $ret = ['success'=>false, 'msg'=>'Registro não encontrado'];
+                        $del = $class_materiais->del($id_materiais);
+                        if ($del) {
+                            $status = 200;
+                            $ret = ['success'=>true, 'msg'=>messagesDefault('delete')];
+                        } else {
+                            $status = 404;
+                            $ret = ['success'=>false, 'msg'=>'Registro não encontrado'];
+                        }
                     }
                 } else {
                     $status = 400;

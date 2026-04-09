@@ -212,6 +212,17 @@ $app->map('/app-materiais-fracionados-baixa', function() use ($app){
                 throw new Exception('Material fracionado não localizado!');
             }
 
+            // Valida que o material fracionado pertence à empresa do usuário
+            $pdo_check = $GLOBALS['pdo'];
+            $st_check = $pdo_check->prepare("SELECT m.id_empresas FROM tb_materiais m
+                INNER JOIN tb_materiais_fracionados mf ON mf.id_materiais = m.id_materiais
+                WHERE mf.id_materiais_fracionados = :id LIMIT 1");
+            $st_check->execute([':id' => (int)$params['id_materiais_fracionados']]);
+            $row_check = $st_check->fetch(PDO::FETCH_ASSOC);
+            if (!$row_check || (int)$row_check['id_empresas'] !== (int)$usuario['id_empresas']) {
+                throw new Exception('Material fracionado não pertence à sua empresa!');
+            }
+
             // Atualiza direto via PDO para evitar efeitos colaterais do model
             $pdo = $GLOBALS['pdo'];
             $stUp = $pdo->prepare("UPDATE tb_materiais_fracionados
@@ -308,7 +319,7 @@ $app->map('/app-materiais-fracionados-vencimento-json(/:acao)', function($acao='
 
             $etiquetas = [];
             if (!empty($ids)) {
-                $etiquetas = EtiquetasModel::buscarPorIds($ids); // já formata datas/peso/responsável abreviado
+                $etiquetas = EtiquetasModel::buscarPorIds($ids, (int)$usuario['id_empresas']);
             }
 
             // Se por algum motivo a busca em lote retornar menos que o esperado, fazemos fallback pontual
@@ -318,7 +329,7 @@ $app->map('/app-materiais-fracionados-vencimento-json(/:acao)', function($acao='
                 foreach ($etiquetas as $e) { $existentes[(int)$e['id_etiquetas']] = true; }
                 foreach ($ids as $id) {
                     if (!isset($existentes[$id])) {
-                        $one = $class_etiquetas->loadIdEtiquetaInfo($id);
+                        $one = $class_etiquetas->loadIdEtiquetaInfo($id, $usuario['id_empresas']);
                         if ($one) { $etiquetas[] = $one; }
                     }
                 }

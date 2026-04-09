@@ -719,7 +719,7 @@ function gerarEtiquetas($material='', $id_material_fracionado, $id_usuarios='', 
 		
 		$data_etiqueta = $class_etiquetas->add($arr_etiqueta);
 	}
-	return $data_etiqueta ? $class_etiquetas->loadIdEtiquetaInfo($data_etiqueta) : $data_etiqueta;
+	return $data_etiqueta ? $class_etiquetas->loadIdEtiquetaInfo($data_etiqueta, $id_empresas) : $data_etiqueta;
 }
 
 function fracionarMateriais(

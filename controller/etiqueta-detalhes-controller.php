@@ -23,7 +23,7 @@ $app->post('/detalhes-etiqueta-json', function() use ($app){
             }
     
             $class_etiquetas = new EtiquetasModel();
-            $arr = $class_etiquetas->loadEtiquetaDetalhes($id_etiqueta);
+            $arr = $class_etiquetas->loadEtiquetaDetalhes($id_etiqueta, $id_empresas);
             if ($arr) {
                 $data = $arr;
             }
@@ -53,8 +53,10 @@ $app->map('/app-detalhes-etiqueta', function() use ($app){
         if (valida_logado() || (function_exists('_getHeaderValue') && _getHeaderValue('Token-User'))) {
             try {
                 $id_etiqueta = $app->request->params('id_etiqueta') ?: $app->request->post('id_etiqueta');
+                $usuario = getUsuario($app);
+                $id_empresas = $usuario ? $usuario['id_empresas'] : getIdEmpresasLogado();
                 $class_etiquetas = new EtiquetasModel();
-                $arr = $class_etiquetas->loadEtiquetaDetalhes($id_etiqueta);
+                $arr = $class_etiquetas->loadEtiquetaDetalhes($id_etiqueta, $id_empresas);
                 if ($arr) {
                     $ret = ['success'=>true, 'data'=>$arr];
                 } else {

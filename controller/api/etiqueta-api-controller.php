@@ -21,7 +21,7 @@ $app->map('/app-etiqueta-info(/:num_etiqueta)', function ($num_etiqueta = '') us
             }
 
             $class_etiquetas = new EtiquetasModel();
-            $arr = $class_etiquetas->loadNumEtiquetaInfo($num_etiqueta);
+            $arr = $class_etiquetas->loadNumEtiquetaInfo($num_etiqueta, $usuario['id_empresas']);
             if (!$arr) {
                 throw new Exception("Nenhuma etiqueta localizada!", 1);
             }
