@@ -471,14 +471,14 @@ function fieldCpfCnpj(tipo) {
     }
 }
 
-function comboSetores(id_setor=''){
+function comboSetores(id_setor='', id_empresas=''){
     const el = $('select[name=<?=$prefix?>_id_setor]')
     let opt = '';
     $.ajax({
         url:'/setor-json',
         type:'post',
         dataType:'json',
-        data:{status:'A'},
+        data:{status:'A', id_empresas:id_empresas},
         success:function(data) {
             console.log('data', data);
             if (data.data.length > 0) {
@@ -610,6 +610,11 @@ $(document).ready(function(){
         $('input[name=<?=$prefix?>_cpf_cnpj]').prop('disabled', false);
     });
 
+    // Ao trocar a empresa, recarrega os setores filtrando pela empresa selecionada
+    $(document).on('change', 'select[name=<?=$prefix?>_id_empresa]', function(){
+        comboSetores('', $(this).val());
+    });
+
     $('div#modal-<?=$prefix?>').on('hidden.bs.modal', function (e) {
         $('form[name=form-<?=$prefix?>]').find('input, select').each(function(){
             $(this).val('');
@@ -648,7 +653,7 @@ $(document).ready(function(){
                         
                         fieldCpfCnpj(data.data.tp_juridico);
                         $('input[name=<?=$prefix?>_cpf_cnpj]').val(data.data.cpf_cnpj);
-                        comboSetores(data.data.id_setor);
+                        comboSetores(data.data.id_setor, data.data.id_empresas);
                         comboEmpresas(data.data.id_empresas);
                         $('div#modal-<?=$prefix?>').modal('show');
                     }

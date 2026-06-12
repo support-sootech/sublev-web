@@ -234,9 +234,9 @@ class PessoasModel extends Connection {
                 $w[':'.$key.''] = $value;
             }
 
-            if(isset($values[':ID_PESSOAS'])) {
+            if(array_key_exists(':ID_PESSOAS', $values)) {
                 unset($values[':ID_PESSOAS']);
-            }   
+            }
             
             $save = $this->conn->update(self::TABLE, $values, $w);
             return $save;
