@@ -130,6 +130,10 @@ $app->post('/usuarios-save', function() use ($app){
                     $id_pessoas = $data_pessoas;
                 } else {
                     $data_pessoas = $class_pessoas->edit($obj_pessoas, array('id_pessoas'=>$id_pessoas));
+                    // Connection::update retorna string de erro em caso de falha; não tratar como sucesso
+                    if (is_string($data_pessoas)) {
+                        throw new Exception($data_pessoas);
+                    }
                 }
 
                 $obj_usuarios['id_usuarios'] = $app->request->post('usuarios_id_usuarios');

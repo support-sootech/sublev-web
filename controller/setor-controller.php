@@ -68,7 +68,8 @@ $app->post('/setor-json', function() use ($app){
         $class_setor = new SetorModel();
 
         if (array_search('ROOT', array_column($_SESSION['usuario']['perfil'], 'ds_perfil')) !== false) {
-            $id_empresas = '';
+            // ROOT pode filtrar por uma empresa específica (ex.: combo de setor na tela de usuários)
+            $id_empresas = (isset($_POST['id_empresas']) && !empty($_POST['id_empresas']) ? $_POST['id_empresas'] : '');
         } else {
             $id_empresas = getIdEmpresasLogado();
         }
