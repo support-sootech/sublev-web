@@ -102,12 +102,12 @@ Class EnvioEmailModel extends Connection{
 		$password = $empresa['smtp_senha'];
 		$port = $empresa['smtp_porta'];
 		$from = $empresa['smtp_email'];
-		$fromName = 'Cadastro de senha';
+		$fromName = 'Sub lev - Cadastro de senha';
 
         $link = site_url().'/web-register-password/'.md5($usuario['id_usuarios'].$usuario['email']);
 
         $body = '<h5>Bem vindo, '.$usuario['nm_pessoa'].'!</h5>';
-        $body.= '<p>Segue seu link para cadastrar sua senha para acesso ao sistema.</p>';
+        $body.= '<p>Segue seu link para cadastrar sua senha para acesso ao sistema Sub lev.</p>';
         $body.= '<p>Link: <a href="'.$link.'" target="_blank">'.$link.'</a></p>';
 
         $envio = $this->enviarEmail(
